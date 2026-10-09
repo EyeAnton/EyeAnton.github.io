@@ -9,9 +9,15 @@
 https://eyeanton.github.io/admin.html — показывать/скрывать проекты, порядок, тексты RU/EN, ссылки, обложки (загрузка картинок), превью карточки.
 Кнопка «Опубликовать» коммитит `projects.json` (и картинки в `assets/shots/`) в этот репозиторий; GitHub Pages обновляет сайт примерно за минуту.
 
-Вход — fine-grained токен GitHub: Only select repositories → `EyeAnton.github.io`, Permissions → Contents: Read and write.
-Токен хранится только в браузере. Без токена страница бесполезна, но `projects.json` в публичном репо открыт —
-«скрытый» проект не показывается на сайте, но не секретен.
+Вход — только через Google-аккаунт владельца (leritosha@gmail.com), Firebase Authentication.
+GitHub fine-grained токен (Only select repositories → `EyeAnton.github.io`, Contents: Read and write)
+хранится в Firebase Realtime Database по пути `portfolioAdmin/githubToken`; правила (`firebase-rules.json`)
+дают читать его только владельцу. Токен вводится один раз при первом входе (и заново, когда истечёт срок).
+
+Настройка Firebase (один раз): проект → Authentication → Google включён, Authorized domains + `eyeanton.github.io`;
+Realtime Database создана, правила из `firebase-rules.json`; конфиг веб-приложения вписан в `FIREBASE` в `admin.js`.
+
+`projects.json` в публичном репо открыт — «скрытый» проект не показывается на сайте, но не секретен.
 
 Данные — `projects.json`: `categories` и `projects` (порядок массива = порядок на сайте). Поля проекта:
 - `visible` — показывать ли на сайте; `featured` — большая карточка на всю ширину;

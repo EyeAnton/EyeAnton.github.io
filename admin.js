@@ -1,5 +1,7 @@
 // Portfolio admin: edits projects.json and cover images straight in the GitHub repo.
-// Auth = a fine-grained token (Contents: read & write on this repo only), kept in this browser.
+// Sign-in = Google via Firebase Auth (owner's account only). The GitHub fine-grained token
+// (Contents: read & write on this repo only) lives in Firebase Realtime Database at
+// portfolioAdmin/githubToken, readable only by the owner (see firebase-rules.json).
 // Reuses cardHTML / CATEGORIES / lang from app.js for an exact card preview.
 (() => {
   "use strict";
@@ -9,7 +11,17 @@
   const DATA = "projects.json";
   const SHOTS = "assets/shots/";
   const MAX_W = 1600;
-  const TOKEN_KEY = "adminToken";
+  const OWNER = "leritosha@gmail.com";
+  // Firebase web config (Project settings → Your apps → Web app). These values are public by design;
+  // access is enforced by firebase-rules.json.
+  const FIREBASE = {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+  };
+  const FB = "https://www.gstatic.com/firebasejs/10.12.0/";
+  const TOKEN_PATH = "portfolioAdmin/githubToken";
 
   const q = (s) => document.querySelector(s);
   const h = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -63,40 +75,91 @@
   };
   const b64ToUtf8 = (b) => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, "")), (c) => c.charCodeAt(0)));
 
-  /* ---------- Login ---------- */
+  /* ---------- Login: Google → GitHub token from Firebase ---------- */
 
-  function readToken() { try { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || ""; } catch { return ""; } }
-  function writeToken(t, remember) {
-    try {
-      localStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY);
-      if (t) (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, t);
-    } catch {}
+  let fb = null; // { auth, db, A: firebase-auth module, D: firebase-database module }
+
+  async function initFirebase() {
+    if (!FIREBASE.apiKey) {
+      q("#googleBtn").disabled = true;
+      loginStatus("Firebase ещё не настроен: впишите конфиг в admin.js (см. README).", "err");
+      return;
+    }
+    const [{ initializeApp }, A, D] = await Promise.all([
+      import(FB + "firebase-app.js"), import(FB + "firebase-auth.js"), import(FB + "firebase-database.js"),
+    ]);
+    const app = initializeApp(FIREBASE);
+    fb = { auth: A.getAuth(app), db: D.getDatabase(app), A, D };
+    q("#googleBtn").addEventListener("click", () => {
+      loginStatus("Открываю окно входа Google…");
+      A.signInWithPopup(fb.auth, new A.GoogleAuthProvider())
+        .catch((e) => loginStatus(`Не получилось войти: ${e.code || e.message}`, "err"));
+    });
+    A.onAuthStateChanged(fb.auth, onUser);
   }
 
-  async function login(t, remember) {
-    token = t.trim();
+  function loginStatus(text, kind = "") {
     const st = q("#loginStatus");
-    st.className = "status"; st.textContent = "Проверяю токен…";
+    st.textContent = text;
+    st.className = `status ${kind}`;
+  }
+
+  async function onUser(user) {
+    if (!user) return;
+    // UI check only; the real gate is firebase-rules.json (other accounts can't read the token).
+    if (user.email !== OWNER || !user.emailVerified) {
+      await fb.A.signOut(fb.auth);
+      loginStatus(`У аккаунта ${user.email} нет доступа.`, "err");
+      return;
+    }
+    q("#googleBtn").hidden = true;
+    loginStatus(`Вы вошли как ${user.email}. Загружаю…`);
     try {
-      const repo = await gh("");
-      if (repo.permissions && !repo.permissions.push) throw new Error("у токена нет права записи (Contents: Read and write)");
-      writeToken(token, remember);
-      await load();
-      q("#login").hidden = true;
-      q("#app").hidden = false; q("#bar").hidden = false; q("#logout").hidden = false;
+      const snap = await fb.D.get(fb.D.ref(fb.db, TOKEN_PATH));
+      if (!snap.exists()) return askToken("");
+      await useToken(snap.val());
     } catch (e) {
-      token = "";
-      st.className = "status err";
-      st.textContent = `Не получилось войти: ${e.message}`;
+      loginStatus(`Нет доступа к хранилищу токена: ${e.message}. Проверьте правила Firebase (firebase-rules.json).`, "err");
     }
   }
 
-  q("#loginBtn").addEventListener("click", () => login(q("#token").value, q("#remember").checked));
-  q("#token").addEventListener("keydown", (e) => { if (e.key === "Enter") q("#loginBtn").click(); });
-  q("#logout").addEventListener("click", (e) => {
+  function askToken(why) {
+    if (why) q("#tokenWhy").textContent = why;
+    q("#tokenSetup").hidden = false;
+    loginStatus("");
+  }
+
+  async function useToken(t) {
+    token = String(t).trim();
+    try {
+      const repo = await gh("");
+      if (repo.permissions && !repo.permissions.push) throw new Error("у токена нет права записи (Contents: Read and write)");
+    } catch (e) {
+      token = "";
+      return askToken(`Сохранённый GitHub-токен не работает (${e.message}) — скорее всего, истёк срок. Создайте новый и вставьте сюда.`);
+    }
+    await load();
+    q("#login").hidden = true;
+    q("#app").hidden = false; q("#bar").hidden = false; q("#logout").hidden = false;
+  }
+
+  q("#tokenBtn").addEventListener("click", async () => {
+    const t = q("#token").value.trim();
+    if (!t || !fb) return;
+    try {
+      await fb.D.set(fb.D.ref(fb.db, TOKEN_PATH), t);
+      q("#tokenSetup").hidden = true;
+      q("#token").value = "";
+      await useToken(t);
+    } catch (e) {
+      loginStatus(`Не удалось сохранить токен: ${e.message}`, "err");
+    }
+  });
+  q("#token").addEventListener("keydown", (e) => { if (e.key === "Enter") q("#tokenBtn").click(); });
+  q("#logout").addEventListener("click", async (e) => {
     e.preventDefault();
     if (isDirty() && !confirm("Есть неопубликованные изменения. Выйти без сохранения?")) return;
-    writeToken("", false);
+    if (fb) await fb.A.signOut(fb.auth);
     location.reload();
   });
 
@@ -416,8 +479,6 @@
 
   /* ---------- Boot ---------- */
 
-  const saved = readToken();
-  let remembered = false;
-  try { remembered = !!localStorage.getItem(TOKEN_KEY); } catch {}
-  if (saved) login(saved, remembered);
+  try { localStorage.removeItem("adminToken"); } catch {} // token from the pre-Google version of this page
+  initFirebase().catch((e) => loginStatus(`Не удалось загрузить Firebase: ${e.message}`, "err"));
 })();

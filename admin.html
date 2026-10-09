@@ -99,17 +99,21 @@
 
     <!-- Login -->
     <section class="panel login" id="login">
-      <ol>
-        <li>Откройте <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">создание токена на GitHub</a> (Fine-grained token).</li>
-        <li>Repository access → <b>Only select repositories</b> → <b>EyeAnton.github.io</b>.</li>
-        <li>Permissions → Repository → <b>Contents: Read and write</b>. Срок действия — на ваше усмотрение.</li>
-        <li>Скопируйте токен и вставьте сюда. Он хранится только в этом браузере.</li>
-      </ol>
       <div class="stack">
-        <label class="f">Токен GitHub<input type="password" id="token" autocomplete="off" placeholder="github_pat_…"></label>
-        <label class="check"><input type="checkbox" id="remember" checked> Запомнить на этом устройстве</label>
-        <div><button class="btn" id="loginBtn" type="button">Войти</button></div>
+        <p class="sub" style="margin:0">Доступ только для владельца сайта.</p>
+        <div><button class="btn" id="googleBtn" type="button">Войти через Google</button></div>
         <p class="status" id="loginStatus"></p>
+      </div>
+      <!-- One-time setup: the GitHub token is stored in Firebase, readable only by the owner -->
+      <div class="stack" id="tokenSetup" hidden style="margin-top:18px">
+        <p class="sub" style="margin:0" id="tokenWhy">Последний шаг настройки — один раз сохранить GitHub-токен. Дальше он подтягивается сам после входа через Google, на любом устройстве.</p>
+        <ol>
+          <li>Откройте <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">создание токена на GitHub</a> (Fine-grained token).</li>
+          <li>Repository access → <b>Only select repositories</b> → <b>EyeAnton.github.io</b>.</li>
+          <li>Permissions → Repository → <b>Contents: Read and write</b>.</li>
+        </ol>
+        <label class="f">Токен GitHub<input type="password" id="token" autocomplete="off" placeholder="github_pat_…"></label>
+        <div><button class="btn" id="tokenBtn" type="button">Сохранить и войти</button></div>
       </div>
     </section>
 

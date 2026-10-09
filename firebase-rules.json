@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "portfolioAdmin": {
+      ".read": "auth != null && auth.token.email === 'leritosha@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leritosha@gmail.com' && auth.token.email_verified === true"
+    }
+  }
+}
