@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Anton — Portfolio</title>
+  <meta name="description" content="Портфолио Антона: дизайн-кейсы, веб-приложения, железо и AI-проекты.">
+  <meta name="theme-color" content="#14110f">
+  <meta property="og:title" content="Anton — Portfolio">
+  <meta property="og:description" content="Дизайн-кейсы, веб-приложения, железо и AI-проекты.">
+  <meta property="og:image" content="assets/og.jpg">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23221c18'/><text x='32' y='45' font-family='Georgia,serif' font-size='38' text-anchor='middle' fill='%23d8b878'>A</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="logo" href="#">Anton<span>.</span></a>
+    <nav class="top-nav">
+      <a href="#work" data-i18n="nav.work">Проекты</a>
+      <a href="#contact" data-i18n="nav.contact">Контакты</a>
+      <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Портфолио</p>
+      <h1 data-i18n="hero.title">Дизайн, AI-визуал и вещи, которые я собираю руками и кодом</h1>
+      <p class="lead" data-i18n="hero.lead">Здесь собраны мои проекты: от коллекции 3D-подарков для соцприложения до веб-каталогов, прошивок для клавиатуры и Telegram-ботов.</p>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section id="work" class="work">
+      <div class="filters" id="filters" role="tablist"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="contact" class="contact">
+      <h2 data-i18n="contact.title">Давайте поговорим</h2>
+      <p data-i18n="contact.text">Открыт к проектам и сотрудничеству. Проще всего найти меня на GitHub.</p>
+      <div class="contact-links">
+        <a class="btn" href="https://github.com/EyeAnton" target="_blank" rel="noopener">GitHub · EyeAnton</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© <span id="year"></span> Anton</span>
+    <span data-i18n="foot.note">Сделано без фреймворков · работает на любом устройстве</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
