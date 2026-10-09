@@ -9,7 +9,7 @@
 Дописать объект в массив `PROJECTS` в `app.js`:
 - `cat` — одна из `CATEGORIES` (design / web / hardware / ai / tools);
 - `cover` — `{ shot: "assets/shots/x.jpg" }` (скриншот), `{ gifts: [...] }` или `{ glyph: "Текст", tint: "#hex" }`;
-- `links.live` — живой сайт, `links.code` — публичный репозиторий (у приватных не указывать), `private: true` — бейдж «Приватный».
+- `links.page` — раздел этого сайта (например `/gift-catalog/`), `links.live` — живой сайт, `links.code` — публичный репозиторий (у приватных не указывать), `private: true` — бейдж «Приватный».
 
 ## Локально
 

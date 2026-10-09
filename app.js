@@ -1,6 +1,6 @@
 // Portfolio data + rendering. To add a project, append an entry to PROJECTS.
 // cover: { shot: "path" } | { gifts: [...] } | { glyph: "Text", tint: "#hex" }
-// links: live = working site, code = public repo. Private repos get no code link.
+// links: page = section of this site, live = working site, code = public repo. Private repos get no code link.
 
 const CATEGORIES = [
   { id: "all",      ru: "Все",          en: "All" },
@@ -22,8 +22,8 @@ const PROJECTS = [
       en: "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work. 56 gifts across three series, alpha-channel animation and sound.",
     },
     tags: ["AI 3D", "Motion", "Art direction", "VP9 alpha"],
-    links: {},
-    note: { ru: "Интерактивный каталог и кейс скоро здесь", en: "Interactive catalog and case study coming soon" },
+    links: { page: "/gift-catalog/" },
+    note: { ru: "Полный кейс скоро здесь", en: "Full case study coming soon" },
   },
   {
     id: "boardex", cat: "web", year: 2026,
@@ -157,7 +157,7 @@ const UI = {
     "contact.title": "Давайте поговорим",
     "contact.text": "Открыт к проектам и сотрудничеству. Проще всего найти меня на GitHub.",
     "foot.note": "Сделано без фреймворков · работает на любом устройстве",
-    live: "Открыть сайт", code: "Код", code2: "ZMK-конфиг", private: "Приватный", online: "Онлайн",
+    page: "Каталог подарков", live: "Открыть сайт", code: "Код", code2: "ZMK-конфиг", private: "Приватный", online: "Онлайн",
     sProjects: "проектов", sLive: "живых сайтов", sAreas: "направлений",
   },
   en: {
@@ -168,7 +168,7 @@ const UI = {
     "contact.title": "Let's talk",
     "contact.text": "Open to projects and collaboration. The easiest way to reach me is GitHub.",
     "foot.note": "Built without frameworks · works on any device",
-    live: "Open site", code: "Code", code2: "ZMK config", private: "Private", online: "Live",
+    page: "Gift catalog", live: "Open site", code: "Code", code2: "ZMK config", private: "Private", online: "Live",
     sProjects: "projects", sLive: "live sites", sAreas: "areas",
   },
 };
@@ -206,6 +206,7 @@ function cardHTML(p, i) {
     ? `<span class="badge live">● ${t.online}</span>`
     : p.private ? `<span class="badge">${t.private}</span>` : "";
   const links = [
+    p.links.page && `<a class="btn" href="${p.links.page}">${t.page} →</a>`,
     p.links.live && `<a class="btn" href="${p.links.live}" target="_blank" rel="noopener">${t.live} ↗</a>`,
     p.links.code && `<a class="btn ghost" href="${p.links.code}" target="_blank" rel="noopener">${t.code}</a>`,
     p.links.code2 && `<a class="btn ghost" href="${p.links.code2}" target="_blank" rel="noopener">${t.code2}</a>`,
