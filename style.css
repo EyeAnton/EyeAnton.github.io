@@ -133,7 +133,7 @@ img { display: block; max-width: 100%; }
 .gifts {
   background:
     radial-gradient(60% 60% at 50% 55%, rgba(216, 184, 120, .16), transparent 70%),
-    repeating-conic-gradient(#1f1a16 0 25%, #262019 0 50%) 0 0 / 16px 16px;
+    var(--card-2);
   display: grid; grid-template-columns: repeat(4, 1fr); align-content: center;
   gap: 4%; padding: 6%;
 }

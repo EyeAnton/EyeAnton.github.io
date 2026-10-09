@@ -18,8 +18,8 @@ const PROJECTS = [
                      "sep__crown_ai_3d", "wed__wedding_cake", "sep__panda_with_heart_ai_3d", "sep__merry_go_round"] },
     title: { ru: "Virtual Gifts", en: "Virtual Gifts" },
     desc: {
-      ru: "Коллекция анимированных 3D-подарков для соцприложения: от идеи и единого стиля до пакета, который разработчики выкладывают без ручной работы. 56 подарков в трёх сериях, анимация с альфа-каналом и звук.",
-      en: "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work. 56 gifts across three series, alpha-channel animation and sound.",
+      ru: "Коллекция анимированных 3D-подарков для соцприложения: от идеи и единого стиля до пакета, который разработчики выкладывают без ручной работы. 56 подарков, анимация с альфа-каналом и звук.",
+      en: "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work. 56 gifts, alpha-channel animation and sound.",
     },
     tags: ["AI 3D", "Motion", "Art direction", "VP9 alpha"],
     links: { page: "/gift-catalog/" },
