@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Админка портфолио</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23221c18'/><text x='32' y='45' font-family='Georgia,serif' font-size='38' text-anchor='middle' fill='%23d8b878'>A</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .adm { max-width: 1480px; margin: 0 auto; padding: 24px var(--gutter) 120px; }
+    .adm h1 { font: 600 40px/1.1 var(--serif); margin: 0 0 6px; }
+    .adm .sub { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .login { max-width: 560px; }
+    .login ol { color: var(--muted); font-size: 14px; padding-left: 20px; margin: 0 0 18px; }
+    .login ol li { margin-bottom: 6px; }
+    .login a { color: var(--gold); }
+
+    label.f { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+    input[type=text], input[type=password], input[type=number], input[type=url], textarea, select {
+      font: 400 15px/1.4 var(--sans); color: var(--text); background: var(--card-2);
+      border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer; }
+    .check input { width: 18px; height: 18px; accent-color: var(--gold); }
+    button.btn { cursor: pointer; }
+    .btn.danger { color: #f0a49a; background: transparent; border-color: rgba(240, 164, 154, .35); }
+    .btn.small { padding: 8px 10px; font-size: 13px; }
+    h2.sec { font: 600 22px/1.2 var(--serif); margin: 8px 0 0; color: var(--gold); }
+
+    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+    .list { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; }
+    .item {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+      background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer;
+    }
+    .item.on { border-color: var(--gold); }
+    .item.hidden-p .t { opacity: .45; text-decoration: line-through; }
+    .item .t { font-weight: 500; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item .c { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .item .mv { display: flex; gap: 2px; }
+    .item .mv button { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; }
+    .item .mv button:hover { color: var(--gold); }
+    .sw { position: relative; width: 36px; height: 20px; flex: none; }
+    .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+    .sw span { position: absolute; inset: 0; border-radius: 999px; background: #3a322c; transition: background .2s; pointer-events: none; }
+    .sw span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--text); transition: transform .2s; }
+    .sw input:checked + span { background: var(--gold); }
+    .sw input:checked + span::after { transform: translateX(16px); background: var(--bg); }
+
+    .editor { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+    .preview { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .preview .card { animation: none; }
+    .preview .card:hover { transform: none; }
+    .pv-tabs { display: flex; gap: 6px; }
+    .shot-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .shot-box img { width: 160px; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); background: var(--card-2); }
+
+    .bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px var(--gutter); padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: rgba(20, 17, 15, .92); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
+    }
+    .status { font-size: 14px; color: var(--muted); }
+    .status.dirty { color: var(--gold); }
+    .status.err { color: #f0a49a; }
+    .status.ok { color: #9fd49a; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 1000px) {
+      .layout, .editor { grid-template-columns: 1fr; }
+      .list, .preview { position: static; }
+    }
+    @media (max-width: 560px) { .row, .row3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a class="logo" href="./">Anton<span>.</span></a>
+    <nav class="top-nav">
+      <a href="./" target="_blank" rel="noopener">Открыть сайт ↗</a>
+      <a href="#" id="logout" hidden>Выйти</a>
+    </nav>
+  </header>
+
+  <main class="adm">
+    <h1>Админка</h1>
+    <p class="sub">Изменения сохраняются в GitHub-репозиторий сайта. После «Опубликовать» сайт обновится примерно через минуту.</p>
+
+    <!-- Login -->
+    <section class="panel login" id="login">
+      <ol>
+        <li>Откройте <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">создание токена на GitHub</a> (Fine-grained token).</li>
+        <li>Repository access → <b>Only select repositories</b> → <b>EyeAnton.github.io</b>.</li>
+        <li>Permissions → Repository → <b>Contents: Read and write</b>. Срок действия — на ваше усмотрение.</li>
+        <li>Скопируйте токен и вставьте сюда. Он хранится только в этом браузере.</li>
+      </ol>
+      <div class="stack">
+        <label class="f">Токен GitHub<input type="password" id="token" autocomplete="off" placeholder="github_pat_…"></label>
+        <label class="check"><input type="checkbox" id="remember" checked> Запомнить на этом устройстве</label>
+        <div><button class="btn" id="loginBtn" type="button">Войти</button></div>
+        <p class="status" id="loginStatus"></p>
+      </div>
+    </section>
+
+    <!-- App -->
+    <section id="app" hidden>
+      <div class="layout">
+        <div class="list">
+          <div id="items"></div>
+          <button class="btn ghost small" id="addBtn" type="button">+ Добавить проект</button>
+        </div>
+        <div id="edit"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="bar" id="bar" hidden>
+    <span class="status" id="status">Загрузка…</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn ghost small" id="reloadBtn" type="button">Отменить изменения</button>
+      <button class="btn" id="saveBtn" type="button">Опубликовать</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
