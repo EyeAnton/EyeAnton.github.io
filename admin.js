@@ -40,6 +40,7 @@
   async function gh(path, opts = {}) {
     const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
       ...opts,
+      cache: "no-store", // GitHub API GETs are cacheable for 60 s; a stale sha makes the next PUT fail with 409
       headers: {
         Accept: "application/vnd.github+json",
         Authorization: `Bearer ${token}`,
@@ -51,17 +52,25 @@
     if (!r.ok) {
       let msg = `${r.status}`;
       try { msg += " " + (await r.json()).message; } catch {}
-      throw new Error(msg);
+      throw Object.assign(new Error(msg), { status: r.status });
     }
     return r.status === 204 ? null : r.json();
   }
   const getFile = (p) => gh(`/contents/${encodeURI(p)}?ref=${BRANCH}`, { allow404: true });
+  // The admin is the only editor, so on a sha conflict (file changed since we looked) it re-reads and writes again.
   async function putFile(p, b64, message) {
-    const cur = await getFile(p);
-    return gh(`/contents/${encodeURI(p)}`, {
-      method: "PUT",
-      body: JSON.stringify({ message, content: b64, branch: BRANCH, ...(cur ? { sha: cur.sha } : {}) }),
-    });
+    for (let attempt = 0; ; attempt++) {
+      const cur = await getFile(p);
+      try {
+        return await gh(`/contents/${encodeURI(p)}`, {
+          method: "PUT",
+          body: JSON.stringify({ message, content: b64, branch: BRANCH, ...(cur ? { sha: cur.sha } : {}) }),
+        });
+      } catch (e) {
+        if ((e.status !== 409 && e.status !== 422) || attempt >= 2) throw e;
+        await new Promise((r) => setTimeout(r, 800));
+      }
+    }
   }
   async function deleteFile(p, message) {
     const cur = await getFile(p);
