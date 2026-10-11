@@ -11,9 +11,13 @@ const UI = {
     "hero.eyebrow": "Портфолио",
     "hero.title": "Дизайн, AI-визуал и вещи, которые я собираю руками и кодом",
     "hero.lead": "Здесь собраны мои проекты: от коллекции 3D-подарков для соцприложения до веб-каталогов, прошивок для клавиатуры и Telegram-ботов.",
+    "hero.cta": "Смотреть проекты",
+    "work.title": "Проекты",
+    "work.text": "Дизайн-кейсы, живые сайты, прошивки и инструменты — всё, что сделано своими руками.",
     "contact.title": "Давайте поговорим",
     "contact.text": "Открыт к проектам и сотрудничеству. Проще всего найти меня на GitHub.",
     "foot.note": "Сделано без фреймворков · работает на любом устройстве",
+    "foot.ds": "Дизайн-система",
     page: "Каталог подарков", live: "Открыть сайт", code: "Код", code2: "ZMK-конфиг", private: "Приватный", online: "Онлайн",
     sProjects: "проектов", sLive: "живых сайтов", sAreas: "направлений",
   },
@@ -22,9 +26,13 @@ const UI = {
     "hero.eyebrow": "Portfolio",
     "hero.title": "Design, AI visuals and things I build by hand and in code",
     "hero.lead": "A collection of my projects: from a 3D gift collection for a social app to web catalogs, keyboard firmware and Telegram bots.",
+    "hero.cta": "View work",
+    "work.title": "Work",
+    "work.text": "Design cases, live sites, firmware and tools — all made by hand.",
     "contact.title": "Let's talk",
     "contact.text": "Open to projects and collaboration. The easiest way to reach me is GitHub.",
     "foot.note": "Built without frameworks · works on any device",
+    "foot.ds": "Design system",
     page: "Gift catalog", live: "Open site", code: "Code", code2: "ZMK config", private: "Private", online: "Live",
     sProjects: "projects", sLive: "live sites", sAreas: "areas",
   },
@@ -61,7 +69,7 @@ function cardHTML(p, i) {
   const t = UI[lang];
   const cat = (CATEGORIES.find((c) => c.id === p.cat) || { [lang]: p.cat })[lang];
   const badge = p.links.live
-    ? `<span class="badge live">● ${t.online}</span>`
+    ? `<span class="badge live">${t.online}</span>`
     : p.private ? `<span class="badge">${t.private}</span>` : "";
   const links = [
     p.links.page && `<a class="btn" href="${p.links.page}">${t.page} →</a>`,

@@ -1,0 +1,303 @@
+/* =====================================================================
+   Blaze — design system of the portfolio
+   Dark canvas + one hot accent. Inspired by the Oragency studio site
+   (black #040404, white, Blaze Orange #FF5B04, Poppins).
+   Living reference: design-system.html
+   ===================================================================== */
+
+:root {
+  /* ---- color: neutrals (Black → White scale) ---- */
+  --ink-0: #040404;   /* page */
+  --ink-1: #0b0b0b;   /* raised surface */
+  --ink-2: #121212;   /* card */
+  --ink-3: #1a1a1a;   /* input / inset */
+  --ink-4: #262626;   /* hairline */
+  --ink-5: #3a3a3a;   /* hairline hover */
+  --gray-400: #8a8a8a;
+  --gray-300: #a8a8a8; /* secondary text */
+  --gray-100: #e6e6e6;
+  --white: #ffffff;
+
+  /* ---- color: Blaze Orange scale ---- */
+  --blaze-50: #fff0e8;
+  --blaze-100: #ffdcc8;
+  --blaze-200: #ffbe99;
+  --blaze-300: #ff9d68;  /* light stop */
+  --blaze-400: #ff7a33;
+  --blaze-500: #ff5b04;  /* brand accent */
+  --blaze-600: #cc4903;
+  --blaze-700: #993702;
+  --blaze-800: #5c2101;
+  --blaze-900: #331201;  /* deep stop */
+  --blaze-950: #1a0900;
+
+  /* ---- semantic ---- */
+  --bg: var(--ink-0);
+  --surface: var(--ink-1);
+  --card: var(--ink-2);
+  --card-2: var(--ink-3);
+  --line: var(--ink-4);
+  --line-strong: var(--ink-5);
+  --text: var(--white);
+  --muted: var(--gray-300);
+  --accent: var(--blaze-500);
+  --accent-soft: rgba(255, 91, 4, .12);
+  --accent-glow: rgba(255, 91, 4, .25);
+  --on-accent: var(--white);
+  --success: #7ddc8a;
+  --danger: #ff8a7a;
+
+  /* ---- gradients ---- */
+  /* signature 4-stop ramp: white → peach → blaze → ember */
+  --grad-blaze: linear-gradient(90deg, var(--blaze-900) 0%, var(--blaze-500) 40%, var(--blaze-300) 80%, var(--white) 120%);
+  --grad-fill: linear-gradient(90deg, #d94c03 0%, var(--blaze-500) 45%, var(--blaze-300) 100%);
+  --grad-stroke: linear-gradient(100deg, var(--blaze-900) 0%, var(--blaze-500) 35%, var(--blaze-300) 65%, var(--blaze-600) 100%);
+  --grad-text: linear-gradient(180deg, var(--white) 0%, var(--blaze-300) 55%, var(--blaze-500) 100%);
+  --grad-wordmark: linear-gradient(180deg, var(--blaze-600) 0%, var(--blaze-800) 55%, rgba(51, 18, 1, 0) 100%);
+
+  /* ---- shadows / glow (from the Primary Button spec) ---- */
+  --glow-sm: 0 5px 10.4px var(--accent-glow);
+  --glow-lg: 0 0 30.8px var(--accent-glow);
+  --inset-shade: inset 4px 5px 12.5px rgba(0, 0, 0, .25);
+  --shadow-btn: var(--glow-sm), var(--glow-lg), var(--inset-shade);
+  --shadow-card: 0 0 0 1px rgba(255, 91, 4, .08), 0 20px 60px -30px rgba(255, 91, 4, .35);
+
+  /* ---- type ---- */
+  /* Poppins has no Cyrillic, so Montserrat carries the same geometric voice in RU and EN */
+  --font: "Montserrat", "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: var(--font);
+  --serif: var(--font);   /* legacy alias */
+  --track-tight: -.04em;  /* display tracking (−4%) */
+  --track-snug: -.02em;
+  --track-caps: .16em;
+
+  --fs-display: clamp(40px, 7.2vw, 92px);
+  --fs-h2: clamp(32px, 4.6vw, 56px);
+  --fs-h3: 24px;
+  --fs-lead: clamp(16px, 1.5vw, 18px);
+  --fs-body: 16px;
+  --fs-sm: 14px;
+  --fs-xs: 12px;
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* ---- shape & space ---- */
+  --radius-sm: 10px;
+  --radius: 20px;
+  --radius-lg: 28px;
+  --pill: 999px;
+  --pad-btn: 16px 24px;   /* padding spec 24 × 16 */
+  --stroke: 1.5px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --maxw: 1200px;
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+
+  /* legacy aliases (admin.html still reads these) */
+  --gold: var(--accent);
+  --gold-soft: var(--accent-soft);
+
+  color-scheme: dark;
+}
+
+/* =========================== base =========================== */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--fw-regular) var(--fs-body)/1.6 var(--font);
+  letter-spacing: -.005em;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--accent); color: var(--white); }
+:focus-visible { outline: 2px solid var(--blaze-300); outline-offset: 3px; }
+
+/* ======================== typography ======================== */
+.t-display {
+  margin: 0;
+  font: var(--fw-medium) var(--fs-display)/1.02 var(--font);
+  letter-spacing: var(--track-tight);
+}
+.t-h2 {
+  margin: 0;
+  font: var(--fw-medium) var(--fs-h2)/1.08 var(--font);
+  letter-spacing: var(--track-tight);
+}
+.t-lead { color: var(--muted); font-size: var(--fs-lead); font-weight: var(--fw-light); }
+.eyebrow {
+  margin: 0;
+  font: var(--fw-medium) var(--fs-xs)/1 var(--font);
+  letter-spacing: var(--track-caps); text-transform: uppercase;
+  color: var(--accent);
+}
+.t-grad {
+  background: var(--grad-text);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.t-accent { color: var(--accent); }
+
+/* ========================= buttons ========================== */
+/* Primary: glowing gradient pill. Secondary: black pill with gradient stroke. */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: var(--fw-medium) var(--fs-sm)/1 var(--font); letter-spacing: -.01em;
+  text-decoration: none; white-space: nowrap;
+  color: var(--on-accent);
+  background: var(--grad-fill);
+  border: 0; border-radius: var(--pill);
+  padding: var(--pad-btn);
+  box-shadow: var(--shadow-btn);
+  cursor: pointer;
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease), filter .25s;
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 6px 16px rgba(255, 91, 4, .4), 0 0 44px rgba(255, 91, 4, .35), var(--inset-shade); }
+.btn:active { transform: translateY(0); }
+
+.btn.ghost, .btn.secondary {
+  color: var(--text);
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    var(--grad-stroke) border-box;
+  border: var(--stroke) solid transparent;
+  padding: calc(16px - var(--stroke)) calc(24px - var(--stroke));
+  box-shadow: var(--glow-sm), var(--glow-lg);
+}
+.btn.ghost:hover, .btn.secondary:hover { filter: none; box-shadow: 0 6px 16px rgba(255, 91, 4, .32), 0 0 40px rgba(255, 91, 4, .3); }
+
+.btn.quiet {
+  color: var(--muted); background: transparent; box-shadow: none;
+  border: 1px solid var(--line); padding: 15px 23px;
+}
+.btn.quiet:hover { color: var(--text); border-color: var(--line-strong); filter: none; transform: none; }
+
+.btn.small { padding: 10px 16px; font-size: 13px; }
+.btn.ghost.small, .btn.secondary.small { padding: calc(10px - var(--stroke)) calc(16px - var(--stroke)); }
+
+/* ========================== chips =========================== */
+.chip {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: var(--fw-regular) var(--fs-sm)/1 var(--font);
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line); border-radius: var(--pill);
+  padding: 11px 18px; cursor: pointer;
+  transition: color .2s, border-color .2s, box-shadow .2s;
+}
+.chip:hover { color: var(--text); border-color: var(--line-strong); }
+.chip[aria-selected="true"], .chip.on {
+  color: var(--text);
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    var(--grad-stroke) border-box;
+  border: var(--stroke) solid transparent;
+  padding: calc(11px - .5px) calc(18px - .5px);
+  box-shadow: var(--glow-sm), var(--glow-lg);
+}
+.chip small { color: var(--accent); font-size: 12px; }
+
+/* ===================== badges & tags ====================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: var(--fw-regular) 11px/1 var(--font); letter-spacing: .02em;
+  color: var(--muted);
+  border: 1px solid var(--line); border-radius: var(--pill); padding: 5px 10px;
+}
+.badge.live { color: var(--blaze-300); border-color: rgba(255, 91, 4, .35); }
+.badge.live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+}
+.tag {
+  font: var(--fw-regular) var(--fs-xs)/1 var(--font);
+  color: var(--gray-100);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: var(--pill); padding: 6px 10px;
+}
+
+/* ========================== surfaces ========================== */
+/* glow card: black body, ember light leaking from the bottom-right corner */
+.surface {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.surface-glow {
+  position: relative; isolation: isolate; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 100% 100%, rgba(255, 91, 4, .9) 0%, rgba(255, 91, 4, .35) 30%, transparent 62%),
+    radial-gradient(80% 60% at 0% 100%, rgba(255, 157, 104, .25), transparent 60%),
+    var(--card);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgba(255, 157, 104, .35), 0 0 40px -10px var(--accent-glow);
+}
+
+/* =========================== effects =========================== */
+/* aurora: vertical light shafts rising from an ember floor (hero backdrop) */
+.aurora {
+  position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+}
+.aurora::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255, 91, 4, 0) 0 3.2%, rgba(255, 120, 40, .55) 5.5%, rgba(255, 91, 4, 0) 8%,
+      rgba(255, 91, 4, 0) 10%, rgba(255, 157, 104, .35) 12.5%, rgba(255, 91, 4, 0) 14.5%),
+    radial-gradient(70% 70% at 50% 100%, var(--blaze-500) 0%, rgba(255, 91, 4, .55) 35%, transparent 70%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, .25) 30%, #000 82%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, .25) 30%, #000 82%, transparent 100%);
+  filter: blur(18px);
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+.aurora::after {
+  /* faint engineering grid, like the reference hero */
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(80% 70% at 50% 30%, #000, transparent);
+          mask-image: radial-gradient(80% 70% at 50% 30%, #000, transparent);
+}
+@keyframes aurora-drift {
+  from { transform: translateX(-2%) scaleY(1); }
+  to   { transform: translateX(2%) scaleY(1.06); }
+}
+
+/* side beams: two light cones aimed at the centre (CTA backdrop) */
+/* blur sits on the parent: clip-path on the cones would otherwise cut the blur off */
+.beams { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; filter: blur(24px); }
+.beams::before, .beams::after {
+  content: ""; position: absolute; top: 50%; width: 46%; height: 76%;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, var(--blaze-300) 0%, var(--blaze-500) 30%, rgba(255, 91, 4, 0) 100%);
+  clip-path: polygon(0 0, 100% 47%, 100% 53%, 0 100%);
+  opacity: .85;
+}
+.beams::before { left: 0; }
+.beams::after { right: 0; transform: translateY(-50%) scaleX(-1); }
+
+/* giant cut-off wordmark (footer) */
+.wordmark {
+  display: block; margin: 0; text-align: center; user-select: none;
+  font: var(--fw-regular) clamp(96px, 24vw, 340px)/.8 var(--font);
+  letter-spacing: var(--track-tight);
+  background: var(--grad-wordmark);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
