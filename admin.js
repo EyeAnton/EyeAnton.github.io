@@ -15,10 +15,11 @@
   // Firebase web config (Project settings → Your apps → Web app). These values are public by design;
   // access is enforced by firebase-rules.json.
   const FIREBASE = {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
+    apiKey: "AIzaSyALQyaigLZg1guCs4Cm4rrlNZd9wdgsRZ0",
+    authDomain: "eyeanton-portfolio.firebaseapp.com",
+    databaseURL: "https://eyeanton-portfolio-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "eyeanton-portfolio",
+    appId: "1:29377075544:web:2fd6ac9b84b374d891ed2d",
   };
   const FB = "https://www.gstatic.com/firebasejs/10.12.0/";
   const TOKEN_PATH = "portfolioAdmin/githubToken";
