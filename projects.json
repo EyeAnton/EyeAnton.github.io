@@ -29,6 +29,32 @@
   "projects": [
     {
       "visible": true,
+      "id": "boardex",
+      "cat": "web",
+      "year": 2026,
+      "cover": {
+        "shot": "assets/shots/boardex.jpg"
+      },
+      "title": {
+        "ru": "Boardex.am",
+        "en": "Boardex.am"
+      },
+      "desc": {
+        "ru": "Каталог б/у настольных игр в Армении: поиск, фильтры по языку, игрокам и цене, рейтинг BoardGameGeek и связь с продавцом в Telegram. Интерфейс на трёх языках.",
+        "en": "A catalog of second-hand board games in Armenia: search, filters by language, players and price, BoardGameGeek ratings and contacting sellers via Telegram. Three-language UI."
+      },
+      "tags": [
+        "HTML/CSS/JS",
+        "Python",
+        "Cloudflare Pages"
+      ],
+      "links": {
+        "live": "https://nastolki-catalog.pages.dev",
+        "code": "https://github.com/EyeAnton/nastolki-catalog"
+      }
+    },
+    {
+      "visible": true,
       "id": "virtual-gifts",
       "cat": "design",
       "year": 2026,
@@ -64,32 +90,6 @@
       "note": {
         "ru": "Полный кейс скоро здесь",
         "en": "Full case study coming soon"
-      }
-    },
-    {
-      "visible": true,
-      "id": "boardex",
-      "cat": "web",
-      "year": 2026,
-      "cover": {
-        "shot": "assets/shots/boardex.jpg"
-      },
-      "title": {
-        "ru": "Boardex.am",
-        "en": "Boardex.am"
-      },
-      "desc": {
-        "ru": "Каталог б/у настольных игр в Армении: поиск, фильтры по языку, игрокам и цене, рейтинг BoardGameGeek и связь с продавцом в Telegram. Интерфейс на трёх языках.",
-        "en": "A catalog of second-hand board games in Armenia: search, filters by language, players and price, BoardGameGeek ratings and contacting sellers via Telegram. Three-language UI."
-      },
-      "tags": [
-        "HTML/CSS/JS",
-        "Python",
-        "Cloudflare Pages"
-      ],
-      "links": {
-        "live": "https://nastolki-catalog.pages.dev",
-        "code": "https://github.com/EyeAnton/nastolki-catalog"
       }
     },
     {
