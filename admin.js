@@ -459,7 +459,7 @@
         cv.width = Math.round(img.naturalWidth * s);
         cv.height = Math.round(img.naturalHeight * s);
         const ctx = cv.getContext("2d");
-        ctx.fillStyle = "#1b1613"; // flatten transparency onto the card colour
+        ctx.fillStyle = "#0b0b0b"; // flatten transparency onto the card colour
         ctx.fillRect(0, 0, cv.width, cv.height);
         ctx.drawImage(img, 0, 0, cv.width, cv.height);
         URL.revokeObjectURL(img.src);
