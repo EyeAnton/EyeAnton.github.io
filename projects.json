@@ -50,7 +50,7 @@
         "en": "Virtual Gifts"
       },
       "desc": {
-        "ru": "Коллекция анимированных 3D-подарков для соцприложения: от идеи и единого стиля до пакета, который разработчики выкладывают без ручной работы. 56 подарков, анимация с альфа-каналом и звук.",
+        "ru": "Коллекция анимированных виртуальных подарков для дейтинга: от идеи до полноэкранной анимации со звуком.\n",
         "en": "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work. 56 gifts, alpha-channel animation and sound."
       },
       "tags": [
@@ -69,22 +69,17 @@
       "id": "sticker-bot",
       "cat": "ai",
       "year": 2026,
-      "private": true,
       "cover": {
-        "glyph": "Sticker",
-        "tint": "#2a2340",
-        "sub": {
-          "ru": "Telegram",
-          "en": "Telegram"
-        }
+        "glyph": "Stickers",
+        "tint": "#3c00ff"
       },
       "title": {
-        "ru": "Sticker Bot",
-        "en": "Sticker Bot"
+        "ru": "Генератор стикеров",
+        "en": "Sticker generator"
       },
       "desc": {
-        "ru": "Telegram-бот, который превращает фото в стикеры и стилизованные портреты через AI-пайплайны RunningHub. Мультиязычный, работает в Docker.",
-        "en": "A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines. Multilingual, runs in Docker."
+        "ru": "Автоматический инструмент, который превращает фото в стикеры и стилизованные портреты через API-пайплайны. Готов к интеграции и кастомизации.",
+        "en": "A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines."
       },
       "tags": [
         "Python",
