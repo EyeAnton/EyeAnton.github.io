@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Anton — Portfolio</title>
-  <meta name="description" content="Портфолио Антона: дизайн-кейсы, веб-приложения, железо и AI-проекты.">
+  <meta name="description" content="Антон: дизайн, AI-визуал, веб и железо. Портфолио и резюме.">
   <meta name="theme-color" content="#040404">
   <meta property="og:title" content="Anton — Portfolio">
-  <meta property="og:description" content="Дизайн-кейсы, веб-приложения, железо и AI-проекты.">
+  <meta property="og:description" content="Антон: дизайн, AI-визуал, веб и железо. Портфолио и резюме.">
   <meta property="og:image" content="assets/og.jpg">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23040404'/><text x='32' y='45' font-family='Arial,sans-serif' font-weight='600' font-size='36' text-anchor='middle' fill='%23ff5b04'>A</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,45 +16,69 @@
   <link rel="stylesheet" href="design-system.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="home">
   <header class="top">
-    <a class="logo" href="#">Anton<span>.</span></a>
-    <nav class="top-nav">
-      <a href="#work" data-i18n="nav.work">Проекты</a>
-      <a href="#contact" data-i18n="nav.contact">Контакты</a>
-      <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+    <a class="logo" href="./">Anton<span>.</span></a>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="./" data-i18n="nav.home" aria-current="page">Главная</a>
+      <a href="projects.html" data-i18n="nav.work">Проекты</a>
+      <a href="contact.html" data-i18n="nav.contact">Контакты</a>
     </nav>
+    <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
   </header>
 
   <main>
     <section class="hero">
       <div class="aurora" aria-hidden="true"></div>
-      <p class="eyebrow" data-i18n="hero.eyebrow">Портфолио</p>
+      <p class="eyebrow" data-i18n="hero.eyebrow">Привет, я Антон</p>
       <h1 data-i18n="hero.title">Дизайн, AI-визуал и вещи, которые я собираю руками и кодом</h1>
-      <p class="lead" data-i18n="hero.lead">Здесь собраны мои проекты: от коллекции 3D-подарков для соцприложения до веб-каталогов, прошивок для клавиатуры и Telegram-ботов.</p>
+      <p class="lead" data-i18n="hero.lead"></p>
       <div class="hero-cta">
-        <a class="btn" href="#work" data-i18n="hero.cta">Смотреть проекты</a>
-        <a class="btn ghost" href="https://github.com/EyeAnton" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="btn" href="projects.html" data-i18n="hero.cta">Смотреть проекты</a>
+        <a class="btn ghost" href="contact.html" data-i18n="hero.cv">Контакты и CV</a>
       </div>
     </section>
 
     <div class="stats" id="stats"></div>
 
-    <section id="work" class="work">
-      <div class="sec-head">
-        <h2 data-i18n="work.title">Проекты</h2>
-        <p data-i18n="work.text">Дизайн-кейсы, живые сайты, прошивки и инструменты — всё, что сделано своими руками.</p>
+    <section class="block">
+      <div class="sec-head reveal">
+        <p class="eyebrow" data-i18n="areas.eyebrow">Навыки</p>
+        <h2 data-i18n="areas.title">Что я делаю</h2>
+        <p data-i18n="areas.text"></p>
       </div>
-      <div class="filters" id="filters" role="tablist"></div>
-      <div class="grid" id="grid"></div>
+      <div class="areas" id="areas"></div>
     </section>
 
-    <section id="contact" class="contact">
+    <section class="block">
+      <div class="sec-head reveal">
+        <p class="eyebrow" data-i18n="show.eyebrow">Избранное</p>
+        <h2 data-i18n="show.title">Проекты, которыми я горжусь</h2>
+      </div>
+      <div class="showcase" id="showcase"></div>
+      <div class="center reveal"><a class="btn ghost" href="projects.html" data-i18n="show.all">Все проекты →</a></div>
+    </section>
+
+    <section class="stack-sec" aria-labelledby="stackTitle">
+      <h2 class="eyebrow center" id="stackTitle" data-i18n="stack.title">Стек и инструменты</h2>
+      <div class="marquee" id="stack"></div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head reveal">
+        <p class="eyebrow" data-i18n="path.eyebrow">Путь</p>
+        <h2 data-i18n="path.title">Что и когда я делал</h2>
+      </div>
+      <div class="path" id="path"></div>
+    </section>
+
+    <section class="contact">
       <div class="beams" aria-hidden="true"></div>
-      <h2 data-i18n="contact.title">Давайте поговорим</h2>
-      <p data-i18n="contact.text">Открыт к проектам и сотрудничеству. Проще всего найти меня на GitHub.</p>
-      <div class="contact-links">
-        <a class="btn" href="https://github.com/EyeAnton" target="_blank" rel="noopener">GitHub · EyeAnton</a>
+      <h2 class="reveal" data-i18n="contact.title">Давайте поговорим</h2>
+      <p class="reveal" data-i18n="contact.text"></p>
+      <div class="contact-links reveal">
+        <a class="btn" href="contact.html" data-i18n="hero.cv">Контакты и CV</a>
+        <a class="btn ghost" href="https://github.com/EyeAnton" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </section>
   </main>

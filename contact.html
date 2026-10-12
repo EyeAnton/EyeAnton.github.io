@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Контакты — Anton</title>
+  <meta name="description" content="Связаться с Антоном и скачать резюме.">
+  <meta name="theme-color" content="#040404">
+  <meta property="og:title" content="Контакты — Anton">
+  <meta property="og:description" content="Связаться с Антоном и скачать резюме.">
+  <meta property="og:image" content="assets/og.jpg">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23040404'/><text x='32' y='45' font-family='Arial,sans-serif' font-weight='600' font-size='36' text-anchor='middle' fill='%23ff5b04'>A</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="contact">
+  <header class="top">
+    <a class="logo" href="./">Anton<span>.</span></a>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="./" data-i18n="nav.home">Главная</a>
+      <a href="projects.html" data-i18n="nav.work">Проекты</a>
+      <a href="contact.html" data-i18n="nav.contact" aria-current="page">Контакты</a>
+    </nav>
+    <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="aurora soft" aria-hidden="true"></div>
+      <p class="eyebrow" data-i18n="contact.eyebrow">Контакты</p>
+      <h1 data-i18n="contact.title">Давайте поговорим</h1>
+      <p class="lead" data-i18n="contact.lead"></p>
+    </section>
+
+    <section class="block contact-grid">
+      <div class="surface-glow cv-card reveal">
+        <span class="area-ico">CV</span>
+        <h2 data-i18n="cv.title">Резюме</h2>
+        <p data-i18n="cv.text"></p>
+        <div class="contact-links" id="cvLinks"></div>
+      </div>
+      <div class="surface channels-card reveal" style="--d:90ms">
+        <h2 data-i18n="ch.title">Где меня найти</h2>
+        <div class="channels" id="channels"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="sec-head reveal"><h2 data-i18n="help.title">Чем могу помочь</h2></div>
+      <div class="areas" id="areas"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-row">
+      <span>© <span id="year"></span> Anton</span>
+      <span data-i18n="foot.note">Сделано без фреймворков · работает на любом устройстве</span>
+      <a href="design-system.html" data-i18n="foot.ds">Дизайн-система</a>
+    </div>
+    <p class="wordmark" aria-hidden="true">anton</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

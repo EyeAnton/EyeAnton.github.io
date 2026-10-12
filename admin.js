@@ -202,6 +202,7 @@
     for (const k of Object.keys(c.links)) if (!c.links[k]) delete c.links[k];
     if (c.note && !c.note.ru && !c.note.en) delete c.note;
     if (!c.featured) delete c.featured;
+    if (!c.home) delete c.home;
     if (!c.private) delete c.private;
     if (c.cover.sub && !c.cover.sub.ru && !c.cover.sub.en) delete c.cover.sub;
     if (c.cover.pos === "") delete c.cover.pos;
@@ -263,7 +264,7 @@
         <label class="sw" title="${p.visible ? "Показывается на сайте" : "Скрыт"}">
           <input type="checkbox" data-act="vis" ${p.visible ? "checked" : ""}><span></span>
         </label>
-        <div style="min-width:0"><span class="c">${h(catName(p.cat))}${p.featured ? " · большая" : ""}</span><span class="t">${h(p.title.ru || p.title.en || p.id)}</span></div>
+        <div style="min-width:0"><span class="c">${h(catName(p.cat))}${p.home ? " · главная" : ""}${p.featured ? " · большая" : ""}</span><span class="t">${h(p.title.ru || p.title.en || p.id)}</span></div>
         <div class="mv">
           <button type="button" data-act="up" aria-label="Выше">↑</button>
           <button type="button" data-act="down" aria-label="Ниже">↓</button>
@@ -322,6 +323,7 @@
         <div class="row">
           <label class="check"><input type="checkbox" data-k="visible" ${p.visible ? "checked" : ""}> Показывать на сайте</label>
           <label class="check"><input type="checkbox" data-k="featured" ${p.featured ? "checked" : ""}> Большая карточка на всю ширину</label>
+          <label class="check"><input type="checkbox" data-k="home" ${p.home ? "checked" : ""}> На главной (избранное)</label>
         </div>
 
         <h2 class="sec">Текст</h2>

@@ -29,6 +29,7 @@
   "projects": [
     {
       "visible": true,
+      "home": true,
       "id": "boardex",
       "cat": "web",
       "year": 2026,
@@ -55,6 +56,7 @@
     },
     {
       "visible": true,
+      "home": true,
       "id": "virtual-gifts",
       "cat": "design",
       "year": 2026,
@@ -94,6 +96,7 @@
     },
     {
       "visible": true,
+      "home": true,
       "id": "wishlist",
       "cat": "web",
       "year": 2026,
@@ -201,6 +204,7 @@
     },
     {
       "visible": true,
+      "home": true,
       "id": "stasik",
       "cat": "hardware",
       "year": 2026,
@@ -292,6 +296,7 @@
     },
     {
       "visible": true,
+      "home": true,
       "id": "sticker-bot",
       "cat": "ai",
       "year": 2026,
