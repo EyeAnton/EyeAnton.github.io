@@ -11,6 +11,7 @@ let PROJECTS = [];
 // Everything about me that is not a project (source: my CV). Channels with an empty href are not shown.
 const PROFILE = {
   since: 2020, // first job in 3D — drives the "years in 3D & motion" stat
+  showCode: false, // designer first: repo links stay in projects.json but aren't shown as buttons
   cv: { ru: "assets/cv-ru.pdf", en: "assets/cv-en.pdf" },
   channels: [
     { name: "Telegram", handle: "@EyeAnton", href: "https://t.me/EyeAnton" },
@@ -198,8 +199,8 @@ function linksHTML(p) {
   return [
     p.links.page && `<a class="btn" href="${p.links.page}">${t.page} →</a>`,
     p.links.live && `<a class="btn" href="${p.links.live}" target="_blank" rel="noopener">${t.live} ↗</a>`,
-    p.links.code && `<a class="btn ghost" href="${p.links.code}" target="_blank" rel="noopener">${t.code}</a>`,
-    p.links.code2 && `<a class="btn ghost" href="${p.links.code2}" target="_blank" rel="noopener">${t.code2}</a>`,
+    PROFILE.showCode && p.links.code && `<a class="btn ghost" href="${p.links.code}" target="_blank" rel="noopener">${t.code}</a>`,
+    PROFILE.showCode && p.links.code2 && `<a class="btn ghost" href="${p.links.code2}" target="_blank" rel="noopener">${t.code2}</a>`,
   ].filter(Boolean).join("");
 }
 

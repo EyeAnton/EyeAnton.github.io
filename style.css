@@ -164,10 +164,7 @@
   gap: 4%; padding: 6%;
 }
 .gifts::after { display: none; }
-.gifts img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); animation: float 6s ease-in-out infinite; }
-.gifts img:nth-child(2n) { animation-delay: -2s; }
-.gifts img:nth-child(3n) { animation-delay: -4s; }
-@keyframes float { 50% { transform: translateY(-6px) rotate(-2deg); } }
+.gifts img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
 
 /* ---------- contact (CTA with light beams) ---------- */
 .contact {
