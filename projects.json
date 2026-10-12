@@ -99,7 +99,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "home": true,
       "id": "echoes-of-peru",
       "cat": "ai",
@@ -131,7 +131,7 @@
       }
     },
     {
-      "visible": true,
+      "visible": false,
       "home": true,
       "id": "soultemple",
       "cat": "design",
@@ -157,7 +157,7 @@
       }
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "boardex",
       "cat": "web",
       "year": 2026,
@@ -238,7 +238,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "archive",
       "cat": "web",
       "year": 2026,
@@ -296,7 +296,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "qmk-hid-host",
       "cat": "hardware",
       "year": 2026,
@@ -357,7 +357,7 @@
       }
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "photosort",
       "cat": "tools",
       "year": 2026,
