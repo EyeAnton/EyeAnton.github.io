@@ -32,6 +32,11 @@ const PROFILE = {
       d: { ru: "Ассеты под разработку: mobile, web, Figma", en: "Dev-ready assets for mobile, web and Figma" },
       tools: ["Figma", "Photoshop"] },
   ],
+  // "Stack & tools" ticker on the home page: two rows, edit by hand
+  stack: [
+    ["ComfyUI", "Flux", "Midjourney", "Nano Banana", "Kling", "Recraft", "ElevenLabs", "Suno", "Gemini API", "Claude", "Cursor", "Make", "Replicate"],
+    ["Blender", "After Effects", "Premiere Pro", "Marvelous Designer", "Substance Painter", "Figma", "Photoshop", "ffmpeg", "Python", "Node.js", "Google Cloud Run", "Docker", "React"],
+  ],
   soft: {
     ru: ["Связка креатива и технологий", "Аудит и автоматизация процессов", "Быстрое прототипирование", "Оценка AI-инструментов", "Объясняю AI нетехническим командам", "Кросс-функциональная работа"],
     en: ["Bridging creative & tech", "Process audit & automation", "Rapid prototyping", "AI tool evaluation", "Explaining AI to non-tech teams", "Cross-functional collaboration"],
@@ -156,7 +161,6 @@ let filter = (location.hash.match(/^#cat=(\w+)/) || [])[1] || "all";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const PAGE = document.body.dataset.page;
-const uniq = (a) => [...new Set(a)];
 
 function plural(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
@@ -274,11 +278,11 @@ function renderHome() {
   }).join("");
 
   // stack ticker: every tag once, the row duplicated so the loop is seamless
-  const tags = uniq([...PROFILE.skills.flatMap((g) => g.tools), ...PROJECTS.flatMap((p) => p.tags)]);
-  const half = Math.ceil(tags.length / 2);
-  const row = (list) => { const s = list.map((x) => `<span>${esc(x)}</span>`).join(""); return s + s; };
-  $("#stack").innerHTML = `<div class="marquee-row">${row(tags.slice(0, half))}</div>
-    <div class="marquee-row rev">${row(tags.slice(half))}</div>`;
+  // stack ticker: the curated PROFILE.stack rows (not raw project tags — those include libraries)
+  // repeated 4× so a short row still covers wide screens; the -50% keyframe loops over two copies
+  const row = (list) => list.map((x) => `<span>${esc(x)}</span>`).join("").repeat(4);
+  $("#stack").innerHTML = `<div class="marquee-row">${row(PROFILE.stack[0])}</div>
+    <div class="marquee-row rev">${row(PROFILE.stack[1])}</div>`;
 
   $("#soft").innerHTML = softHTML();
   $("#exp").innerHTML = expHTML();
