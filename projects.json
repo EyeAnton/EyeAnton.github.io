@@ -70,6 +70,94 @@
     {
       "visible": true,
       "home": true,
+      "id": "sticker-bot",
+      "cat": "ai",
+      "year": 2026,
+      "private": true,
+      "cover": {
+        "glyph": "✦",
+        "tint": "#2a2340",
+        "sub": {
+          "ru": "Telegram",
+          "en": "Telegram"
+        }
+      },
+      "title": {
+        "ru": "Sticker Bot",
+        "en": "Sticker Bot"
+      },
+      "desc": {
+        "ru": "Telegram-бот, который превращает фото в стикеры и стилизованные портреты через AI-пайплайны RunningHub. Мультиязычный, работает в Docker.",
+        "en": "A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines. Multilingual, runs in Docker."
+      },
+      "tags": [
+        "Python",
+        "aiogram",
+        "ComfyUI",
+        "Docker"
+      ],
+      "links": {}
+    },
+    {
+      "visible": true,
+      "home": true,
+      "id": "echoes-of-peru",
+      "cat": "ai",
+      "year": 2025,
+      "cover": {
+        "glyph": "FLUX",
+        "tint": "#3a2a1a",
+        "sub": {
+          "ru": "ComfyUI · Replicate",
+          "en": "ComfyUI · Replicate"
+        }
+      },
+      "title": {
+        "ru": "Echoes of Peru",
+        "en": "Echoes of Peru"
+      },
+      "desc": {
+        "ru": "Генерация изображений на FLUX: воркфлоу ComfyUI, упакованные в модель для Replicate (Cog), с набором промптов.",
+        "en": "Image generation with FLUX: ComfyUI workflows packaged as a Replicate model (Cog), with a prompt set."
+      },
+      "tags": [
+        "Python",
+        "FLUX",
+        "ComfyUI",
+        "Replicate"
+      ],
+      "links": {
+        "code": "https://github.com/EyeAnton/echoes-of-peru-flux-comfy"
+      }
+    },
+    {
+      "visible": true,
+      "home": true,
+      "id": "soultemple",
+      "cat": "design",
+      "year": 2025,
+      "cover": {
+        "shot": "assets/shots/soultemple.jpg"
+      },
+      "title": {
+        "ru": "Temple Soul",
+        "en": "Temple Soul"
+      },
+      "desc": {
+        "ru": "Прототип браузерной игры-путешествия: сгенерированные AI сцены и персонажи, переходы между локациями.",
+        "en": "A prototype of a browser journey game: AI-generated scenes and characters, transitions between locations."
+      },
+      "tags": [
+        "React",
+        "TypeScript",
+        "AI art"
+      ],
+      "links": {
+        "code": "https://github.com/EyeAnton/SoulTemple"
+      }
+    },
+    {
+      "visible": true,
       "id": "boardex",
       "cat": "web",
       "year": 2026,
@@ -96,7 +184,6 @@
     },
     {
       "visible": true,
-      "home": true,
       "id": "wishlist",
       "cat": "web",
       "year": 2026,
@@ -179,32 +266,6 @@
     },
     {
       "visible": true,
-      "id": "soultemple",
-      "cat": "design",
-      "year": 2025,
-      "cover": {
-        "shot": "assets/shots/soultemple.jpg"
-      },
-      "title": {
-        "ru": "Temple Soul",
-        "en": "Temple Soul"
-      },
-      "desc": {
-        "ru": "Прототип браузерной игры-путешествия: сгенерированные AI сцены и персонажи, переходы между локациями.",
-        "en": "A prototype of a browser journey game: AI-generated scenes and characters, transitions between locations."
-      },
-      "tags": [
-        "React",
-        "TypeScript",
-        "AI art"
-      ],
-      "links": {
-        "code": "https://github.com/EyeAnton/SoulTemple"
-      }
-    },
-    {
-      "visible": true,
-      "home": true,
       "id": "stasik",
       "cat": "hardware",
       "year": 2026,
@@ -292,68 +353,6 @@
       "links": {
         "code": "https://github.com/EyeAnton/my-first-keyboard",
         "code2": "https://github.com/EyeAnton/ergohaven-zmk-config"
-      }
-    },
-    {
-      "visible": true,
-      "home": true,
-      "id": "sticker-bot",
-      "cat": "ai",
-      "year": 2026,
-      "private": true,
-      "cover": {
-        "glyph": "✦",
-        "tint": "#2a2340",
-        "sub": {
-          "ru": "Telegram",
-          "en": "Telegram"
-        }
-      },
-      "title": {
-        "ru": "Sticker Bot",
-        "en": "Sticker Bot"
-      },
-      "desc": {
-        "ru": "Telegram-бот, который превращает фото в стикеры и стилизованные портреты через AI-пайплайны RunningHub. Мультиязычный, работает в Docker.",
-        "en": "A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines. Multilingual, runs in Docker."
-      },
-      "tags": [
-        "Python",
-        "aiogram",
-        "ComfyUI",
-        "Docker"
-      ],
-      "links": {}
-    },
-    {
-      "visible": true,
-      "id": "echoes-of-peru",
-      "cat": "ai",
-      "year": 2025,
-      "cover": {
-        "glyph": "FLUX",
-        "tint": "#3a2a1a",
-        "sub": {
-          "ru": "ComfyUI · Replicate",
-          "en": "ComfyUI · Replicate"
-        }
-      },
-      "title": {
-        "ru": "Echoes of Peru",
-        "en": "Echoes of Peru"
-      },
-      "desc": {
-        "ru": "Генерация изображений на FLUX: воркфлоу ComfyUI, упакованные в модель для Replicate (Cog), с набором промптов.",
-        "en": "Image generation with FLUX: ComfyUI workflows packaged as a Replicate model (Cog), with a prompt set."
-      },
-      "tags": [
-        "Python",
-        "FLUX",
-        "ComfyUI",
-        "Replicate"
-      ],
-      "links": {
-        "code": "https://github.com/EyeAnton/echoes-of-peru-flux-comfy"
       }
     },
     {
