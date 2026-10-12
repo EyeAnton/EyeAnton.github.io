@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Blaze — дизайн-система</title>
+  <title>Lighthouse — дизайн-система</title>
   <meta name="description" content="Дизайн-система портфолио: тёмный холст и один горячий акцент.">
-  <meta name="theme-color" content="#040404">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23040404'/><text x='32' y='45' font-family='Arial,sans-serif' font-weight='600' font-size='36' text-anchor='middle' fill='%23ff5b04'>A</text></svg>">
+  <meta name="theme-color" content="#050a18">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23050a18'/><text x='32' y='45' font-family='Arial,sans-serif' font-weight='600' font-size='36' text-anchor='middle' fill='%23ec2f1f'>A</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
     .ds section { padding: 64px 0 8px; border-top: 1px solid var(--line); }
     .ds section > h2 { margin: 0 0 6px; }
     .ds section > .hint { margin: 0 0 28px; color: var(--muted); font-weight: var(--fw-light); max-width: 64ch; }
-    .ds code { font: 13px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--blaze-300); }
+    .ds code { font: 13px/1.4 ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--blue-300); }
     .ds h3 { margin: 32px 0 14px; font: var(--fw-medium) 13px/1 var(--font); letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--muted); }
 
     .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 132px), 1fr)); gap: 10px; }
@@ -49,7 +49,7 @@
     .glow-demo { padding: 26px; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
     .glow-demo h4, .surface h4 { margin: 0; font: var(--fw-medium) 22px/1.15 var(--font); letter-spacing: var(--track-snug); }
     .glow-demo p, .surface p { margin: 0; font-size: 14px; font-weight: var(--fw-light); color: var(--gray-100); }
-    .icon-tile { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--white); color: var(--accent); font-size: 18px; margin-bottom: auto; }
+    .icon-tile { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--white); color: var(--accent); font: 600 13px/1 var(--font); margin-bottom: auto; }
 
     .fx { position: relative; isolation: isolate; overflow: hidden; height: 260px; border-radius: var(--radius); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-items: center; text-align: center; }
     .fx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 20px; }
@@ -79,30 +79,34 @@
   <div class="ds-hero">
     <div class="aurora" aria-hidden="true"></div>
     <p class="eyebrow">Дизайн-система · v1</p>
-    <h1 class="t-display">Blaze</h1>
-    <p class="t-lead">Тёмный холст, белый текст и один горячий акцент. Всё живёт в <code>design-system.css</code> — токены и компоненты; эта страница рендерится из них же.</p>
+    <h1 class="t-display">Lighthouse</h1>
+    <p class="t-lead">Ночной синий холст, кобальтовый свет и один контрастный красный — палитра из моих афиш. Всё живёт в <code>design-system.css</code> — токены и компоненты; эта страница рендерится из них же.</p>
   </div>
 
   <main class="ds">
     <!-- ======================= color ======================= -->
     <section id="color">
       <h2 class="t-h2">Цвет</h2>
-      <p class="hint">Три базовых цвета: чёрный, белый и Blaze Orange. Оранжевый — только для акцента: одна главная кнопка, активный пункт, цифры и свечение. Никаких других оттенков.</p>
+      <p class="hint">Палитра взята из моей серии афиш: ночное небо, кобальтовая вода, бирюзовые волны и красный маяк. Синий — атмосфера и свет (фон, свечение, обводки). Красный — сигнал: главная кнопка, цифры, акценты. Бирюза — редко, для статусов. Тёплый «солнечный» — только для бликов.</p>
       <div class="brand-trio">
-        <div style="background:var(--ink-0)"><b>Black</b><span>#040404 · --ink-0</span></div>
-        <div style="background:var(--white);color:var(--ink-0)"><b>White</b><span>#FFFFFF · --white</span></div>
-        <div style="background:var(--blaze-500)"><b>Blaze Orange</b><span>#FF5B04 · --blaze-500</span></div>
+        <div style="background:var(--ink-0)"><b>Night</b><span>#050A18 · --ink-0</span></div>
+        <div style="background:var(--blue-500)"><b>Cobalt</b><span>#2563E0 · --blue-500</span></div>
+        <div style="background:var(--red-500)"><b>Signal Red</b><span>#EC2F1F · --red-500</span></div>
       </div>
-      <h3>Blaze — шкала</h3>
-      <div class="swatches" data-scale="blaze-50 blaze-100 blaze-200 blaze-300 blaze-400 blaze-500 blaze-600 blaze-700 blaze-800 blaze-900 blaze-950"></div>
+      <h3>Signal Red — акцент</h3>
+      <div class="swatches" data-scale="red-50 red-100 red-200 red-300 red-400 red-500 red-600 red-700 red-800 red-900 red-950"></div>
+      <h3>Cobalt Blue — свет и атмосфера</h3>
+      <div class="swatches" data-scale="blue-50 blue-100 blue-200 blue-300 blue-400 blue-500 blue-600 blue-700 blue-800 blue-900 blue-950"></div>
+      <h3>Wave Teal и Sun — редкие голоса</h3>
+      <div class="swatches" data-scale="teal-300 teal-400 teal-500 teal-600 sun"></div>
       <h3>Нейтральные</h3>
       <div class="swatches" data-scale="ink-0 ink-1 ink-2 ink-3 ink-4 ink-5 gray-400 gray-300 gray-100 white"></div>
       <h3>Семантика</h3>
-      <div class="swatches" data-scale="bg card line text muted accent success danger"></div>
+      <div class="swatches" data-scale="bg card line text muted accent hl success danger"></div>
 
       <h3>Градиенты</h3>
       <div class="grads">
-        <div style="background:var(--grad-blaze)"><code>--grad-blaze</code></div>
+        <div style="background:var(--grad-sky)"><code>--grad-sky · ночное небо</code></div>
         <div style="background:var(--grad-fill)"><code>--grad-fill · кнопка</code></div>
         <div style="background:var(--grad-stroke)"><code>--grad-stroke · обводка</code></div>
         <div style="background:var(--grad-text)"><code>--grad-text · цифры, глифы</code></div>
@@ -126,7 +130,7 @@
     <!-- ===================== components ===================== -->
     <section id="components">
       <h2 class="t-h2">Компоненты</h2>
-      <p class="hint">Всё — пилюли. Тень кнопки по спецификации: drop <code>0 5 10.4</code> + drop <code>0 0 30.8</code> оранжевым 25% и inner <code>4 5 12.5</code> чёрным 25%, отступы 24 × 16.</p>
+      <p class="hint">Всё — пилюли. Тень кнопки по спецификации: drop <code>0 5 10.4</code> + drop <code>0 0 30.8</code> красным 25% и inner <code>4 5 12.5</code> чёрным 25%, отступы 24 × 16.</p>
 
       <h3>Кнопки</h3>
       <div class="row-demo">
@@ -158,12 +162,12 @@
       <h3>Поверхности</h3>
       <div class="demo-cards">
         <div class="surface-glow glow-demo">
-          <span class="icon-tile">✦</span>
+          <span class="icon-tile">01</span>
           <h4>Glow card</h4>
-          <p><code style="color:var(--white)">.surface-glow</code> — уголь, из правого нижнего угла «подсвечено» оранжевым.</p>
+          <p><code style="color:var(--white)">.surface-glow</code> — ночь, снизу поднимается кобальтовый свет, в углу — красный уголёк.</p>
         </div>
         <div class="surface glow-demo">
-          <span class="icon-tile" style="background:var(--accent);color:var(--white)">◆</span>
+          <span class="icon-tile" style="background:var(--accent);color:var(--white)">02</span>
           <h4>Surface</h4>
           <p><code>.surface</code> — спокойная плоская карточка с хейрлайном.</p>
         </div>
@@ -178,7 +182,7 @@
       <h2 class="t-h2">Эффекты</h2>
       <p class="hint">Свет — главный декор системы. Используется дозированно: один эффект на экран.</p>
       <div class="fx-grid">
-        <div class="fx"><div class="aurora" aria-hidden="true"></div><code style="color:var(--white)">.aurora · фон героя</code></div>
+        <div class="fx"><div class="aurora" aria-hidden="true"></div><code style="color:var(--white)">.aurora · свечение горизонта</code></div>
         <div class="fx"><div class="beams" aria-hidden="true"></div><code style="color:var(--white)">.beams · CTA</code></div>
         <div class="fx" style="place-items:end center"><p class="wordmark">anton</p></div>
       </div>
@@ -205,8 +209,8 @@
   </main>
 
   <footer class="foot">
-    <div class="foot-row"><span>Blaze · дизайн-система портфолио</span><a href="./">← К портфолио</a></div>
-    <p class="wordmark" aria-hidden="true">blaze</p>
+    <div class="foot-row"><span>Lighthouse · дизайн-система портфолио</span><a href="./">← К портфолио</a></div>
+    <p class="wordmark" aria-hidden="true">light</p>
   </footer>
 
   <script>

@@ -1,35 +1,56 @@
 /* =====================================================================
-   Blaze — design system of the portfolio
-   Dark canvas + one hot accent. Inspired by the Oragency studio site
-   (black #040404, white, Blaze Orange #FF5B04, Poppins).
+   Lighthouse — design system of the portfolio
+   Night-blue canvas, cobalt light, one contrasting red signal.
+   Palette taken from Anton's own poster series (night sky, cobalt water,
+   teal-green waves, a red lighthouse / figure, warm sun glow).
    Living reference: design-system.html
    ===================================================================== */
 
 :root {
-  /* ---- color: neutrals (Black → White scale) ---- */
-  --ink-0: #040404;   /* page */
-  --ink-1: #0b0b0b;   /* raised surface */
-  --ink-2: #121212;   /* card */
-  --ink-3: #1a1a1a;   /* input / inset */
-  --ink-4: #262626;   /* hairline */
-  --ink-5: #3a3a3a;   /* hairline hover */
-  --gray-400: #8a8a8a;
-  --gray-300: #a8a8a8; /* secondary text */
-  --gray-100: #e6e6e6;
+  /* ---- color: night neutrals (blue-tinted black → white) ---- */
+  --ink-0: #050a18;   /* page */
+  --ink-1: #0a1226;   /* raised surface */
+  --ink-2: #0e1830;   /* card */
+  --ink-3: #142140;   /* input / inset */
+  --ink-4: #1e2d52;   /* hairline */
+  --ink-5: #2c3f6c;   /* hairline hover */
+  --gray-400: #8592ae;
+  --gray-300: #a9b4cc; /* secondary text */
+  --gray-100: #e4e9f4;
   --white: #ffffff;
+  --sun: #fff1d0;      /* warm glow, highlights only */
 
-  /* ---- color: Blaze Orange scale ---- */
-  --blaze-50: #fff0e8;
-  --blaze-100: #ffdcc8;
-  --blaze-200: #ffbe99;
-  --blaze-300: #ff9d68;  /* light stop */
-  --blaze-400: #ff7a33;
-  --blaze-500: #ff5b04;  /* brand accent */
-  --blaze-600: #cc4903;
-  --blaze-700: #993702;
-  --blaze-800: #5c2101;
-  --blaze-900: #331201;  /* deep stop */
-  --blaze-950: #1a0900;
+  /* ---- color: Signal Red — the contrasting accent ---- */
+  --red-50: #fff0ee;
+  --red-100: #ffd9d4;
+  --red-200: #ffb0a6;
+  --red-300: #ff8476;
+  --red-400: #ff5745;
+  --red-500: #ec2f1f;  /* brand accent */
+  --red-600: #c4210f;
+  --red-700: #961a0c;
+  --red-800: #63120a;
+  --red-900: #3a0b06;
+  --red-950: #1f0603;
+
+  /* ---- color: Cobalt Blue — light and atmosphere ---- */
+  --blue-50: #eef4ff;
+  --blue-100: #d6e4ff;
+  --blue-200: #adc8ff;
+  --blue-300: #7aa5ff;
+  --blue-400: #4a82f5;
+  --blue-500: #2563e0;
+  --blue-600: #1a4bb8;
+  --blue-700: #163a8c;
+  --blue-800: #12296a;
+  --blue-900: #0c1a45;
+  --blue-950: #070f2a;
+
+  /* ---- color: Wave Teal — rare third voice ---- */
+  --teal-300: #5fe0c0;
+  --teal-400: #2fc4a0;
+  --teal-500: #16a085;
+  --teal-600: #0f7d68;
 
   /* ---- semantic ---- */
   --bg: var(--ink-0);
@@ -40,34 +61,37 @@
   --line-strong: var(--ink-5);
   --text: var(--white);
   --muted: var(--gray-300);
-  --accent: var(--blaze-500);
-  --accent-soft: rgba(255, 91, 4, .12);
-  --accent-glow: rgba(255, 91, 4, .25);
+  --accent: var(--red-500);
+  --accent-soft: rgba(236, 47, 31, .12);
+  --accent-glow: rgba(236, 47, 31, .3);
+  --hl: var(--blue-300);           /* highlighted text: org names, hovers */
   --on-accent: var(--white);
-  --success: #7ddc8a;
+  --success: var(--teal-400);
   --danger: #ff8a7a;
+  /* channels for rgba(): cobalt light for card glows, red for the signal */
+  --glow-rgb: 37, 99, 224;
+  --glow-2-rgb: 122, 165, 255;
+  --accent-rgb: 236, 47, 31;
 
   /* ---- gradients ---- */
-  /* signature 4-stop ramp: white → peach → blaze → ember */
-  --grad-blaze: linear-gradient(90deg, var(--blaze-900) 0%, var(--blaze-500) 40%, var(--blaze-300) 80%, var(--white) 120%);
-  --grad-fill: linear-gradient(90deg, #d94c03 0%, var(--blaze-500) 45%, var(--blaze-300) 100%);
-  --grad-stroke: linear-gradient(100deg, var(--blaze-900) 0%, var(--blaze-500) 35%, var(--blaze-300) 65%, var(--blaze-600) 100%);
-  --grad-text: linear-gradient(180deg, var(--white) 0%, var(--blaze-300) 55%, var(--blaze-500) 100%);
-  --grad-wordmark: linear-gradient(180deg, var(--blaze-600) 0%, var(--blaze-800) 55%, rgba(51, 18, 1, 0) 100%);
+  --grad-fill: linear-gradient(90deg, var(--red-600) 0%, var(--red-500) 50%, var(--red-400) 100%);
+  --grad-stroke: linear-gradient(100deg, var(--blue-700) 0%, var(--blue-400) 35%, var(--teal-300) 65%, var(--blue-500) 100%);
+  --grad-text: linear-gradient(180deg, var(--white) 0%, var(--blue-200) 55%, var(--blue-400) 100%);
+  --grad-wordmark: linear-gradient(180deg, var(--blue-500) 0%, var(--blue-800) 55%, rgba(12, 26, 69, 0) 100%);
+  --grad-sky: linear-gradient(180deg, var(--ink-0) 0%, var(--blue-950) 45%, var(--blue-800) 100%);
 
-  /* ---- shadows / glow (from the Primary Button spec) ---- */
+  /* ---- shadows / glow ---- */
   --glow-sm: 0 5px 10.4px var(--accent-glow);
   --glow-lg: 0 0 30.8px var(--accent-glow);
+  --glow-blue: 0 5px 12px rgba(var(--glow-rgb), .3), 0 0 30px rgba(var(--glow-rgb), .25);
   --inset-shade: inset 4px 5px 12.5px rgba(0, 0, 0, .25);
   --shadow-btn: var(--glow-sm), var(--glow-lg), var(--inset-shade);
-  --shadow-card: 0 0 0 1px rgba(255, 91, 4, .08), 0 20px 60px -30px rgba(255, 91, 4, .35);
 
   /* ---- type ---- */
-  /* Poppins has no Cyrillic, so Montserrat carries the same geometric voice in RU and EN */
-  --font: "Montserrat", "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
   --sans: var(--font);
   --serif: var(--font);   /* legacy alias */
-  --track-tight: -.04em;  /* display tracking (−4%) */
+  --track-tight: -.04em;
   --track-snug: -.02em;
   --track-caps: .16em;
 
@@ -89,7 +113,7 @@
   --radius: 20px;
   --radius-lg: 28px;
   --pill: 999px;
-  --pad-btn: 16px 24px;   /* padding spec 24 × 16 */
+  --pad-btn: 16px 24px;
   --stroke: 1.5px;
   --gutter: clamp(16px, 4vw, 48px);
   --maxw: 1200px;
@@ -117,8 +141,8 @@ body {
 }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
-::selection { background: var(--accent); color: var(--white); }
-:focus-visible { outline: 2px solid var(--blaze-300); outline-offset: 3px; }
+::selection { background: var(--blue-500); color: var(--white); }
+:focus-visible { outline: 2px solid var(--blue-300); outline-offset: 3px; }
 
 /* ======================== typography ======================== */
 .t-display {
@@ -136,7 +160,7 @@ img { display: block; max-width: 100%; }
   margin: 0;
   font: var(--fw-medium) var(--fs-xs)/1 var(--font);
   letter-spacing: var(--track-caps); text-transform: uppercase;
-  color: var(--accent);
+  color: var(--red-400);
 }
 .t-grad {
   background: var(--grad-text);
@@ -146,7 +170,7 @@ img { display: block; max-width: 100%; }
 .t-accent { color: var(--accent); }
 
 /* ========================= buttons ========================== */
-/* Primary: glowing gradient pill. Secondary: black pill with gradient stroke. */
+/* Primary: red signal pill. Secondary: night pill with a cobalt→teal stroke. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   font: var(--fw-medium) var(--fs-sm)/1 var(--font); letter-spacing: -.01em;
@@ -159,7 +183,7 @@ img { display: block; max-width: 100%; }
   cursor: pointer;
   transition: transform .25s var(--ease), box-shadow .25s var(--ease), filter .25s;
 }
-.btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 6px 16px rgba(255, 91, 4, .4), 0 0 44px rgba(255, 91, 4, .35), var(--inset-shade); }
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 6px 16px rgba(var(--accent-rgb), .42), 0 0 40px rgba(var(--accent-rgb), .32), var(--inset-shade); }
 .btn:active { transform: translateY(0); }
 
 .btn.ghost, .btn.secondary {
@@ -169,9 +193,9 @@ img { display: block; max-width: 100%; }
     var(--grad-stroke) border-box;
   border: var(--stroke) solid transparent;
   padding: calc(16px - var(--stroke)) calc(24px - var(--stroke));
-  box-shadow: var(--glow-sm), var(--glow-lg);
+  box-shadow: var(--glow-blue);
 }
-.btn.ghost:hover, .btn.secondary:hover { filter: none; box-shadow: 0 6px 16px rgba(255, 91, 4, .32), 0 0 40px rgba(255, 91, 4, .3); }
+.btn.ghost:hover, .btn.secondary:hover { filter: none; box-shadow: 0 6px 16px rgba(var(--glow-rgb), .4), 0 0 40px rgba(var(--glow-rgb), .35); }
 
 .btn.quiet {
   color: var(--muted); background: transparent; box-shadow: none;
@@ -201,9 +225,9 @@ img { display: block; max-width: 100%; }
     var(--grad-stroke) border-box;
   border: var(--stroke) solid transparent;
   padding: calc(11px - .5px) calc(18px - .5px);
-  box-shadow: var(--glow-sm), var(--glow-lg);
+  box-shadow: var(--glow-blue);
 }
-.chip small { color: var(--accent); font-size: 12px; }
+.chip small { color: var(--red-400); font-size: 12px; }
 
 /* ===================== badges & tags ====================== */
 .badge {
@@ -212,78 +236,69 @@ img { display: block; max-width: 100%; }
   color: var(--muted);
   border: 1px solid var(--line); border-radius: var(--pill); padding: 5px 10px;
 }
-.badge.live { color: var(--blaze-300); border-color: rgba(255, 91, 4, .35); }
+.badge.live { color: var(--teal-300); border-color: rgba(47, 196, 160, .35); }
 .badge.live::before {
   content: ""; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+  background: var(--teal-400); box-shadow: 0 0 8px var(--teal-400);
 }
 .tag {
   font: var(--fw-regular) var(--fs-xs)/1 var(--font);
   color: var(--gray-100);
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(122, 165, 255, .06);
+  border: 1px solid rgba(122, 165, 255, .1);
   border-radius: var(--pill); padding: 6px 10px;
 }
 
 /* ========================== surfaces ========================== */
-/* glow card: black body, ember light leaking from the bottom-right corner */
 .surface {
   position: relative;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
+/* glow card: night body, cobalt light rising from the bottom, a red ember in the corner */
 .surface-glow {
   position: relative; isolation: isolate; overflow: hidden;
   background:
-    radial-gradient(120% 90% at 100% 100%, rgba(255, 91, 4, .9) 0%, rgba(255, 91, 4, .35) 30%, transparent 62%),
-    radial-gradient(80% 60% at 0% 100%, rgba(255, 157, 104, .25), transparent 60%),
+    radial-gradient(90% 70% at 100% 100%, rgba(var(--accent-rgb), .45) 0%, rgba(var(--accent-rgb), .12) 30%, transparent 60%),
+    radial-gradient(120% 90% at 30% 120%, rgba(var(--glow-rgb), .7) 0%, rgba(var(--glow-rgb), .2) 40%, transparent 70%),
     var(--card);
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px rgba(255, 157, 104, .35), 0 0 40px -10px var(--accent-glow);
+  box-shadow: inset 0 0 0 1px rgba(var(--glow-2-rgb), .3), 0 0 40px -10px rgba(var(--glow-rgb), .4);
 }
 
 /* =========================== effects =========================== */
-/* aurora: vertical light shafts rising from an ember floor (hero backdrop) */
+/* horizon: a clean glow rising from the bottom edge, like the light in the posters */
 .aurora {
   position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  /* fade out before the section edge so the glow never ends in a hard line */
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
 }
 .aurora::before {
   content: ""; position: absolute; inset: 0;
   background:
-    repeating-linear-gradient(90deg,
-      rgba(255, 91, 4, 0) 0 3.2%, rgba(255, 120, 40, .55) 5.5%, rgba(255, 91, 4, 0) 8%,
-      rgba(255, 91, 4, 0) 10%, rgba(255, 157, 104, .35) 12.5%, rgba(255, 91, 4, 0) 14.5%),
-    radial-gradient(70% 70% at 50% 100%, var(--blaze-500) 0%, rgba(255, 91, 4, .55) 35%, transparent 70%);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, .25) 30%, #000 82%, transparent 100%);
-          mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, .25) 30%, #000 82%, transparent 100%);
-  filter: blur(18px);
-  animation: aurora-drift 14s ease-in-out infinite alternate;
+    radial-gradient(20% 16% at 50% 84%, rgba(255, 241, 208, .3), transparent 70%),
+    radial-gradient(60% 60% at 50% 84%, rgba(var(--glow-rgb), .9) 0%, rgba(18, 41, 106, .6) 42%, transparent 76%),
+    radial-gradient(35% 40% at 12% 90%, rgba(22, 160, 133, .2), transparent 70%),
+    radial-gradient(35% 40% at 88% 90%, rgba(22, 160, 133, .14), transparent 70%);
+  animation: horizon-breathe 12s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
 }
-.aurora::after {
-  /* faint engineering grid, like the reference hero */
-  content: ""; position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-  background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(80% 70% at 50% 30%, #000, transparent);
-          mask-image: radial-gradient(80% 70% at 50% 30%, #000, transparent);
-}
-@keyframes aurora-drift {
-  from { transform: translateX(-2%) scaleY(1); }
-  to   { transform: translateX(2%) scaleY(1.06); }
+@keyframes horizon-breathe {
+  from { transform: scale(1); opacity: .9; }
+  to   { transform: scale(1.06); opacity: 1; }
 }
 
-/* side beams: two light cones aimed at the centre (CTA backdrop) */
+/* beams: two light cones aimed at the centre, like a lighthouse sweep (CTA backdrop) */
 /* blur sits on the parent: clip-path on the cones would otherwise cut the blur off */
 .beams { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; filter: blur(24px); }
 .beams::before, .beams::after {
-  content: ""; position: absolute; top: 50%; width: 46%; height: 76%;
+  content: ""; position: absolute; top: 50%; width: 36%; height: 70%;
   transform: translateY(-50%);
-  background: linear-gradient(90deg, var(--blaze-300) 0%, var(--blaze-500) 30%, rgba(255, 91, 4, 0) 100%);
+  background: linear-gradient(90deg, var(--blue-200) 0%, var(--blue-500) 30%, rgba(37, 99, 224, 0) 100%);
   clip-path: polygon(0 0, 100% 47%, 100% 53%, 0 100%);
-  opacity: .85;
+  opacity: .8;
 }
 .beams::before { left: 0; }
 .beams::after { right: 0; transform: translateY(-50%) scaleX(-1); }
