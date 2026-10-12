@@ -75,7 +75,7 @@
       "year": 2026,
       "private": true,
       "cover": {
-        "glyph": "✦",
+        "glyph": "Sticker",
         "tint": "#2a2340",
         "sub": {
           "ru": "Telegram",
@@ -195,12 +195,13 @@
         "en": "Wishlist"
       },
       "desc": {
-        "ru": "Вишлист с календарём до праздника и анонимным бронированием подарков: владелец не видит, кто что выбрал, так что сюрприз остаётся сюрпризом. Тёмная и светлая темы, пересчёт валют.",
-        "en": "A wishlist with a countdown calendar and anonymous gift booking: the owner can't see who picked what, so the surprise stays a surprise. Dark and light themes, currency conversion."
+        "ru": "Общий вишлист на двоих с обратным отсчётом до праздника. Сортировка и категории, фильтр «можно купить на Ozon», галереи товаров и анонимная бронь: владелец не видит, кто что выбрал, — сюрприз остаётся сюрпризом. Тёмная и светлая темы.",
+        "en": "A shared wishlist for two with a countdown to the big day. Sorting and categories, a “buy on Ozon” filter, product galleries and anonymous booking: the owner can't see who picked what, so the surprise stays a surprise. Dark and light themes."
       },
       "tags": [
-        "JavaScript",
-        "GitHub Pages"
+        "UI/UX",
+        "Product design",
+        "JavaScript"
       ],
       "links": {
         "live": "https://eyeanton.github.io/wishlist/",
