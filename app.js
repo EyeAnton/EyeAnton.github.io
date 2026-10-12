@@ -8,102 +8,140 @@
 let CATEGORIES = [];
 let PROJECTS = [];
 
-// Everything about me that is not a project. Channels with an empty href are not shown.
+// Everything about me that is not a project (source: my CV). Channels with an empty href are not shown.
 const PROFILE = {
+  since: 2020, // first job in 3D — drives the "years in 3D & motion" stat
   cv: { ru: "assets/cv-ru.pdf", en: "assets/cv-en.pdf" },
   channels: [
+    { name: "Telegram", handle: "@EyeAnton", href: "https://t.me/EyeAnton" },
+    { name: "Email", handle: "leritosha@gmail.com", href: "mailto:leritosha@gmail.com" },
+    { name: "Behance", handle: "EyeAnton", href: "https://www.behance.net/EyeAnton" },
     { name: "GitHub", handle: "EyeAnton", href: "https://github.com/EyeAnton" },
-    { name: "Email", handle: "", href: "" },
-    { name: "Telegram", handle: "", href: "" },
+  ],
+  skills: [
+    { icon: "✺", ru: "AI-генерация", en: "AI generation",
+      d: { ru: "Видео, изображения и звук для продукта — от промпта до готового ассета", en: "Video, imagery and sound for products — from prompt to finished asset" },
+      tools: ["ComfyUI", "Nano Banana", "Flux", "Midjourney", "Recraft", "Kling", "ElevenLabs", "Suno"] },
+    { icon: "⚙", ru: "Автоматизация", en: "Automation",
+      d: { ru: "Пайплайны, которые превращают генерацию в масштабируемый продакшен", en: "Pipelines that turn generation into scalable production" },
+      tools: ["Google Cloud Run", "Gemini API", "Make", "Claude", "Cursor", "ffmpeg", "Python", "Node.js"] },
+    { icon: "◈", ru: "Motion & 3D", en: "Motion & 3D",
+      d: { ru: "3D-подарки, иконки, онбординг-анимации и промо-ролики", en: "3D gifts, icons, onboarding animations and promo videos" },
+      tools: ["After Effects", "Premiere Pro", "Blender", "Marvelous Designer", "Substance Painter"] },
+    { icon: "✦", ru: "Дизайн", en: "Design",
+      d: { ru: "Ассеты под разработку: mobile, web, Figma", en: "Dev-ready assets for mobile, web and Figma" },
+      tools: ["Figma", "Photoshop"] },
+  ],
+  soft: {
+    ru: ["Связка креатива и технологий", "Аудит и автоматизация процессов", "Быстрое прототипирование", "Оценка AI-инструментов", "Объясняю AI нетехническим командам", "Кросс-функциональная работа"],
+    en: ["Bridging creative & tech", "Process audit & automation", "Rapid prototyping", "AI tool evaluation", "Explaining AI to non-tech teams", "Cross-functional collaboration"],
+  },
+  experience: [
+    { role: "Senior CG Artist", org: "Social Discovery Group", when: { ru: "Янв 2025 — Окт 2026", en: "Jan 2025 — Oct 2026" },
+      points: {
+        ru: ["Пайплайн автоматической генерации видеоподарков: Kling API + Gemini + ffmpeg, хромакей, экспорт webm/hevc (Node.js)",
+             "Пайплайн «фото → стикер»: Make + Google Cloud Run + Gemini API",
+             "Генерация визуальных новелл на RunningHub: сценарии, персонажи и иллюстрации — автоматически",
+             "3D-motion: подарки, иконки, онбординг-анимации; motion-процесс от сториборда до правок"],
+        en: ["Automated video-gift pipeline: Kling API + Gemini + ffmpeg, chroma key, webm/hevc export (Node.js)",
+             "Photo-to-sticker pipeline: Make + Google Cloud Run + Gemini API",
+             "Visual-novel generation on RunningHub: scripts, characters and illustrations, fully automated",
+             "3D motion: gifts, icons, onboarding animations; motion workflow from storyboard to revisions"],
+      } },
+    { role: "3D Motion Designer", org: "Social Discovery Group", when: { ru: "Мар 2024 — Дек 2024", en: "Mar 2024 — Dec 2024" },
+      points: {
+        ru: ["Промо-ролики для разных платформ в After Effects", "3D-анимация в Blender, генерация изображений и видео при помощи AI"],
+        en: ["Promo videos for multiple platforms in After Effects", "3D animation in Blender, AI-generated imagery and video"],
+      } },
+    { role: "Freelance", org: "", when: { ru: "Ноя 2022 — Мар 2024", en: "Nov 2022 — Mar 2024" },
+      points: {
+        ru: ["3D и motion-дизайн для брендов и digital-платформ", "Промо-материалы и инфографика для соцсетей"],
+        en: ["3D and motion design for brands and digital platforms", "Social media promo content and infographics"],
+      } },
+    { role: "3D Modeller", org: "Comme Des Creators", when: { ru: "Май 2020 — Ноя 2022", en: "May 2020 — Nov 2022" },
+      points: {
+        ru: ["3D-модели одежды и 3D-анимация", "Внедрение OpenGL-технологий в проект"],
+        en: ["3D clothing modelling and 3D animation", "OpenGL-based renders: modelling, texturing, asset integration"],
+      } },
   ],
 };
-
-const AREA_ICON = { design: "✦", web: "◐", hardware: "◈", ai: "✺", tools: "⚙" };
 
 const UI = {
   ru: {
     "nav.home": "Главная", "nav.work": "Проекты", "nav.contact": "Контакты",
-    "hero.eyebrow": "Привет, я Антон",
-    "hero.title": "Дизайн, AI-визуал и вещи, которые я собираю руками и кодом",
-    "hero.lead": "Здесь собраны мои проекты: от коллекции 3D-подарков для соцприложения до веб-каталогов, прошивок для клавиатуры и Telegram-ботов.",
+    "hero.eyebrow": "Антон Егоров · AI Creative Technologist",
+    "hero.title": "Превращаю AI-генерацию в масштабируемый продакшен",
+    "hero.lead": "Дизайнер на стыке AI-генерации, motion/3D и автоматизации креативных процессов. От промптов и ComfyUI-воркфлоу до пакетной генерации и готовых ассетов для разработки.",
+    "hero.where": "Ереван · удалённо или релокация",
     "hero.cta": "Смотреть проекты",
     "hero.cv": "Контакты и CV",
     "areas.eyebrow": "Навыки",
     "areas.title": "Что я делаю",
-    "areas.text": "Пять направлений — от визуала до железа. Навыки взяты из реальных проектов.",
+    "areas.text": "Делал видео-подарки, стикеры, 3D-иконки и онбординг-анимации для продукта с большим объёмом контента.",
+    "soft.title": "Soft skills",
     "show.eyebrow": "Избранное",
     "show.title": "Проекты, которыми я горжусь",
     "show.all": "Все проекты →",
     "stack.title": "Стек и инструменты",
-    "path.eyebrow": "Путь",
-    "path.title": "Что и когда я делал",
+    "exp.eyebrow": "Опыт",
+    "exp.title": "Где я работал",
     "work.eyebrow": "Каталог",
     "work.title": "Проекты",
-    "work.text": "Дизайн-кейсы, живые сайты, прошивки и инструменты — всё, что сделано своими руками.",
+    "work.text": "Рабочие кейсы и личные проекты: AI-визуал, сайты, прошивки и инструменты.",
     "contact.eyebrow": "Контакты",
     "contact.title": "Давайте поговорим",
-    "contact.text": "Открыт к проектам и сотрудничеству. Резюме и все способы связи — на странице контактов.",
-    "contact.lead": "Открыт к проектам и сотрудничеству. Скачайте резюме или напишите там, где удобно.",
+    "contact.text": "Открыт к работе удалённо или с релокацией. Резюме и все способы связи — на странице контактов.",
+    "contact.lead": "Открыт к работе удалённо или с релокацией. Скачайте резюме или напишите там, где удобно — быстрее всего в Telegram.",
     "cv.title": "Резюме",
-    "cv.text": "Опыт, навыки и проекты на одной странице — в PDF.",
+    "cv.text": "Опыт, навыки и инструменты на одной странице — в PDF.",
     "cv.soon": "CV скоро появится",
     "ch.title": "Где меня найти",
     "help.title": "Чем могу помочь",
     "foot.note": "Сделано без фреймворков · работает на любом устройстве",
     "foot.ds": "Дизайн-система",
     page: "Каталог подарков", live: "Открыть сайт", code: "Код", code2: "ZMK-конфиг", private: "Приватный", online: "Онлайн",
-    sProjects: "проектов", sLive: "живых сайтов", sAreas: "направлений",
+    sYears: "лет в 3D и motion", sProjects: "проектов", sLive: "живых сайтов",
     cvRu: "Скачать CV · RU", cvEn: "Скачать CV · EN",
     projects: (n) => `${n} ${plural(n, "проект", "проекта", "проектов")}`,
-    areas: {
-      design: "Арт-дирекшн, AI-3D и моушн для продуктов",
-      web: "Сайты и веб-приложения — от идеи до деплоя",
-      hardware: "Прошивки, устройства и компаньон-приложения",
-      ai: "Боты и пайплайны генерации изображений",
-      tools: "Утилиты, которые экономят часы рутины",
-    },
+    tools: (n) => `${n} ${plural(n, "инструмент", "инструмента", "инструментов")}`,
   },
   en: {
     "nav.home": "Home", "nav.work": "Work", "nav.contact": "Contact",
-    "hero.eyebrow": "Hi, I'm Anton",
-    "hero.title": "Design, AI visuals and things I build by hand and in code",
-    "hero.lead": "A collection of my projects: from a 3D gift collection for a social app to web catalogs, keyboard firmware and Telegram bots.",
+    "hero.eyebrow": "Anton Egorov · AI Creative Technologist",
+    "hero.title": "I turn AI generation into scalable production",
+    "hero.lead": "Designer working at the intersection of generative AI, motion/3D and creative automation. From prompts and ComfyUI workflows to batch generation and dev-ready assets.",
+    "hero.where": "Yerevan, Armenia · remote or relocation",
     "hero.cta": "View work",
     "hero.cv": "Contact & CV",
     "areas.eyebrow": "Skills",
     "areas.title": "What I do",
-    "areas.text": "Five areas — from visuals to hardware. Skills come straight from real projects.",
+    "areas.text": "Shipped video gifts, stickers, 3D icons and onboarding animations for a high-volume content product.",
+    "soft.title": "Soft skills",
     "show.eyebrow": "Selected",
     "show.title": "Projects I'm proud of",
     "show.all": "All projects →",
     "stack.title": "Stack & tools",
-    "path.eyebrow": "Timeline",
-    "path.title": "What I built and when",
+    "exp.eyebrow": "Experience",
+    "exp.title": "Where I've worked",
     "work.eyebrow": "Catalog",
     "work.title": "Work",
-    "work.text": "Design cases, live sites, firmware and tools — all made by hand.",
+    "work.text": "Work cases and personal projects: AI visuals, websites, firmware and tools.",
     "contact.eyebrow": "Contact",
     "contact.title": "Let's talk",
-    "contact.text": "Open to projects and collaboration. My CV and every way to reach me are on the contact page.",
-    "contact.lead": "Open to projects and collaboration. Download my CV or reach out wherever is convenient.",
+    "contact.text": "Open to remote work or relocation. My CV and every way to reach me are on the contact page.",
+    "contact.lead": "Open to remote work or relocation. Download my CV or reach out wherever is convenient — Telegram is fastest.",
     "cv.title": "CV",
-    "cv.text": "Experience, skills and projects on a single page — as a PDF.",
+    "cv.text": "Experience, skills and tools on a single page — as a PDF.",
     "cv.soon": "CV coming soon",
     "ch.title": "Find me",
     "help.title": "How I can help",
     "foot.note": "Built without frameworks · works on any device",
     "foot.ds": "Design system",
     page: "Gift catalog", live: "Open site", code: "Code", code2: "ZMK config", private: "Private", online: "Live",
-    sProjects: "projects", sLive: "live sites", sAreas: "areas",
+    sYears: "years in 3D & motion", sProjects: "projects", sLive: "live sites",
     cvRu: "Download CV · RU", cvEn: "Download CV · EN",
     projects: (n) => `${n} ${n === 1 ? "project" : "projects"}`,
-    areas: {
-      design: "Art direction, AI 3D and motion for products",
-      web: "Websites and web apps — from idea to deploy",
-      hardware: "Firmware, devices and companion apps",
-      ai: "Bots and image-generation pipelines",
-      tools: "Utilities that save hours of routine",
-    },
+    tools: (n) => `${n} ${n === 1 ? "tool" : "tools"}`,
   },
 };
 
@@ -183,25 +221,32 @@ function cardHTML(p, i) {
 function statsHTML() {
   const t = UI[lang];
   const live = PROJECTS.filter((p) => p.links.live).length;
-  const areas = new Set(PROJECTS.map((p) => p.cat)).size;
-  return [[PROJECTS.length, t.sProjects], [live, t.sLive], [areas, t.sAreas]]
+  const years = new Date().getFullYear() - PROFILE.since;
+  return [[`${years}+`, t.sYears], [PROJECTS.length, t.sProjects], [live, t.sLive]]
     .map(([n, l], i) => `<div class="stat reveal" style="--d:${i * 90}ms"><b>${n}</b><span>${l}</span></div>`).join("");
 }
 
-// one card per category that has projects: what I do there + the skills those projects used
+// skill groups from the CV: what I do + the tools for it
 function areasHTML(compact) {
   const t = UI[lang];
-  return CATEGORIES.filter((c) => c.id !== "all").map((c, i) => {
-    const ps = PROJECTS.filter((p) => p.cat === c.id);
-    if (!ps.length) return "";
-    const skills = uniq(ps.flatMap((p) => p.tags)).slice(0, compact ? 4 : 7);
-    return `<a class="area reveal" href="projects.html#cat=${c.id}" style="--d:${i * 80}ms">
-      <span class="area-top"><span class="area-ico">${AREA_ICON[c.id] || "✦"}</span><span class="area-n">${t.projects(ps.length)}</span></span>
-      <h3>${esc(c[lang])}</h3>
-      <p>${esc((t.areas || {})[c.id] || "")}</p>
-      ${tagsHTML(skills)}
-    </a>`;
-  }).join("");
+  return PROFILE.skills.map((g, i) => `<div class="area reveal" style="--d:${i * 80}ms">
+      <span class="area-top"><span class="area-ico">${g.icon}</span><span class="area-n">${t.tools(g.tools.length)}</span></span>
+      <h3>${esc(g[lang])}</h3>
+      <p>${esc(g.d[lang])}</p>
+      ${tagsHTML(compact ? g.tools.slice(0, 4) : g.tools)}
+    </div>`).join("");
+}
+
+const softHTML = () => PROFILE.soft[lang].map((x) => `<span class="tag">${esc(x)}</span>`).join("");
+
+function expHTML() {
+  return PROFILE.experience.map((e, i) => `<article class="exp-item reveal" style="--d:${i * 60}ms">
+      <div class="exp-when">${esc(e.when[lang])}</div>
+      <div class="exp-body">
+        <h3>${esc(e.role)}${e.org ? ` <span>· ${esc(e.org)}</span>` : ""}</h3>
+        <ul>${e.points[lang].map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+      </div>
+    </article>`).join("");
 }
 
 /* ---------------- pages ---------------- */
@@ -229,20 +274,14 @@ function renderHome() {
   }).join("");
 
   // stack ticker: every tag once, the row duplicated so the loop is seamless
-  const tags = uniq(PROJECTS.flatMap((p) => p.tags));
+  const tags = uniq([...PROFILE.skills.flatMap((g) => g.tools), ...PROJECTS.flatMap((p) => p.tags)]);
   const half = Math.ceil(tags.length / 2);
   const row = (list) => { const s = list.map((x) => `<span>${esc(x)}</span>`).join(""); return s + s; };
   $("#stack").innerHTML = `<div class="marquee-row">${row(tags.slice(0, half))}</div>
     <div class="marquee-row rev">${row(tags.slice(half))}</div>`;
 
-  const years = uniq(PROJECTS.map((p) => p.year)).sort((a, b) => b - a);
-  $("#path").innerHTML = years.map((y) => {
-    const ps = PROJECTS.filter((p) => p.year === y);
-    return `<div class="path-year reveal">
-      <div class="path-head"><b>${y}</b><span>${t.projects(ps.length)}</span></div>
-      <ul>${ps.map((p) => `<li><span>${esc(p.title[lang])}</span><small>${catName(p.cat)}</small></li>`).join("")}</ul>
-    </div>`;
-  }).join("");
+  $("#soft").innerHTML = softHTML();
+  $("#exp").innerHTML = expHTML();
 }
 
 function renderProjects() {
@@ -259,7 +298,7 @@ let cvAvailable = {};
 function renderContact() {
   const t = UI[lang];
   const cvBtn = (k, label) => cvAvailable[k]
-    ? `<a class="btn${k === "en" ? " ghost" : ""}" href="${PROFILE.cv[k]}" download>${label} ↓</a>` : "";
+    ? `<a class="btn${k === "en" ? " ghost" : ""}" href="${PROFILE.cv[k]}" download="Anton-Egorov-CV-${k.toUpperCase()}.pdf">${label} ↓</a>` : "";
   const btns = cvBtn("ru", t.cvRu) + cvBtn("en", t.cvEn);
   $("#cvLinks").innerHTML = btns || `<span class="btn quiet" aria-disabled="true">${t["cv.soon"]}</span>`;
   $("#channels").innerHTML = PROFILE.channels.filter((c) => c.href).map((c) =>
