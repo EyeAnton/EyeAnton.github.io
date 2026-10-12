@@ -1,0 +1,43 @@
+<!doctype html>
+<!-- Source of assets/og.jpg (link preview, 1200×630). Regenerate: see README → «Превью ссылки». -->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>OG preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../design-system.css">
+  <style>
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    .og { position: relative; isolation: isolate; width: 1200px; height: 630px; padding: 56px 64px; display: flex; flex-direction: column; }
+    .og .aurora::before { filter: blur(22px); }
+    .og-top { display: flex; align-items: center; justify-content: space-between; }
+    .og-logo { display: inline-flex; align-items: center; font: 500 30px/1 var(--font); letter-spacing: var(--track-snug); }
+    .og-logo::before {
+      content: "✦"; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 14px;
+      font-size: 22px; color: var(--bg); background: var(--white);
+      clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    }
+    .og-logo span { color: var(--accent); }
+    .og-main { margin-top: auto; margin-bottom: 40px; }
+    .og h1 { margin: 18px 0 0; max-width: 21ch; font: 500 60px/1.05 var(--font); letter-spacing: var(--track-tight); }
+    .og .eyebrow { font-size: 18px; }
+    .og-tags { display: flex; gap: 12px; margin-top: 30px; }
+    .og-tags span { font: 400 20px/1 var(--font); padding: 13px 22px; border-radius: var(--pill); border: 1px solid rgba(255, 255, 255, .18); background: rgba(4, 4, 4, .55); }
+    .og-tags span:first-child { border-color: rgba(255, 157, 104, .7); color: var(--blaze-300); }
+  </style>
+</head>
+<body>
+  <div class="og">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="og-top">
+      <span class="og-logo">Anton<span>.</span></span>
+      <span class="btn ghost">eyeanton.github.io</span>
+    </div>
+    <div class="og-main">
+      <p class="eyebrow">Портфолио и резюме</p>
+      <h1>Дизайн, AI-визуал и вещи, которые я собираю руками и кодом</h1>
+      <div class="og-tags"><span>Дизайн</span><span>AI-визуал</span><span>Веб</span><span>Железо</span></div>
+    </div>
+  </div>
+</body>
+</html>
