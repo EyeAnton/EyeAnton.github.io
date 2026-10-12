@@ -14,6 +14,18 @@
   `assets/cv-ru.pdf` / `assets/cv-en.pdf`. Почта, Telegram и др. — в объекте `PROFILE` в начале `app.js`
   (пустой `href` = не показывать).
 
+## Превью ссылки
+
+`assets/og.jpg` (1200×630) — то, что видно при отправке ссылки в мессенджерах. Исходник — `tools/og.html`
+(на токенах дизайн-системы). Перегенерировать после правки текста или смены домена:
+
+```powershell
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --hide-scrollbars --window-size=1200,630 `
+  --virtual-time-budget=6000 --screenshot="$PWD\og.png" "file:///$PWD/tools/og.html"
+```
+затем сохранить `og.png` как JPEG в `assets/og.jpg`. В `<head>` страниц `og:image` и `og:url` — абсолютные
+адреса (мессенджеры не понимают относительные); при смене домена поменять и их.
+
 ## Дизайн-система «Blaze»
 
 Тёмный холст `#040404`, белый текст и один акцент — Blaze Orange `#FF5B04` (по мотивам Oragency на Behance).
