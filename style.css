@@ -314,8 +314,8 @@
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
           mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
 }
-.marquee-row { display: flex; gap: 12px; width: max-content; animation: marquee 48s linear infinite; }
-.marquee-row.rev { animation-direction: reverse; animation-duration: 56s; }
+.marquee-row { display: flex; gap: 12px; width: max-content; animation: marquee 220s linear infinite; }
+.marquee-row.rev { animation-direction: reverse; animation-duration: 260s; }
 .marquee-row span {
   font: var(--fw-regular) clamp(15px, 1.6vw, 20px)/1 var(--font); white-space: nowrap;
   padding: 14px 22px; border-radius: var(--pill);
