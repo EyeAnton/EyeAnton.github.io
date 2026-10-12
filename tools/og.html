@@ -9,21 +9,16 @@
   <style>
     html, body { width: 1200px; height: 630px; overflow: hidden; }
     .og { position: relative; isolation: isolate; width: 1200px; height: 630px; padding: 56px 64px; display: flex; flex-direction: column; }
-    .og .aurora::before { filter: blur(22px); }
+        .og .aurora { -webkit-mask-image: none; mask-image: none; }
     .og-top { display: flex; align-items: center; justify-content: space-between; }
     .og-logo { display: inline-flex; align-items: center; font: 500 30px/1 var(--font); letter-spacing: var(--track-snug); }
-    .og-logo::before {
-      content: "✦"; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 14px;
-      font-size: 22px; color: var(--bg); background: var(--white);
-      clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-    }
     .og-logo span { color: var(--accent); }
     .og-main { margin-top: auto; margin-bottom: 40px; }
     .og h1 { margin: 18px 0 0; max-width: 21ch; font: 500 60px/1.05 var(--font); letter-spacing: var(--track-tight); }
     .og .eyebrow { font-size: 18px; }
     .og-tags { display: flex; gap: 12px; margin-top: 30px; }
-    .og-tags span { font: 400 20px/1 var(--font); padding: 13px 22px; border-radius: var(--pill); border: 1px solid rgba(255, 255, 255, .18); background: rgba(4, 4, 4, .55); }
-    .og-tags span:first-child { border-color: rgba(255, 157, 104, .7); color: var(--blaze-300); }
+    .og-tags span { font: 400 20px/1 var(--font); padding: 13px 22px; border-radius: var(--pill); border: 1px solid rgba(255, 255, 255, .18); background: rgba(5, 10, 24, .55); }
+    .og-tags span:first-child { border-color: rgba(236, 47, 31, .7); color: var(--red-300); }
   </style>
 </head>
 <body>
