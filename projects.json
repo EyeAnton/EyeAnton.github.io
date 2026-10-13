@@ -811,53 +811,6 @@
       },
       "page": [
         {
-          "id": "ec01",
-          "type": "facts",
-          "visible": true,
-          "items": [
-            {
-              "k": {
-                "ru": "Роль",
-                "en": "Role"
-              },
-              "v": {
-                "ru": "Senior CG Artist",
-                "en": "Senior CG Artist"
-              }
-            },
-            {
-              "k": {
-                "ru": "Формат",
-                "en": "Format"
-              },
-              "v": {
-                "ru": "In-house · NDA",
-                "en": "In-house · NDA"
-              }
-            },
-            {
-              "k": {
-                "ru": "Период",
-                "en": "Period"
-              },
-              "v": {
-                "ru": "2025",
-                "en": "2025"
-              }
-            },
-            {
-              "k": {
-                "ru": "Инструменты",
-                "en": "Tools"
-              },
-              "v": {
-                "ru": "ComfyUI · RunningHub · LLM-агент · Kling · After Effects",
-                "en": "ComfyUI · RunningHub · LLM agent · Kling · After Effects"
-              }
-            }
-          ]
-        },
-        {
           "id": "ec02",
           "type": "stats",
           "visible": true,
