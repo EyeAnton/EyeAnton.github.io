@@ -426,6 +426,18 @@
 }
 .editing [data-block]:hover > .edit-bar, .editing [data-block]:hover > .edit-add,
 .edit-bar:focus-within, .edit-add:focus-visible { opacity: 1; }
+/* ✕ over a hovered text inside a block (app.js → siteEditor.removeField): sits on its top-right corner */
+.edit-del {
+  position: absolute; z-index: 20; display: flex; gap: 2px; padding: 3px; translate: -100% calc(-100% - 6px);
+  border-radius: var(--pill); background: var(--blue-600); box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.edit-del.on { opacity: 1; pointer-events: auto; }
+.edit-del button {
+  font: var(--fw-medium) 12px/1 var(--font); color: var(--white); white-space: nowrap;
+  background: none; border: 0; border-radius: var(--pill); padding: 6px 10px; cursor: pointer;
+}
+.edit-del button:hover { background: var(--red-500); }
 .editing .block-off { opacity: .35; }
 .editing .block-off > .edit-bar { opacity: 1; background: var(--ink-5); }
 .cb-empty {

@@ -439,7 +439,30 @@ function decorateForEditor() {
 
 function bootEditor() {
   document.documentElement.classList.add("editing");
+  // ✕ over a text inside a block: delete that text, or the whole list item it sits in (a card, a step, a button)
+  const del = document.createElement("div");
+  del.className = "edit-del";
+  del.contentEditable = "false";
+  document.body.appendChild(del);
+  let delFor = null, delTimer = 0;
+  const hideDel = () => { del.classList.remove("on"); delFor = null; };
+  document.addEventListener("mouseover", (e) => {
+    clearTimeout(delTimer);
+    if (e.target.closest(".edit-del")) return;
+    const el = e.target.closest("[data-block] [data-f]");
+    if (!el || !EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable) { delTimer = setTimeout(hideDel, 300); return; }
+    if (el === delFor) return;
+    delFor = el;
+    del.innerHTML = `<button type="button" data-del="field" title="Удалить этот текст">✕ текст</button>${
+      /\.\d+\.[^.]+$/.test(el.dataset.f) ? `<button type="button" data-del="item" title="Удалить весь пункт">✕ пункт</button>` : ""}`;
+    const r = el.getBoundingClientRect();
+    del.style.left = `${r.right + scrollX}px`;
+    del.style.top = `${r.top + scrollY}px`;
+    del.classList.add("on");
+  });
+
   const sync = () => {
+    hideDel();
     lang = EDITOR.lang;
     applySite(EDITOR.draft);
     setProjects(EDITOR.projects());
@@ -448,6 +471,14 @@ function bootEditor() {
   window.siteEdit = { refresh: sync };
 
   document.addEventListener("click", (e) => {
+    const d = e.target.closest(".edit-del button");
+    if (d && delFor) {
+      e.preventDefault();
+      const el = delFor;
+      hideDel();
+      EDITOR.removeField(el.closest("[data-block]").dataset.block, el.dataset.f, d.dataset.del === "item");
+      return;
+    }
     const b = e.target.closest(".edit-bar button, .edit-add");
     if (b) { e.preventDefault(); EDITOR.blockAction(b.closest("[data-for]").dataset.for, b.dataset.act); return; }
     if (e.target.closest("a, #lang, .chip")) e.preventDefault(); // no navigation while editing

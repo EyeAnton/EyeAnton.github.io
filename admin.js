@@ -591,6 +591,7 @@
   // Every block may also have a section head (eyebrow / title / text) — the "Заголовок секции" switch.
   const loc = (ru = "", en = "") => ({ ru, en });
   const head = (title = "Заголовок", en = "Heading") => ({ eyebrow: loc(), title: loc(title, en), text: loc() });
+  const hasHead = (b) => ["eyebrow", "title", "text"].some((k) => k in b);
   const items = (kind, n) => () => ({ items: Array.from({ length: n }, () => SUBS[kind].blank()) });
   const TYPES = {
     text: { name: "Заголовок и текст", hint: "Надзаголовок, заголовок, абзац", blank: () => head(), fields: [] },
@@ -648,7 +649,7 @@
   let seTarget = "home"; // which page the visual editor shows: "home" or a project id
   let seBlock = "hero";  // selected block id; "_head" = project header, "_add" = picking a new block, "general"
   let seAddAt = 0;       // where "_add" inserts
-  let seUndo = null;     // the last deleted block: { target, i, b }
+  let seUndo = null;     // the last deletion: a block { target, i, b } or a text / list item inside one { target, id, path, v, item }
   const seFold = {};     // list items opened / closed by hand in the panel: key → open
   let frameLoaded = false;
 
@@ -723,6 +724,21 @@
       renderSeBlocks();
       if (id === "_head") renderList();
       updateStatus();
+    },
+    // ✕ on a text inside a block (app.js): drop that text, or with item — the whole list item it sits in (a card, a step, a button)
+    removeField(id, path, item) {
+      const obj = findBlock(id);
+      if (!obj?.type) return;
+      if (item) path = path.replace(/\.[^.]+$/, ""); // items.2.t → items.2
+      const keys = path.split(".");
+      const parent = keys.length > 1 ? getPath(obj, keys.slice(0, -1).join(".")) : obj;
+      const k = keys.at(-1);
+      if (!parent || !(k in parent)) return;
+      const v = Array.isArray(parent) ? parent.splice(+k, 1)[0] : parent[k];
+      if (!Array.isArray(parent)) delete parent[k];
+      seUndo = { target: seTarget, id, path, v, item };
+      if (seBlock !== id) seBlock = id;
+      renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
     },
     ready() { frameLoaded = true; },
   };
@@ -940,7 +956,7 @@
     if (!site) return;
     const home = seTarget === "home";
     const undo = seUndo && seUndo.target === seTarget
-      ? `<div class="undo"><span>Блок «${h(blockLabel(seUndo.b))}» удалён</span><button class="btn ghost small" type="button" data-undo>Вернуть</button></div>` : "";
+      ? `<div class="undo"><span>${seUndo.b ? `Блок «${h(blockLabel(seUndo.b))}» удалён` : seUndo.item ? "Пункт удалён" : "Текст удалён"}</span><button class="btn ghost small" type="button" data-undo>Вернуть</button></div>` : "";
 
     if (seBlock === "_add") {
       const arr = curBlocks();
@@ -973,8 +989,8 @@
         <label class="check"><input type="checkbox" data-bp="visible" data-type="bool" ${cb.visible === false ? "" : "checked"}> Показывать на сайте</label>
         ${home ? "" : `<label class="f">Ширина<select data-bp="w">
           <option value="">На всю ширину</option><option value="half" ${cb.w === "half" ? "selected" : ""}>Половина — два блока в ряд</option></select></label>`}
-        ${T.noHead ? "" : `<label class="check"><input type="checkbox" data-head ${cb.title ? "checked" : ""}> Заголовок секции (надзаголовок, заголовок, текст)</label>
-          ${cb.title ? bField(cb, "eyebrow", "Надзаголовок", "loc") + bField(cb, "title", "Заголовок", "loc") + bField(cb, "text", "Текст", "loc-area") : ""}`}
+        ${T.noHead ? "" : `<label class="check"><input type="checkbox" data-head ${hasHead(cb) ? "checked" : ""}> Заголовок секции (надзаголовок, заголовок, текст)</label>
+          ${hasHead(cb) ? bField(cb, "eyebrow", "Надзаголовок", "loc") + bField(cb, "title", "Заголовок", "loc") + bField(cb, "text", "Текст", "loc-area") : ""}`}
         ${T.fields.map(([k, l, t]) => bField(cb, k, l, t)).join("")}
         ${bField(cb, "anchor", "Якорь — для кнопок вида #story (латиницей, можно пусто)", "text")}
         <p class="hint">Тексты можно править и прямо на странице.</p>
@@ -1090,6 +1106,20 @@
       return;
     }
     if (b.dataset.newtype) { addBlock(b.dataset.newtype); return; }
+    if (b.hasAttribute("data-undo") && !seUndo.b) { // a text / list item back into its block
+      const { id, path, v } = seUndo;
+      const obj = findBlock(id);
+      seUndo = null;
+      if (obj) {
+        const keys = path.split(".");
+        const parent = keys.length > 1 ? getPath(obj, keys.slice(0, -1).join(".")) : obj;
+        if (Array.isArray(parent)) parent.splice(Math.min(+keys.at(-1), parent.length), 0, v);
+        else setPath(obj, path, v);
+      }
+      refreshFrame(); updateStatus();
+      selectBlock(id);
+      return;
+    }
     if (b.hasAttribute("data-undo")) {
       const arr = curBlocks();
       arr.splice(Math.min(seUndo.i, arr.length), 0, seUndo.b);
