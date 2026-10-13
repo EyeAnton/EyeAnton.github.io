@@ -348,12 +348,13 @@ function renderProject() {
   const lead = fld(p, L(h.lead) || (EDITOR && !L(p.desc)) ? "head.lead" : "desc", "p", "Лид", false, "lead");
   const ctas = btns(p, "head.ctas") + linksHTML(p, true);
   const cloud = (h.cloud || []).map((s) => `<img src="${esc(imgSrc(s))}" alt="">`).join("");
+  const zoom = +(h.zoom ?? 1.45) > 1 ? +(h.zoom ?? 1.45) : 0; // hover zoom of the cloud; 0 = off
   $("#projHead").innerHTML = `<div class="aurora" aria-hidden="true"></div>${crumb}
     ${fld(p, "head.eyebrow", "p", "Надзаголовок", false, "eyebrow")}
     <h1 data-f="title" data-ph="Название">${title}</h1>
     ${lead}
     ${ctas ? `<div class="hero-cta">${ctas}</div>` : ""}
-    ${cloud ? `<div class="cs-cloud" aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
+    ${cloud ? `<div class="cs-cloud${zoom ? " zoom" : ""}"${zoom ? ` style="--zoom:${zoom}"` : ""} aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
       : `<div class="show-media cs-hero-cover">${coverHTML(p)}</div>`}`;
   $("#projBlocks").innerHTML = blocksHTML(p.page, false);
   $("#projContact").hidden = (p.page || []).some((b) => b.type === "next" && (EDITOR || b.visible !== false));
