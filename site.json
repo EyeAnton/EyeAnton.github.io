@@ -1,12 +1,33 @@
 {
   "blocks": [
-    { "id": "hero", "visible": true },
-    { "id": "stats", "visible": true },
-    { "id": "areas", "visible": true },
-    { "id": "showcase", "visible": true },
-    { "id": "stack", "visible": true },
-    { "id": "exp", "visible": true },
-    { "id": "contact", "visible": true }
+    {
+      "id": "hero",
+      "visible": true
+    },
+    {
+      "id": "stats",
+      "visible": true
+    },
+    {
+      "id": "areas",
+      "visible": true
+    },
+    {
+      "id": "showcase",
+      "visible": true
+    },
+    {
+      "id": "stack",
+      "visible": true
+    },
+    {
+      "id": "exp",
+      "visible": true
+    },
+    {
+      "id": "contact",
+      "visible": true
+    }
   ],
   "text": {
     "ru": {
@@ -23,7 +44,7 @@
       "sYears": "лет в 3D и motion",
       "sProjects": "проектов",
       "sLive": "живых сайтов",
-      "areas.eyebrow": "Навыки",
+      "areas.eyebrow": "",
       "areas.title": "Что я делаю",
       "areas.text": "Делал видео-подарки, стикеры, 3D-иконки и онбординг-анимации для продукта с большим объёмом контента.",
       "soft.title": "Soft skills",
@@ -33,7 +54,7 @@
       "stack.title": "Стек и инструменты",
       "exp.eyebrow": "Опыт",
       "exp.title": "Где я работал",
-      "contact.title": "Давайте поговорим",
+      "contact.title": "Давайте сотрудничать",
       "contact.text": "Открыт к работе удалённо или с релокацией. Резюме и все способы связи — на странице контактов.",
       "contact.behance": "Behance ↗",
       "work.eyebrow": "Каталог",
@@ -48,7 +69,7 @@
       "cvEn": "Скачать CV · EN",
       "ch.title": "Где меня найти",
       "help.title": "Чем могу помочь",
-      "foot.note": "Сделано без фреймворков · работает на любом устройстве",
+      "foot.note": "",
       "foot.ds": "Дизайн-система",
       "page": "Каталог подарков",
       "live": "Открыть сайт",
@@ -96,7 +117,7 @@
       "cvEn": "Download CV · EN",
       "ch.title": "Find me",
       "help.title": "How I can help",
-      "foot.note": "Built without frameworks · works on any device",
+      "foot.note": "",
       "foot.ds": "Design system",
       "page": "Gift catalog",
       "live": "Open site",
@@ -109,74 +130,228 @@
   "profile": {
     "since": 2020,
     "showCode": false,
-    "cv": { "ru": "assets/cv-ru.pdf", "en": "assets/cv-en.pdf" },
+    "cv": {
+      "ru": "assets/cv-ru.pdf",
+      "en": "assets/cv-en.pdf"
+    },
     "channels": [
-      { "name": "Telegram", "handle": "@EyeAnton", "href": "https://t.me/EyeAnton" },
-      { "name": "Email", "handle": "leritosha@gmail.com", "href": "mailto:leritosha@gmail.com" },
-      { "name": "Behance", "handle": "EyeAnton", "href": "https://www.behance.net/EyeAnton" },
-      { "name": "GitHub", "handle": "EyeAnton", "href": "https://github.com/EyeAnton" }
+      {
+        "name": "Telegram",
+        "handle": "@EyeAnton",
+        "href": "https://t.me/EyeAnton"
+      },
+      {
+        "name": "Email",
+        "handle": "leritosha@gmail.com",
+        "href": "mailto:leritosha@gmail.com"
+      },
+      {
+        "name": "Behance",
+        "handle": "EyeAnton",
+        "href": "https://www.behance.net/EyeAnton"
+      },
+      {
+        "name": "GitHub",
+        "handle": "EyeAnton",
+        "href": "https://github.com/EyeAnton"
+      }
     ],
     "skills": [
       {
-        "title": { "ru": "AI-генерация", "en": "AI generation" },
-        "d": { "ru": "Видео, изображения и звук для продукта — от промпта до готового ассета", "en": "Video, imagery and sound for products — from prompt to finished asset" },
-        "tools": ["ComfyUI", "Nano Banana", "Flux", "Midjourney", "Recraft", "Kling", "ElevenLabs", "Suno"]
+        "title": {
+          "ru": "AI-генерация",
+          "en": "AI generation"
+        },
+        "d": {
+          "ru": "Видео, изображения и звук для продукта — от промпта до готового ассета",
+          "en": "Video, imagery and sound for products — from prompt to finished asset"
+        },
+        "tools": [
+          "ComfyUI",
+          "Nano Banana",
+          "Flux",
+          "Midjourney",
+          "Recraft",
+          "Kling",
+          "ElevenLabs",
+          "Suno"
+        ]
       },
       {
-        "title": { "ru": "Автоматизация", "en": "Automation" },
-        "d": { "ru": "Пайплайны, которые превращают генерацию в масштабируемый продакшен", "en": "Pipelines that turn generation into scalable production" },
-        "tools": ["Google Cloud Run", "Gemini API", "Make", "Claude", "Cursor", "ffmpeg", "Python", "Node.js"]
+        "title": {
+          "ru": "Автоматизация",
+          "en": "Automation"
+        },
+        "d": {
+          "ru": "Пайплайны, которые превращают генерацию в масштабируемый продакшен",
+          "en": "Pipelines that turn generation into scalable production"
+        },
+        "tools": [
+          "Google Cloud Run",
+          "Gemini API",
+          "Make",
+          "Claude",
+          "Cursor",
+          "ffmpeg",
+          "Python",
+          "Node.js"
+        ]
       },
       {
-        "title": { "ru": "Motion & 3D", "en": "Motion & 3D" },
-        "d": { "ru": "3D-подарки, иконки, онбординг-анимации и промо-ролики", "en": "3D gifts, icons, onboarding animations and promo videos" },
-        "tools": ["After Effects", "Premiere Pro", "Blender", "Marvelous Designer", "Substance Painter"]
+        "title": {
+          "ru": "Motion & 3D",
+          "en": "Motion & 3D"
+        },
+        "d": {
+          "ru": "3D-подарки, иконки, онбординг-анимации и промо-ролики",
+          "en": "3D gifts, icons, onboarding animations and promo videos"
+        },
+        "tools": [
+          "After Effects",
+          "Premiere Pro",
+          "Blender",
+          "Marvelous Designer",
+          "Substance Painter"
+        ]
       },
       {
-        "title": { "ru": "Дизайн", "en": "Design" },
-        "d": { "ru": "Ассеты под разработку: mobile, web, Figma", "en": "Dev-ready assets for mobile, web and Figma" },
-        "tools": ["Figma", "Photoshop"]
+        "title": {
+          "ru": "Дизайн",
+          "en": "Design"
+        },
+        "d": {
+          "ru": "Ассеты под разработку: mobile, web, Figma",
+          "en": "Dev-ready assets for mobile, web and Figma"
+        },
+        "tools": [
+          "Figma",
+          "Photoshop"
+        ]
       }
     ],
     "soft": {
-      "ru": ["Связка креатива и технологий", "Аудит и автоматизация процессов", "Быстрое прототипирование", "Оценка AI-инструментов", "Объясняю AI нетехническим командам", "Кросс-функциональная работа"],
-      "en": ["Bridging creative & tech", "Process audit & automation", "Rapid prototyping", "AI tool evaluation", "Explaining AI to non-tech teams", "Cross-functional collaboration"]
+      "ru": [
+        "Связка креатива и технологий",
+        "Аудит и автоматизация процессов",
+        "Быстрое прототипирование",
+        "Оценка AI-инструментов",
+        "Объясняю AI нетехническим командам",
+        "Кросс-функциональная работа"
+      ],
+      "en": [
+        "Bridging creative & tech",
+        "Process audit & automation",
+        "Rapid prototyping",
+        "AI tool evaluation",
+        "Explaining AI to non-tech teams",
+        "Cross-functional collaboration"
+      ]
     },
     "stack": [
-      ["ComfyUI", "Flux", "Midjourney", "Nano Banana", "Kling", "Recraft", "ElevenLabs", "Suno", "Gemini API", "Claude", "Cursor", "Make", "Replicate"],
-      ["Blender", "After Effects", "Premiere Pro", "Marvelous Designer", "Substance Painter", "Figma", "Photoshop", "ffmpeg", "Python", "Node.js", "Google Cloud Run", "Docker", "React"]
+      [
+        "ComfyUI",
+        "Flux",
+        "Midjourney",
+        "Nano Banana",
+        "Kling",
+        "Recraft",
+        "ElevenLabs",
+        "Suno",
+        "Gemini API",
+        "Claude",
+        "Cursor",
+        "Make",
+        "Replicate"
+      ],
+      [
+        "Blender",
+        "After Effects",
+        "Premiere Pro",
+        "Marvelous Designer",
+        "Substance Painter",
+        "Figma",
+        "Photoshop",
+        "ffmpeg",
+        "Python",
+        "Node.js",
+        "Google Cloud Run"
+      ]
     ],
     "experience": [
       {
-        "role": "Senior CG Artist", "org": "Social Discovery Group",
-        "when": { "ru": "Янв 2025 — Окт 2026", "en": "Jan 2025 — Oct 2026" },
+        "role": "Senior CG Artist",
+        "org": "Social Discovery Group",
+        "when": {
+          "ru": "Янв 2025 — Окт 2026",
+          "en": "Jan 2025 — Oct 2026"
+        },
         "points": {
-          "ru": ["Пайплайн автоматической генерации видеоподарков: Kling API + Gemini + ffmpeg, хромакей, экспорт webm/hevc (Node.js)", "Пайплайн «фото → стикер»: Make + Google Cloud Run + Gemini API", "Генерация визуальных новелл на RunningHub: сценарии, персонажи и иллюстрации — автоматически", "3D-motion: подарки, иконки, онбординг-анимации; motion-процесс от сториборда до правок"],
-          "en": ["Automated video-gift pipeline: Kling API + Gemini + ffmpeg, chroma key, webm/hevc export (Node.js)", "Photo-to-sticker pipeline: Make + Google Cloud Run + Gemini API", "Visual-novel generation on RunningHub: scripts, characters and illustrations, fully automated", "3D motion: gifts, icons, onboarding animations; motion workflow from storyboard to revisions"]
+          "ru": [
+            "Пайплайн автоматической генерации видеоподарков: Kling API + Gemini + ffmpeg, хромакей, экспорт webm/hevc (Node.js)",
+            "Пайплайн «фото → стикер»: Make + Google Cloud Run + Gemini API",
+            "Генерация визуальных новелл на RunningHub: сценарии, персонажи и иллюстрации — автоматически",
+            "3D-motion: подарки, иконки, онбординг-анимации; motion-процесс от сториборда до правок"
+          ],
+          "en": [
+            "Automated video-gift pipeline: Kling API + Gemini + ffmpeg, chroma key, webm/hevc export (Node.js)",
+            "Photo-to-sticker pipeline: Make + Google Cloud Run + Gemini API",
+            "Visual-novel generation on RunningHub: scripts, characters and illustrations, fully automated",
+            "3D motion: gifts, icons, onboarding animations; motion workflow from storyboard to revisions"
+          ]
         }
       },
       {
-        "role": "3D Motion Designer", "org": "Social Discovery Group",
-        "when": { "ru": "Мар 2024 — Дек 2024", "en": "Mar 2024 — Dec 2024" },
+        "role": "3D Motion Designer",
+        "org": "Social Discovery Group",
+        "when": {
+          "ru": "Мар 2024 — Дек 2024",
+          "en": "Mar 2024 — Dec 2024"
+        },
         "points": {
-          "ru": ["Промо-ролики для разных платформ в After Effects", "3D-анимация в Blender, генерация изображений и видео при помощи AI"],
-          "en": ["Promo videos for multiple platforms in After Effects", "3D animation in Blender, AI-generated imagery and video"]
+          "ru": [
+            "Промо-ролики для разных платформ в After Effects",
+            "3D-анимация в Blender, генерация изображений и видео при помощи AI"
+          ],
+          "en": [
+            "Promo videos for multiple platforms in After Effects",
+            "3D animation in Blender, AI-generated imagery and video"
+          ]
         }
       },
       {
-        "role": "Freelance", "org": "",
-        "when": { "ru": "Ноя 2022 — Мар 2024", "en": "Nov 2022 — Mar 2024" },
+        "role": "Freelance",
+        "org": "",
+        "when": {
+          "ru": "Ноя 2022 — Мар 2024",
+          "en": "Nov 2022 — Mar 2024"
+        },
         "points": {
-          "ru": ["3D и motion-дизайн для брендов и digital-платформ", "Промо-материалы и инфографика для соцсетей"],
-          "en": ["3D and motion design for brands and digital platforms", "Social media promo content and infographics"]
+          "ru": [
+            "3D и motion-дизайн для брендов и digital-платформ",
+            "Промо-материалы и инфографика для соцсетей"
+          ],
+          "en": [
+            "3D and motion design for brands and digital platforms",
+            "Social media promo content and infographics"
+          ]
         }
       },
       {
-        "role": "3D Modeller", "org": "Comme Des Creators",
-        "when": { "ru": "Май 2020 — Ноя 2022", "en": "May 2020 — Nov 2022" },
+        "role": "3D Modeller",
+        "org": "Comme Des Creators",
+        "when": {
+          "ru": "Май 2020 — Ноя 2022",
+          "en": "May 2020 — Nov 2022"
+        },
         "points": {
-          "ru": ["3D-модели одежды и 3D-анимация", "Внедрение OpenGL-технологий в проект"],
-          "en": ["3D clothing modelling and 3D animation", "OpenGL-based renders: modelling, texturing, asset integration"]
+          "ru": [
+            "3D-модели одежды и 3D-анимация",
+            "Внедрение OpenGL-технологий в проект"
+          ],
+          "en": [
+            "3D clothing modelling and 3D animation",
+            "OpenGL-based renders: modelling, texturing, asset integration"
+          ]
         }
       }
     ]
