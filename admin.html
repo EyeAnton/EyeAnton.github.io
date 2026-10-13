@@ -77,16 +77,46 @@
     .status.ok { color: var(--success); }
     [hidden] { display: none !important; }
 
+    /* mode switch + home page editor */
+    .adm.wide { max-width: 1840px; }
+    .modes { display: flex; gap: 8px; margin: 0 0 20px; }
+    .se { display: grid; grid-template-columns: 250px minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+    .se-stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .se-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+    .se-frame {
+      display: flex; justify-content: center; overflow: hidden;
+      background: var(--ink-1); border: 1px solid var(--line); border-radius: var(--radius);
+    }
+    .se-frame iframe { width: 100%; height: calc(100vh - 230px); min-height: 560px; border: 0; background: var(--bg); transition: width .3s; }
+    .se-frame.mobile iframe { width: 390px; border-inline: 1px solid var(--line); }
+    .se-panel { position: sticky; top: 16px; max-height: calc(100vh - 130px); overflow: auto; display: flex; flex-direction: column; gap: 14px; }
+    .se-panel h2 { margin: 0; font: 500 22px/1.2 var(--font); letter-spacing: var(--track-snug); }
+    .tx { display: grid; grid-template-columns: 28px 1fr; gap: 6px 8px; align-items: start; }
+    .tx > span { grid-column: 1 / -1; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+    .tx > i { font-style: normal; font-size: 11px; color: var(--muted); padding-top: 12px; }
+    .tx textarea { min-height: 70px; }
+    .rep { display: flex; flex-direction: column; gap: 10px; }
+    .rep-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--card-2); }
+    .rep-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; }
+    .rep-head .mv { display: flex; gap: 2px; }
+    .rep-head .mv button { background: none; border: 0; color: var(--muted); font-size: 15px; cursor: pointer; padding: 2px 5px; }
+    .rep-head .mv button:hover { color: var(--text); }
+    .hint { font-size: 13px; color: var(--muted); margin: 0; }
+
     @media (max-width: 1000px) {
       .layout, .editor { grid-template-columns: 1fr; }
       .list, .preview { position: static; }
+    }
+    @media (max-width: 1300px) {
+      .se { grid-template-columns: 1fr; }
+      .se-panel { position: static; max-height: none; }
     }
     @media (max-width: 560px) { .row, .row3 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header class="top">
-    <a class="logo" href="./">Anton<span>.</span></a>
+    <a class="logo" href="./">EyeAnton</a>
     <nav class="top-nav">
       <a href="./" target="_blank" rel="noopener">Открыть сайт ↗</a>
       <a href="#" id="logout" hidden>Выйти</a>
@@ -119,12 +149,44 @@
 
     <!-- App -->
     <section id="app" hidden>
-      <div class="layout">
-        <div class="list">
-          <div id="items"></div>
-          <button class="btn ghost small" id="addBtn" type="button">+ Добавить проект</button>
+      <div class="modes" id="modes" role="tablist">
+        <button class="chip" type="button" role="tab" data-mode="projects" aria-selected="true">Проекты</button>
+        <button class="chip" type="button" role="tab" data-mode="site" aria-selected="false">Главная страница</button>
+      </div>
+
+      <div id="projectsMode">
+        <div class="layout">
+          <div class="list">
+            <div id="items"></div>
+            <button class="btn ghost small" id="addBtn" type="button">+ Добавить проект</button>
+          </div>
+          <div id="edit"></div>
         </div>
-        <div id="edit"></div>
+      </div>
+
+      <!-- Visual editor of the home page: blocks · live page · block settings -->
+      <div id="siteMode" hidden>
+        <div class="se">
+          <div class="list se-blocks">
+            <p class="sub" style="margin:0 0 6px">Блоки главной. Переключатель — показать/скрыть, стрелки — порядок, клик — настройки.</p>
+            <div id="seBlocks"></div>
+          </div>
+          <div class="se-stage">
+            <div class="se-toolbar">
+              <div class="pv-tabs">
+                <button class="chip" type="button" data-sl="ru" aria-selected="true">RU</button>
+                <button class="chip" type="button" data-sl="en" aria-selected="false">EN</button>
+              </div>
+              <div class="pv-tabs">
+                <button class="chip" type="button" data-dev="desktop" aria-selected="true">Компьютер</button>
+                <button class="chip" type="button" data-dev="mobile" aria-selected="false">Телефон</button>
+              </div>
+              <span class="sub" style="margin:0">Кликните на текст, чтобы изменить его прямо на странице.</span>
+            </div>
+            <div class="se-frame" id="seFrameWrap"><iframe id="seFrame" title="Главная страница — редактор"></iframe></div>
+          </div>
+          <aside class="panel se-panel" id="sePanel"></aside>
+        </div>
       </div>
     </section>
   </main>

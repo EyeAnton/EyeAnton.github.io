@@ -9,6 +9,7 @@
   const REPO = "EyeAnton/EyeAnton.github.io";
   const BRANCH = "main";
   const DATA = "projects.json";
+  const SITE_FILE = "site.json"; // home page texts, blocks and profile (visual editor)
   const SHOTS = "assets/shots/";
   const MAX_W = 1600;
   const OWNER = "leritosha@gmail.com";
@@ -30,6 +31,8 @@
   let token = "";
   let data = null;          // { categories, projects }
   let savedJSON = "";       // last published state, for the dirty check
+  let site = null;          // site.json draft
+  let siteSaved = "";
   let sel = 0;              // selected project index
   let pvLang = "ru";
   const pending = new Map(); // repo path -> { b64, dataURL } images waiting for publish
@@ -175,15 +178,29 @@
 
   /* ---------- Load / save ---------- */
 
+  // Local preview: http://localhost…/admin.html?local reads the files next to it, no sign-in, publishing off.
+  const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname) && new URLSearchParams(location.search).has("local");
+
+  async function readJSON(path) {
+    if (LOCAL) return fetch(path, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null));
+    const f = await getFile(path);
+    return f ? JSON.parse(b64ToUtf8(f.content)) : null;
+  }
+
   async function load() {
-    const f = await getFile(DATA);
-    if (!f) throw new Error(`в репозитории нет ${DATA}`);
-    data = JSON.parse(b64ToUtf8(f.content));
+    data = await readJSON(DATA);
+    if (!data) throw new Error(`в репозитории нет ${DATA}`);
     data.projects.forEach(normalize);
     savedJSON = serialize();
     pending.clear(); replaced.clear();
     sel = Math.min(sel, data.projects.length - 1);
+
+    site = (await readJSON(SITE_FILE)) || await fetch(SITE_FILE, { cache: "no-cache" }).then((r) => r.json());
+    siteSaved = serializeSite();
+    applySite(site); // app.js: card labels for the project preview
+
     renderAll();
+    renderSite();
   }
 
   function normalize(p) {
@@ -210,9 +227,13 @@
     return c;
   }
   const serialize = () => JSON.stringify({ categories: data.categories, projects: data.projects.map(clean) }, null, 2) + "\n";
-  const isDirty = () => data && (serialize() !== savedJSON || pending.size > 0);
+  const serializeSite = () => JSON.stringify(site, null, 2) + "\n";
+  const projectsDirty = () => data && (serialize() !== savedJSON || pending.size > 0);
+  const siteDirty = () => site && serializeSite() !== siteSaved;
+  const isDirty = () => projectsDirty() || siteDirty();
 
   async function publish() {
+    if (LOCAL) { setStatus("Локальный режим: публикация отключена — откройте админку на сайте.", "err"); return; }
     const btn = q("#saveBtn");
     btn.disabled = true;
     try {
@@ -224,10 +245,17 @@
       for (const p of replaced) {
         if (!inUse.has(p) && p.startsWith(SHOTS)) await deleteFile(p, `Admin: remove ${p}`);
       }
-      setStatus("Сохраняю проекты…");
-      await putFile(DATA, utf8ToB64(serialize()), "Admin: update projects");
-      savedJSON = serialize();
+      if (serialize() !== savedJSON) {
+        setStatus("Сохраняю проекты…");
+        await putFile(DATA, utf8ToB64(serialize()), "Admin: update projects");
+        savedJSON = serialize();
+      }
       pending.clear(); replaced.clear();
+      if (siteDirty()) {
+        setStatus("Сохраняю главную страницу…");
+        await putFile(SITE_FILE, utf8ToB64(serializeSite()), "Admin: update home page");
+        siteSaved = serializeSite();
+      }
       renderAll();
       setStatus("Опубликовано. Сайт обновится примерно через минуту.", "ok");
     } catch (e) {
@@ -489,8 +517,279 @@
 
   function renderAll() { renderList(); renderEditor(); updateStatus(); }
 
+  /* ---------- Home page visual editor (site.json) ---------- */
+  // The real index.html runs in an iframe with ?edit: texts are edited in place (app.js → siteEditor.onText),
+  // blocks are reordered / hidden here, lists (skills, experience, stack, contacts) live in the side panel.
+
+  const BLOCKS = {
+    hero: { name: "Первый экран", keys: ["hero.eyebrow", "hero.title", "hero.lead", "hero.where", "hero.cta", "hero.cv"] },
+    stats: { name: "Цифры", keys: ["sYears", "sProjects", "sLive"] },
+    areas: { name: "Что я делаю", keys: ["areas.eyebrow", "areas.title", "areas.text", "soft.title"] },
+    showcase: { name: "Избранные проекты", keys: ["show.eyebrow", "show.title", "show.all"] },
+    stack: { name: "Стек и инструменты", keys: ["stack.title"] },
+    exp: { name: "Опыт", keys: ["exp.eyebrow", "exp.title"] },
+    contact: { name: "Давайте поговорим", keys: ["contact.title", "contact.text", "hero.cv", "contact.behance"] },
+    general: { name: "Общие настройки", keys: ["brand", "nav.home", "nav.work", "nav.contact", "foot.note", "foot.ds", "page", "live", "online", "private"] },
+  };
+  const KEY_LABEL = {
+    "hero.eyebrow": "Надзаголовок", "hero.title": "Заголовок", "hero.lead": "Текст", "hero.where": "Город и формат работы",
+    "hero.cta": "Кнопка «Проекты»", "hero.cv": "Кнопка «Контакты и CV»",
+    sYears: "Подпись «лет опыта»", sProjects: "Подпись «проектов»", sLive: "Подпись «живых сайтов»",
+    "areas.eyebrow": "Надзаголовок", "areas.title": "Заголовок", "areas.text": "Текст", "soft.title": "Подпись soft skills",
+    "show.eyebrow": "Надзаголовок", "show.title": "Заголовок", "show.all": "Кнопка «Все проекты»",
+    "stack.title": "Заголовок", "exp.eyebrow": "Надзаголовок", "exp.title": "Заголовок",
+    "contact.title": "Заголовок", "contact.text": "Текст", "contact.behance": "Кнопка Behance",
+    brand: "Логотип в шапке", "nav.home": "Вкладка «Главная»", "nav.work": "Вкладка «Проекты»", "nav.contact": "Вкладка «Контакты»",
+    "foot.note": "Подпись в футере", "foot.ds": "Ссылка «Дизайн-система»",
+    page: "Кнопка раздела сайта", live: "Кнопка «Открыть сайт»", online: "Бейдж «Онлайн»", private: "Бейдж «Приватный»",
+  };
+  // fields of list items; types: text | area | lines (one per line) | csv (comma-separated)
+  const LISTS = {
+    "profile.skills": {
+      title: (it, i) => `${String(i + 1).padStart(2, "0")} · ${it.title?.ru || "Навык"}`,
+      blank: () => ({ title: { ru: "Новый навык", en: "New skill" }, d: { ru: "", en: "" }, tools: [] }),
+      fields: [["title.ru", "Название RU", "text"], ["title.en", "Название EN", "text"], ["d.ru", "Текст RU", "area"], ["d.en", "Текст EN", "area"], ["tools", "Инструменты через запятую", "csv"]],
+    },
+    "profile.experience": {
+      title: (it) => `${it.role || "Должность"}${it.org ? " · " + it.org : ""}`,
+      blank: () => ({ role: "Должность", org: "", when: { ru: "", en: "" }, points: { ru: [], en: [] } }),
+      fields: [["role", "Должность", "text"], ["org", "Компания", "text"], ["when.ru", "Период RU", "text"], ["when.en", "Период EN", "text"],
+        ["points.ru", "Что делал RU — по пункту на строку", "lines"], ["points.en", "Что делал EN — по пункту на строку", "lines"]],
+    },
+    "profile.channels": {
+      title: (it) => it.name || "Канал",
+      blank: () => ({ name: "", handle: "", href: "" }),
+      fields: [["name", "Название", "text"], ["handle", "Что показать", "text"], ["href", "Ссылка (пусто = скрыть)", "text"]],
+    },
+  };
+
+  let seLang = "ru";
+  let seBlock = "hero";
+  let frameLoaded = false;
+
+  const getPath = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
+  const fromField = (type, v) => type === "lines" ? v.split("\n").map((s) => s.trim()).filter(Boolean)
+    : type === "csv" ? v.split(",").map((s) => s.trim()).filter(Boolean)
+    : type === "number" ? (+v || 0) : v;
+  const toField = (type, v) => type === "lines" ? (v || []).join("\n") : type === "csv" ? (v || []).join(", ") : (v ?? "");
+
+  // what the iframe reads (window.parent.siteEditor in app.js)
+  window.siteEditor = {
+    get draft() { return site; },
+    get lang() { return seLang; },
+    projects() {
+      return {
+        categories: data.categories,
+        projects: data.projects.map((p) => {
+          const c = clean(p);
+          if (c.cover.shot && pending.has(c.cover.shot)) c.cover.shot = pending.get(c.cover.shot).dataURL;
+          return c;
+        }),
+      };
+    },
+    blockName: (id) => BLOCKS[id]?.name || id,
+    onText(key, val) {
+      site.text[seLang][key] = val;
+      const inp = document.querySelector(`#sePanel [data-text="${CSS.escape(key)}"][data-l="${seLang}"]`);
+      if (inp && inp !== document.activeElement) inp.value = val;
+      updateStatus();
+    },
+    openBlock(id) { seBlock = id; renderSeBlocks(); renderSePanel(); },
+    ready() { frameLoaded = true; },
+  };
+
+  // coalesce bursts of edits into one re-render (a timer, not rAF: rAF stalls in background tabs)
+  let refreshTimer = 0;
+  function refreshFrame() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(() => {
+      try { q("#seFrame").contentWindow.siteEdit?.refresh(); } catch {}
+    }, 30);
+  }
+  function scrollFrameTo(id) {
+    try {
+      q("#seFrame").contentDocument.querySelector(`[data-block="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch {}
+  }
+
+  function renderSeBlocks() {
+    const rows = site.blocks.map((b, i) => `
+      <div class="item${seBlock === b.id ? " on" : ""}${b.visible === false ? " hidden-p" : ""}" data-b="${i}">
+        <label class="sw" title="${b.visible === false ? "Скрыт" : "Показывается"}">
+          <input type="checkbox" data-act="vis" ${b.visible === false ? "" : "checked"}><span></span>
+        </label>
+        <div style="min-width:0"><span class="t">${h(BLOCKS[b.id]?.name || b.id)}</span></div>
+        <div class="mv">
+          <button type="button" data-act="up" aria-label="Выше">↑</button>
+          <button type="button" data-act="down" aria-label="Ниже">↓</button>
+        </div>
+      </div>`).join("");
+    q("#seBlocks").innerHTML = rows + `
+      <div class="item${seBlock === "general" ? " on" : ""}" data-b="general" style="margin-top:10px">
+        <span></span>
+        <div style="min-width:0"><span class="c">меню, футер, контакты</span><span class="t">Общие настройки</span></div>
+        <span></span>
+      </div>`;
+  }
+
+  q("#seBlocks").addEventListener("click", (e) => {
+    const item = e.target.closest(".item");
+    if (!item) return;
+    if (item.dataset.b === "general") { seBlock = "general"; renderSeBlocks(); renderSePanel(); return; }
+    const i = +item.dataset.b;
+    const act = e.target.dataset.act;
+    if (!act && e.target.closest(".sw")) return; // the label forwards the click to its checkbox
+    if (act === "vis") {
+      site.blocks[i].visible = e.target.checked;
+    } else if (act === "up" || act === "down") {
+      const j = act === "up" ? i - 1 : i + 1;
+      if (j < 0 || j >= site.blocks.length) return;
+      [site.blocks[i], site.blocks[j]] = [site.blocks[j], site.blocks[i]];
+    } else {
+      seBlock = site.blocks[i].id;
+      renderSeBlocks(); renderSePanel();
+      scrollFrameTo(seBlock);
+      return;
+    }
+    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+  });
+
+  function textFields(keys) {
+    return keys.map((k) => {
+      const long = Math.max((site.text.ru[k] || "").length, (site.text.en[k] || "").length) > 60;
+      const inp = (l) => long
+        ? `<textarea data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`
+        : `<input type="text" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}" value="${h(site.text[l][k])}">`;
+      return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
+    }).join("");
+  }
+
+  function field(path, label, type) {
+    const v = toField(type, getPath(site, path));
+    const attrs = `data-path="${h(path)}" data-type="${type}"`;
+    if (type === "area" || type === "lines") return `<label class="f">${h(label)}<textarea ${attrs}>${h(v)}</textarea></label>`;
+    if (type === "number") return `<label class="f">${h(label)}<input type="number" ${attrs} value="${h(v)}"></label>`;
+    return `<label class="f">${h(label)}<input type="text" ${attrs} value="${h(v)}"></label>`;
+  }
+
+  function repeater(listPath) {
+    const L = LISTS[listPath];
+    const arr = getPath(site, listPath) || [];
+    return `<div class="rep">${arr.map((it, i) => `
+      <div class="rep-item">
+        <div class="rep-head"><b>${h(L.title(it, i))}</b>
+          <span class="mv">
+            <button type="button" data-rep="${listPath}" data-i="${i}" data-act="up" aria-label="Выше">↑</button>
+            <button type="button" data-rep="${listPath}" data-i="${i}" data-act="down" aria-label="Ниже">↓</button>
+            <button type="button" data-rep="${listPath}" data-i="${i}" data-act="del" aria-label="Удалить">✕</button>
+          </span>
+        </div>
+        ${L.fields.map(([k, label, type]) => field(`${listPath}.${i}.${k}`, label, type)).join("")}
+      </div>`).join("")}
+      <div><button class="btn ghost small" type="button" data-rep="${listPath}" data-act="add">+ Добавить</button></div>
+    </div>`;
+  }
+
+  function renderSePanel() {
+    if (!site) return;
+    const B = BLOCKS[seBlock];
+    const blk = site.blocks.find((b) => b.id === seBlock);
+    const extra = {
+      stats: `<h2 class="sec">Данные</h2>${field("profile.since", "Год начала работы в 3D (для «N+ лет»)", "number")}
+        <p class="hint">Число проектов и живых сайтов считается само по вкладке «Проекты».</p>`,
+      areas: `<h2 class="sec">Навыки</h2>${repeater("profile.skills")}
+        <h2 class="sec">Soft skills</h2>${field("profile.soft.ru", "RU — по одному на строку", "lines")}${field("profile.soft.en", "EN — по одному на строку", "lines")}`,
+      showcase: `<p class="hint">Какие проекты здесь показывать — галочка «На главной (избранное)» во вкладке «Проекты»; порядок — как в списке проектов.</p>
+        <div><button class="btn ghost small" type="button" data-goto="projects">Открыть «Проекты»</button></div>`,
+      stack: `<h2 class="sec">Бегущая строка</h2>${field("profile.stack.0", "Первый ряд — по одному на строку", "lines")}${field("profile.stack.1", "Второй ряд — по одному на строку", "lines")}`,
+      exp: `<h2 class="sec">Места работы</h2>${repeater("profile.experience")}`,
+      general: `<h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
+        <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>`,
+    }[seBlock] || "";
+    q("#sePanel").innerHTML = `
+      <h2>${h(B.name)}</h2>
+      ${blk ? `<label class="check"><input type="checkbox" data-blockvis ${blk.visible === false ? "" : "checked"}> Показывать блок на сайте</label>` : ""}
+      <h2 class="sec">Тексты</h2>
+      ${textFields(B.keys)}
+      ${extra}`;
+  }
+
+  q("#sePanel").addEventListener("input", (e) => {
+    const el = e.target;
+    if (el.dataset.text) {
+      site.text[el.dataset.l][el.dataset.text] = el.value;
+    } else if (el.dataset.path) {
+      setPath(site, el.dataset.path, el.dataset.type === "bool" ? el.checked : fromField(el.dataset.type, el.value));
+    } else if (el.hasAttribute("data-blockvis")) {
+      site.blocks.find((b) => b.id === seBlock).visible = el.checked;
+      renderSeBlocks();
+    } else return;
+    refreshFrame(); updateStatus();
+  });
+
+  q("#sePanel").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.goto) { setMode(b.dataset.goto); return; }
+    if (!b.dataset.rep) return;
+    const arr = getPath(site, b.dataset.rep);
+    const i = +b.dataset.i;
+    if (b.dataset.act === "add") arr.push(LISTS[b.dataset.rep].blank());
+    else if (b.dataset.act === "del") {
+      if (!confirm("Удалить этот пункт?")) return;
+      arr.splice(i, 1);
+    } else {
+      const j = b.dataset.act === "up" ? i - 1 : i + 1;
+      if (j < 0 || j >= arr.length) return;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    renderSePanel(); refreshFrame(); updateStatus();
+  });
+
+  // RU/EN and desktop/phone switches above the page
+  q(".se-toolbar").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.sl) {
+      seLang = b.dataset.sl;
+      q(".se-toolbar").querySelectorAll("[data-sl]").forEach((x) => x.setAttribute("aria-selected", x === b));
+      refreshFrame();
+    }
+    if (b.dataset.dev) {
+      q(".se-toolbar").querySelectorAll("[data-dev]").forEach((x) => x.setAttribute("aria-selected", x === b));
+      q("#seFrameWrap").classList.toggle("mobile", b.dataset.dev === "mobile");
+    }
+  });
+
+  function setMode(mode) {
+    q("#modes").querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-selected", x.dataset.mode === mode));
+    q("#projectsMode").hidden = mode !== "projects";
+    q("#siteMode").hidden = mode !== "site";
+    q(".adm").classList.toggle("wide", mode === "site");
+    if (mode === "site") {
+      const fr = q("#seFrame");
+      if (!fr.getAttribute("src")) fr.src = "index.html?edit=1";
+      else refreshFrame(); // pick up unsaved project edits (featured projects, covers)
+    }
+  }
+  q("#modes").addEventListener("click", (e) => { const b = e.target.closest("[data-mode]"); if (b) setMode(b.dataset.mode); });
+
+  function renderSite() {
+    if (!site) return;
+    renderSeBlocks(); renderSePanel();
+    if (frameLoaded) refreshFrame();
+  }
+
   /* ---------- Boot ---------- */
 
   try { localStorage.removeItem("adminToken"); } catch {} // token from the pre-Google version of this page
-  initFirebase().catch((e) => loginStatus(`Не удалось загрузить Firebase: ${e.message}`, "err"));
+  if (LOCAL) {
+    load().then(() => {
+      q("#login").hidden = true;
+      q("#app").hidden = false; q("#bar").hidden = false;
+      setStatus("Локальный режим без входа: правки видны, публикация отключена");
+    }).catch((e) => loginStatus(`Локальный режим: ${e.message}`, "err"));
+  } else {
+    initFirebase().catch((e) => loginStatus(`Не удалось загрузить Firebase: ${e.message}`, "err"));
+  }
 })();
