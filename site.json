@@ -102,7 +102,7 @@
       "show.all": "All projects →",
       "stack.title": "Stack & tools",
       "exp.eyebrow": "Experience",
-      "exp.title": "Where I've worked",
+      "exp.title": "Career track",
       "contact.title": "Let's talk",
       "contact.text": "Open to remote work or relocation.",
       "contact.behance": "Behance ↗",
@@ -416,6 +416,7 @@
   "hiddenText": [
     "areas:areas.eyebrow",
     "showcase:show.eyebrow",
-    "exp:exp.eyebrow"
+    "exp:exp.eyebrow",
+    "areas:areas.text"
   ]
 }
