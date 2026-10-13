@@ -342,6 +342,7 @@ if (PAGE) {
         if (PAGE === "contact") await checkCv();
         setProjects(data);
         render();
+        if (typeof startGuest === "function") startGuest();
       })
       .catch((err) => {
         console.error(err);

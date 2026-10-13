@@ -15,6 +15,7 @@
 | Витрина дизайн-системы | `design-system.html` |
 | Страницы | `index.html` (блоки `data-block`), `projects.html`, `contact.html` |
 | Резюме | `assets/cv-ru.pdf`, `assets/cv-en.pdf` |
+| «Гость с CV»: курсор «Anton Egorov» раз за сеанс приносит иконку CV к курсору (только десктоп), задержка `profile.guestDelay` (сек, 0 — выкл; админка → Общие настройки) | `guest.js` (запуск из `app.js` после render), стили — конец `style.css` |
 | Обложки проектов | `assets/shots/` |
 
 ## Ручные инструменты (вместо работы Claude)
