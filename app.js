@@ -191,7 +191,7 @@ const BLOCK_HTML = {
   facts: (b) => `<dl class="cs-meta surface">${each(b, (it, i, p) =>
     `<div>${fld(b, `${p}.k`, "dt", "Поле")}${fld(b, `${p}.v`, "dd", "Значение")}</div>`)}</dl>`,
   stats: (b) => `<div class="stats">${each(b, (it, i, p) =>
-    `<div class="stat reveal" style="--d:${i * 80}ms">${fld(b, `${p}.n`, "b", "42", true)}${fld(b, `${p}.label`, "span", "подпись")}</div>`)}</div>`,
+    `<div class="stat reveal" style="--d:${i * 80}ms">${statNum(b, `${p}.n`)}${fld(b, `${p}.label`, "span", "подпись")}</div>`)}</div>`,
   cards: (b) => `<div class="cs-cards">${each(b, (it, i, p) => `<article class="cs-card surface reveal" style="--d:${i * 80}ms">
     <span class="cs-num">${num(i)}</span>${fld(b, `${p}.t`, "h3", "Заголовок")}${fld(b, `${p}.d`, "p", "Текст")}</article>`)}</div>`,
   flow: (b) => `<ol class="cs-flow">${each(b, (it, i, p) =>
@@ -220,7 +220,90 @@ const BLOCK_HTML = {
   video: (b) => videoHTML(b.src) + fld(b, "caption", "p", "Подпись", false, "pb-cap"),
   quote: (b) => `<blockquote class="pb-quote reveal">${fld(b, "quote", "p", "Цитата")}${fld(b, "who", "cite", "Автор")}</blockquote>`,
   links: (b) => `<div class="pb-links reveal">${btns(b)}</div>`,
+
+  // ---- the Virtual Gifts case (styles: gifts.css, gc-*; the three interactive ones are run by gifts.js) ----
+  points: (b) => `<div class="gc-cols">${each(b, (it, i, p) => `<article class="gc-point surface reveal" style="--d:${i * 80}ms">
+    <span class="gc-num">${num(i)}</span>${fld(b, `${p}.t`, "h3", "Заголовок")}${fld(b, `${p}.d`, "p", "Текст")}</article>`)}</div>`,
+  specs: (b) => `<div class="gc-cols">${each(b, (it, i, p) => `<article class="gc-tech surface reveal" style="--d:${i * 80}ms">
+    ${fld(b, `${p}.k`, "p", "Где", false, "gc-tech-k")}${fld(b, `${p}.t`, "h3", "Формат")}${fld(b, `${p}.d`, "p", "Текст")}</article>`)}</div>`,
+  split: (b) => `<div class="gc-split"><div class="gc-split-text reveal">
+      ${fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow")}${fld(b, "title", "h2", "Заголовок", false, "t-h2")}${fld(b, "text", "p", "Текст")}
+      <ul class="gc-rules">${each(b, (it, i, p) => fld(b, `${p}.t`, "li", "Правило"))}</ul></div>
+    <div class="gc-board surface-glow reveal" style="--d:120ms">${(b.images || []).map((s) => imgHTML(s)).join("") || empty("Добавьте картинки")}</div></div>`,
+  rail: (b) => `<ol class="gc-pipe">${each(b, (it, i, p) => `<li class="reveal" style="--d:${i * 60}ms">
+    <span class="gc-step">${num(i)}</span>${fld(b, `${p}.t`, "b", "Шаг")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ol>`,
+  list2: (b) => `<ul class="gc-results">${each(b, (it, i, p) =>
+    `<li class="reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
+  lanes: (b) => `<div class="gc-alpha surface reveal"><div class="gc-alpha-head">
+      ${fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow")}${fld(b, "title", "h3", "Заголовок")}${fld(b, "text", "p", "Текст")}</div>
+    <div class="gc-lanes">${each(b, (it, i, p) => {
+      const st = ["bad", "fix"].includes(it.state) ? it.state : "ok";
+      const icons = (it.icons || "").split(",").map((x) => x.trim()).filter(Boolean)
+        .map((x) => `<svg><use href="#i-${esc(x)}"/></svg>`).join("");
+      const codec = fld(b, `${p}.codec`, "b", "Формат");
+      return `<div class="gc-lane${st === "ok" ? "" : " " + st}">
+        <div class="gc-plat"><span class="gc-icons">${icons}</span><span>${fld(b, `${p}.plat`, "b", "Платформа")}${fld(b, `${p}.platSub`, "small", "браузеры")}</span></div>
+        <span class="gc-to">→</span>
+        <div class="gc-codec">${st === "bad" ? codec.replace(/^<b([^>]*)>([\s\S]*)<\/b>$/, "<b$1><s>$2</s></b>") : codec}${fld(b, `${p}.codecSub`, "small", "пояснение")}</div>
+        <span class="gc-to">→</span>
+        <div class="gc-out"><span class="${st === "bad" ? "gc-blk" : "gc-chk"}">${it.img ? `<img src="${esc(imgSrc(it.img))}" alt="">` : ""}</span><i class="${st === "bad" ? "no" : "ok"}">${st === "bad" ? "✕" : "✓"}</i></div>
+      </div>`;
+    })}</div></div>${PLATFORM_ICONS}`,
+  "gifts-showcase": (b) => `<div class="gc-devices reveal" ${giftsData(b)} data-keys="${esc((b.keys || []).join(","))}" data-hires="${esc((b.hires || []).join(","))}">
+      <div class="gc-laptop" aria-hidden="true"><div class="gc-lid"><div class="gc-screen gc-web">
+        <div class="gc-bar"><i></i><i></i><i></i><span></span></div>
+        <div class="gc-app">
+          <aside class="gc-side">${fld(b, "matches", "p", "Пары", false, "gc-side-h")}
+            <div class="gc-row on"><span class="gc-av a1">M</span><span><b>Mia</b>${fld(b, "prev", "small", "отправила подарок")}</span></div>
+            <div class="gc-row"><span class="gc-av a2">L</span><span><b>Leo</b><small>See you Friday?</small></span></div>
+            <div class="gc-row"><span class="gc-av a3">S</span><span><b>Sofia</b><small>Haha, same 😄</small></span></div>
+            <div class="gc-row"><span class="gc-av a4">D</span><span><b>Daniel</b><small>New match</small></span></div>
+          </aside>
+          <div class="gc-thread">
+            <div class="gc-thread-h"><span class="gc-av a1">M</span><span><b>Mia, 27</b><small>online</small></span><i class="gc-like">♥</i></div>
+            <div class="gc-msgs">${giftChat(b)}</div>
+            <div class="gc-input"><span>Message…</span><i></i></div>
+          </div>
+        </div>
+        <div class="gc-fx"><video class="gc-fx-v" muted playsinline preload="auto"></video></div>
+      </div></div><div class="gc-base"></div></div>
+      ${giftPhone(b)}
+    </div><div class="gc-pick" role="tablist" aria-label="Gift"></div>`,
+  "gifts-process": (b) => `<div class="gc-proc reveal" ${giftsData(b)} data-keys="${esc((b.keys || []).join(","))}"
+      data-picked="${esc(L(b.picked))}" data-note="${esc(L(b.note))}">
+      <div class="gc-pick gc-proc-tabs" role="tablist" aria-label="Gift"></div>
+      <ol class="gc-steps">${each(b, (it, i, p) => `<li class="gc-st">
+        <div class="gc-st-h"><span class="gc-step">${num(i)}</span><div>${fld(b, `${p}.t`, "b", "Шаг")}${fld(b, `${p}.d`, "small", "Описание")}</div></div>
+        <div class="gc-st-c">${i === 4 ? `<div class="gc-devices gc-mini">${giftPhone(b)}</div>` : ""}</div></li>`)}</ol></div>`,
+  "gifts-catalog": (b) => `<div class="gc-catalog" ${giftsData(b)} aria-busy="true"></div>`,
 };
+
+// gift widgets read their data from the gift-catalog repo (block.base, "/gift-catalog/" by default)
+const giftsData = (b) => `data-gifts="${b.type.slice(6)}" data-base="${esc(b.base || "/gift-catalog/")}"`;
+const giftChat = (b) => `${fld(b, "match", "p", "Надпись в чате", false, "gc-match")}
+  <p class="gc-m in">Hi! Loved your photos from Lisbon 🌊</p><p class="gc-m out">Thanks! You've been there too?</p>
+  <p class="gc-m in">Last summer. Best pastel de nata ever</p>
+  <p class="gc-m in gc-gift-msg">🎁 <span>Mia sent you <b class="gc-gift-name">a gift</b></span></p>`;
+const giftPhone = (b) => `<div class="gc-phone" aria-hidden="true"><div class="gc-screen gc-mob">
+  <div class="gc-status"><span>9:41</span><i class="gc-notch"></i><span>●●●</span></div>
+  <div class="gc-thread-h"><i class="gc-back"></i><span class="gc-av a1">M</span><span><b>Mia, 27</b><small>online</small></span><i class="gc-like">♥</i></div>
+  <div class="gc-msgs">${giftChat(b)}</div>
+  <div class="gc-input"><span>Message…</span><i></i></div>
+  <div class="gc-fx"><video class="gc-fx-v" muted playsinline preload="auto"></video></div></div></div>`;
+// lanes block: icon names "win", "android", "apple"
+const PLATFORM_ICONS = `<svg class="defs" aria-hidden="true" focusable="false">
+  <symbol id="i-win" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.6 10.4 4.5v7.1H3zM11.4 4.4 21 3v8.6h-9.6zM3 12.6h7.4v7L3 18.4zM11.4 12.6H21V21l-9.6-1.4z"/></symbol>
+  <symbol id="i-android" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.5a7.5 7.5 0 0 1 15 0z"/><path d="M7.6 10.2 6 7.6M16.4 10.2 18 7.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="14" r="1" fill="#050a18"/><circle cx="15" cy="14" r="1" fill="#050a18"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.5.9-.7 0-1.8-.8-3-.8C6.9 7.5 5 9 5 12.1c0 1.9.7 3.9 1.6 5.2.8 1.1 1.5 2.1 2.5 2.1s1.3-.6 2.6-.6 1.6.6 2.6.6c1.1 0 1.7-1 2.4-2 .8-1.1 1.1-2.2 1.1-2.3 0 0-2.3-.9-2.4-3.4zM14.3 5.9c.6-.7.9-1.6.8-2.5-.8 0-1.7.5-2.3 1.2-.5.6-.9 1.5-.8 2.4.9.1 1.7-.4 2.3-1.1z"/></symbol>
+</svg>`;
+// a stats number; on the site a unit after a space is set small ("1540 px")
+function statNum(b, path) {
+  const v = String(getIn(b, path) ?? "");
+  const m = !EDITOR && v.match(/^(.*\d)\s+([^\d\s]+)$/);
+  return m ? `<b>${esc(m[1])}&nbsp;<small>${esc(m[2])}</small></b>` : fld(b, path, "b", "42", true);
+}
+// blocks that lay out their own heading (not the centred section head)
+const OWN_HEAD = new Set(["split", "lanes"]);
 
 const headHTML = (b) => {
   const h = fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow") + fld(b, "title", "h2", "Заголовок") + fld(b, "text", "p", "Текст");
@@ -242,10 +325,12 @@ function blockHTML(b, home) {
     return home ? `<section class="contact cb-home${off}" ${attrs}>${nextHTML(b)}</section>`
       : `<div class="pb pb-next-wrap${off}" ${attrs}><section class="contact pb-next">${nextHTML(b)}</section></div>`;
   }
-  const head = headHTML(b);
+  const own = OWN_HEAD.has(b.type);
+  const head = own ? "" : headHTML(b);
   const body = (BLOCK_HTML[b.type] || (() => ""))(b);
+  const tight = own ? b.type === "lanes" : !head; // the lanes callout continues the section above
   return home ? `<section class="block cb-home${off}" ${attrs}>${head}${body}</section>`
-    : `<div class="pb pb-${b.type}${b.w === "half" ? " half" : ""}${head ? "" : " tight"}${off}" ${attrs}>${head}${body}</div>`;
+    : `<div class="pb pb-${b.type}${b.w === "half" ? " half" : ""}${tight ? " tight" : ""}${off}" ${attrs}>${head}${body}</div>`;
 }
 const blocksHTML = (list, home) => (list || []).filter((b) => EDITOR || b.visible !== false).map((b) => blockHTML(b, home)).join("");
 
@@ -353,7 +438,7 @@ function renderProject() {
     <h1 data-f="title" data-ph="Название">${title}</h1>
     ${lead}
     ${ctas ? `<div class="hero-cta">${ctas}</div>` : ""}
-    ${cloud ? `<div class="cs-cloud${zoom ? " zoom" : ""}"${zoom ? ` style="--zoom:${zoom}"` : ""} aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
+    ${cloud ? `<div class="cs-cloud${zoom ? " zoom" : ""}${h.cloudStyle === "cutout" ? " cutout" : ""}"${zoom ? ` style="--zoom:${zoom}"` : ""} aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
       : `<div class="show-media cs-hero-cover">${coverHTML(p)}</div>`}`;
   $("#projBlocks").innerHTML = blocksHTML(p.page, false);
   $("#projContact").hidden = (p.page || []).some((b) => b.type === "next" && (EDITOR || b.visible !== false));
@@ -409,6 +494,7 @@ function render() {
   if (PAGE === "contact") renderContact();
   watchReveal();
   watchVideos();
+  window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
   if (EDITOR) decorateForEditor();
 }
 
