@@ -1884,7 +1884,6 @@
       "id": "stasik",
       "cat": "hardware",
       "year": 2026,
-      "private": true,
       "cover": {
         "shot": "assets/shots/stasik.jpg"
       },
