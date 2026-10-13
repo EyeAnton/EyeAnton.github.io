@@ -703,7 +703,9 @@
       stack: `<h2 class="sec">Бегущая строка</h2>${field("profile.stack.0", "Первый ряд — по одному на строку", "lines")}${field("profile.stack.1", "Второй ряд — по одному на строку", "lines")}`,
       exp: `<h2 class="sec">Места работы</h2>${repeater("profile.experience")}`,
       general: `<h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
-        <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>`,
+        <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>
+        <h2 class="sec">Гость с CV</h2>${field("profile.guestDelay", "Через сколько секунд появляется курсор «Anton Egorov» с CV (0 — выключить)", "number")}
+        <p class="hint">Раз за сеанс, только на компьютере. Проверить заново — открыть сайт в новой вкладке-инкогнито.</p>`,
     }[seBlock] || "";
     q("#sePanel").innerHTML = `
       <h2>${h(B.name)}</h2>

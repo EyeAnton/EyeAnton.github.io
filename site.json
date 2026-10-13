@@ -130,6 +130,7 @@
   "profile": {
     "since": 2020,
     "showCode": false,
+    "guestDelay": 20,
     "cv": {
       "ru": "assets/cv-ru.pdf",
       "en": "assets/cv-en.pdf"
