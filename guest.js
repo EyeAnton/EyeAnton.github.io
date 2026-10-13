@@ -1,28 +1,42 @@
-// "Guest cursor": once per visitor (never again), a Figma-style collaborator cursor ("Anton Egorov")
-// drags a CV file (Finder-style thumbnail, assets/cv-<lang>.png from tools/cv_thumbs.py)
-// next to the visitor's pointer. Delay — profile.guestDelay in site.json (0 = off).
-// Uses `lang` and `PROFILE` from app.js; app.js calls startGuest() after the first render.
+// "Guest cursor": once per visit (sessionStorage — a new tab / browser session shows it again),
+// a Figma-style collaborator cursor ("Anton Egorov") drags a CV file (Finder-style thumbnail,
+// assets/cv-<lang>.png from tools/cv_thumbs.py) next to the visitor's pointer.
+// When: project pages — after 3 s on the last screens (the case is read, nothing important gets covered);
+// other pages — after profile.guestDelay seconds (site.json, 0 = off).
+// Uses `lang`, `PROFILE`, `PAGE` from app.js; app.js calls startGuest() after the first render.
 function startGuest() {
   if (startGuest.on) return;
   startGuest.on = true;
   const delay = Number(PROFILE.guestDelay ?? 20);
   if (!delay || !PROFILE.cv?.[lang]) return;
   if (!matchMedia("(hover: hover) and (pointer: fine) and (min-width: 900px)").matches) return;
-  try { if (localStorage.getItem("guestShown")) return; } catch {}
+  try { if (sessionStorage.getItem("guestShown")) return; } catch {}
 
   let mx = innerWidth * 0.6, my = innerHeight * 0.5;
   addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
-  setTimeout(() => {
+  const go = () => {
     if (document.hidden) { // wait until the tab is visible again
       document.addEventListener("visibilitychange", function once() {
         if (!document.hidden) { document.removeEventListener("visibilitychange", once); setTimeout(run, 1500); }
       });
     } else run();
-  }, delay * 1000);
+  };
+
+  if (PAGE === "project") {
+    // within one screen of the bottom for 3 s straight
+    let timer = null;
+    const check = () => {
+      const atBottom = document.documentElement.scrollHeight - (scrollY + innerHeight) < innerHeight;
+      if (atBottom && !timer) timer = setTimeout(() => { removeEventListener("scroll", check); go(); }, 3000);
+      else if (!atBottom && timer) { clearTimeout(timer); timer = null; }
+    };
+    addEventListener("scroll", check, { passive: true });
+    check();
+  } else setTimeout(go, delay * 1000);
 
   function run() {
-    try { localStorage.setItem("guestShown", "1"); } catch {}
+    try { sessionStorage.setItem("guestShown", "1"); } catch {}
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const file = document.createElement("a");
@@ -47,14 +61,12 @@ function startGuest() {
     file.querySelector(".guest-x").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); remove(); });
     file.addEventListener("click", (e) => { e.preventDefault(); if (!file.classList.contains("held")) openCvPreview(); });
 
-    // scrolling away fades the file out (in step with the distance), then it is gone for good
-    let y0 = null;
+    // the file stays where it was dropped (position: fixed); scrolling away dims it down to 35%
+    // (in step with the distance, back to full when scrolled back), hover shows it fully again
+    const y0 = scrollY;
     const onScroll = () => {
       if (!file.isConnected) return removeEventListener("scroll", onScroll);
-      y0 ??= scrollY;
-      const o = Math.max(0, 1 - Math.abs(scrollY - y0) / 240);
-      file.style.opacity = o;
-      if (!o) { removeEventListener("scroll", onScroll); file.remove(); removeEventListener("keydown", onKey); }
+      file.style.setProperty("--o", Math.max(0.35, 1 - Math.abs(scrollY - y0) / 240));
     };
     addEventListener("scroll", onScroll, { passive: true });
     addEventListener("keydown", onKey);

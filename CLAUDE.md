@@ -16,7 +16,7 @@
 | Витрина дизайн-системы | `design-system.html` |
 | Страницы | `index.html` (блоки `data-block`), `projects.html`, `contact.html` |
 | Резюме | `assets/cv-ru.pdf`, `assets/cv-en.pdf` |
-| «Гость с CV»: курсор «Anton Egorov» один раз на посетителя (localStorage `guestShown`) приносит мини-превью CV `assets/cv-<lang>.png` к курсору (только десктоп), задержка `profile.guestDelay` (сек, 0 — выкл; админка → Общие настройки). Иконка «Скачать CV» (скругление + загнутый уголок), клик → попап `openCvPreview` с `assets/cv-<lang>-full.jpg` и кнопкой «Скачать»; при скролле тает и исчезает | `guest.js` (запуск из `app.js` после render), стили — конец `style.css` |
+| «Гость с CV»: курсор «Anton Egorov» один раз за визит (sessionStorage `guestShown`) приносит мини-превью CV `assets/cv-<lang>.png` к курсору (только десктоп), задержка `profile.guestDelay` (сек, 0 — выкл; админка → Общие настройки); на `project.html` — вместо таймера 3 с на последнем экране снизу. Иконка «Скачать CV» (скругление + загнутый уголок), клик → попап `openCvPreview` с `assets/cv-<lang>-full.jpg` и кнопкой «Скачать»; остаётся на месте, при скролле тает до 35% (`--o`), при наведении — 100%; на другие страницы не переносится (может перекрыть картинку) | `guest.js` (запуск из `app.js` после render), стили — конец `style.css` |
 | Обложки проектов | `assets/shots/` |
 | Стек: ховер стопает ленту, клик — тултип из `profile.stackInfo.<lang>` (строки «Название — описание»; админка → блок «Стек») | `setupStackTips` в `app.js`, стили `.stack-tip` в `style.css` |
 | Тексты `main [data-i18n]` скрыты до первого render (класс `i18n-ready` на `<html>`) — без мелькания заглушек из HTML | `app.js` render, конец `style.css` |
