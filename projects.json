@@ -1693,8 +1693,7 @@
       "cat": "ai",
       "year": 2026,
       "cover": {
-        "glyph": "Stickers",
-        "tint": "#3c00ff"
+        "shot": "assets/shots/sticker-bot-mv6r4nha.png"
       },
       "title": {
         "ru": "Генератор стикеров",
