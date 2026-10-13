@@ -224,7 +224,19 @@
     if (c.cover.sub && !c.cover.sub.ru && !c.cover.sub.en) delete c.cover.sub;
     if (c.cover.pos === "") delete c.cover.pos;
     c.tags = c.tags.map((t) => t.trim()).filter(Boolean);
+    if (c.page && !c.page.length) delete c.page;
     return c;
+  }
+  // every image path the content refers to: covers, project page blocks, custom home blocks
+  function imagesOf(projects, siteObj) {
+    const out = new Set();
+    const add = (b) => { if (b.src) out.add(b.src); (b.images || []).forEach((s) => out.add(s)); };
+    for (const p of projects) {
+      if (p.cover?.shot) out.add(p.cover.shot);
+      (p.page || []).forEach(add);
+    }
+    (siteObj?.blocks || []).forEach(add);
+    return out;
   }
   const serialize = () => JSON.stringify({ categories: data.categories, projects: data.projects.map(clean) }, null, 2) + "\n";
   const serializeSite = () => JSON.stringify(site, null, 2) + "\n";
@@ -237,12 +249,15 @@
     const btn = q("#saveBtn");
     btn.disabled = true;
     try {
+      // upload only what the content still uses; delete uploads it no longer refers to
+      const inUse = imagesOf(data.projects, site);
       for (const [p, img] of pending) {
+        if (!inUse.has(p)) continue;
         setStatus(`Загружаю ${p.replace(SHOTS, "")}…`);
         await putFile(p, img.b64, `Admin: upload ${p}`);
       }
-      const inUse = new Set(data.projects.map((p) => p.cover.shot).filter(Boolean));
-      for (const p of replaced) {
+      const before = imagesOf(JSON.parse(savedJSON).projects, JSON.parse(siteSaved));
+      for (const p of new Set([...replaced, ...before])) {
         if (!inUse.has(p) && p.startsWith(SHOTS)) await deleteFile(p, `Admin: remove ${p}`);
       }
       if (serialize() !== savedJSON) {
@@ -353,6 +368,11 @@
           <label class="check"><input type="checkbox" data-k="featured" ${p.featured ? "checked" : ""}> Большая карточка на всю ширину</label>
           <label class="check"><input type="checkbox" data-k="home" ${p.home ? "checked" : ""}> На главной (избранное)</label>
         </div>
+        <div class="page-link">
+          <button class="btn small" type="button" data-page-edit>Страница проекта →</button>
+          <span class="hint">${p.page?.length ? `${p.page.length} ${plural(p.page.length, "блок", "блока", "блоков")}` : "Пока пустая. Кнопка «" + h(site?.text.ru.page || "Смотреть кейс") + "» появится на карточке, когда добавите первый блок"}${
+            p.links.page ? ". Сейчас карточка ведёт в «Раздел этого сайта» — очистите поле, чтобы вела на страницу" : ""}</span>
+        </div>
 
         <h2 class="sec">Текст</h2>
         <div class="row">
@@ -438,7 +458,10 @@
     if (k === "year") v = +v || "";
     if (k === "tags") v = v.split(",");
     if (k === "cover.gifts") v = v.split(",").map((s) => s.trim()).filter(Boolean);
-    if (k === "id") v = v.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+    if (k === "id") {
+      v = v.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+      if (seTarget === p.id) seTarget = v; // the page editor follows the renamed project
+    }
     setPath(p, k, v);
     renderList(); renderPreview(); updateStatus();
   });
@@ -469,6 +492,7 @@
 
   q("#edit").addEventListener("click", (e) => {
     if (e.target.dataset.pv) { pvLang = e.target.dataset.pv; renderEditor(); return; }
+    if (e.target.closest("[data-page-edit]")) { openPage(data.projects[sel].id); return; }
     if (e.target.id === "delBtn") {
       const p = data.projects[sel];
       if (!confirm(`Удалить «${p.title.ru || p.id}»? Чтобы просто убрать с сайта, достаточно выключить «Показывать».`)) return;
@@ -529,7 +553,7 @@
     stack: { name: "Стек и инструменты", keys: ["stack.title"] },
     exp: { name: "Опыт", keys: ["exp.eyebrow", "exp.title"] },
     contact: { name: "Давайте поговорим", keys: ["contact.title", "contact.text", "hero.cv", "contact.behance"] },
-    general: { name: "Общие настройки", keys: ["brand", "nav.home", "nav.work", "nav.contact", "foot.note", "foot.ds", "page", "live", "online", "private"] },
+    general: { name: "Общие настройки", keys: ["brand", "nav.home", "nav.work", "nav.contact", "foot.note", "foot.ds", "page", "live", "online", "private", "proj.back"] },
   };
   const KEY_LABEL = {
     "hero.eyebrow": "Надзаголовок", "hero.title": "Заголовок", "hero.lead": "Текст", "hero.where": "Город и формат работы",
@@ -541,7 +565,7 @@
     "contact.title": "Заголовок", "contact.text": "Текст", "contact.behance": "Кнопка Behance",
     brand: "Логотип в шапке", "nav.home": "Вкладка «Главная»", "nav.work": "Вкладка «Проекты»", "nav.contact": "Вкладка «Контакты»",
     "foot.note": "Подпись в футере", "foot.ds": "Ссылка «Дизайн-система»",
-    page: "Кнопка раздела сайта", live: "Кнопка «Открыть сайт»", online: "Бейдж «Онлайн»", private: "Бейдж «Приватный»",
+    page: "Кнопка «Смотреть кейс»", "proj.back": "Ссылка «Все проекты» на странице проекта", live: "Кнопка «Открыть сайт»", online: "Бейдж «Онлайн»", private: "Бейдж «Приватный»",
   };
   // fields of list items; types: text | area | lines (one per line) | csv (comma-separated)
   const LISTS = {
@@ -563,8 +587,35 @@
     },
   };
 
+  // Content blocks (project pages + custom home blocks); app.js renders them (BLOCK_HTML).
+  // fields: [path, label, type]; types: loc | loc-area ({ru,en}) · text · img · imgs · num:a,b,c · list:<SUBS key>
+  const loc = (ru = "", en = "") => ({ ru, en });
+  const TYPES = {
+    text: { name: "Текст", hint: "Заголовок и абзац", blank: () => ({ title: loc("Заголовок", "Heading"), text: loc() }),
+      fields: [["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"]] },
+    image: { name: "Картинка", hint: "Одна картинка с подписью", blank: () => ({ src: "", caption: loc() }),
+      fields: [["src", "Картинка", "img"], ["caption", "Подпись", "loc"]] },
+    gallery: { name: "Галерея", hint: "Сетка из нескольких картинок", blank: () => ({ images: [], cols: 3, caption: loc() }),
+      fields: [["images", "Картинки", "imgs"], ["cols", "Колонок", "num:2,3,4"], ["caption", "Подпись", "loc"]] },
+    video: { name: "Видео", hint: "YouTube, Vimeo или файл .mp4", blank: () => ({ src: "", caption: loc() }),
+      fields: [["src", "Ссылка на YouTube / Vimeo или путь к .mp4 в репозитории", "text"], ["caption", "Подпись", "loc"]] },
+    stats: { name: "Цифры", hint: "Крупные числа с подписями", blank: () => ({ items: [{ n: "10+", label: loc("подпись", "label") }, { n: "3", label: loc("подпись", "label") }] }),
+      fields: [["items", "Цифры", "list:stats"]] },
+    links: { name: "Кнопки", hint: "Ссылки на сайт, Behance, видео", blank: () => ({ items: [{ label: loc("Открыть", "Open"), href: "" }] }),
+      fields: [["items", "Кнопки", "list:links"]] },
+    quote: { name: "Цитата", hint: "Крупная цитата с автором", blank: () => ({ text: loc(), who: "" }),
+      fields: [["text", "Цитата", "loc-area"], ["who", "Автор", "text"]] },
+  };
+  const SUBS = {
+    stats: { title: (it) => it.n || "Цифра", blank: () => ({ n: "", label: loc() }), fields: [["n", "Число", "text"], ["label", "Подпись", "loc"]] },
+    links: { title: (it) => it.label?.ru || "Кнопка", blank: () => ({ label: loc("Кнопка", "Button"), href: "" }), fields: [["label", "Текст", "loc"], ["href", "Ссылка", "text"]] },
+  };
+
   let seLang = "ru";
-  let seBlock = "hero";
+  let seTarget = "home"; // which page the visual editor shows: "home" or a project id
+  let seBlock = "hero";  // selected block id; "_head" = project header, "_add" = picking a new block, "general"
+  let seAddAt = 0;       // where "_add" inserts
+  let seUndo = null;     // the last deleted block: { target, i, b }
   let frameLoaded = false;
 
   const getPath = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
@@ -572,6 +623,18 @@
     : type === "csv" ? v.split(",").map((s) => s.trim()).filter(Boolean)
     : type === "number" ? (+v || 0) : v;
   const toField = (type, v) => type === "lines" ? (v || []).join("\n") : type === "csv" ? (v || []).join(", ") : (v ?? "");
+  const srcOf = (s) => pending.get(s)?.dataURL || s;
+
+  const seProject = () => (seTarget === "home" ? null : data.projects.find((p) => p.id === seTarget));
+  const curBlocks = () => (seTarget === "home" ? site.blocks : (seProject().page ||= []));
+  const findBlock = (id) => curBlocks().find((b) => b.id === id);
+  const panelObj = () => (seBlock === "_head" ? seProject() : findBlock(seBlock));
+  const newId = () => "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  function blockLabel(b) {
+    if (!b.type) return BLOCKS[b.id]?.name || b.id;
+    const s = (b.title?.ru || b.text?.ru || b.caption?.ru || "").replace(/\s+/g, " ").trim();
+    return s ? `${TYPES[b.type].name}: ${s.length > 26 ? s.slice(0, 26) + "…" : s}` : TYPES[b.type].name;
+  }
 
   // what the iframe reads (window.parent.siteEditor in app.js)
   window.siteEditor = {
@@ -587,14 +650,46 @@
         }),
       };
     },
-    blockName: (id) => BLOCKS[id]?.name || id,
+    project() { // the project page being edited
+      const p = seProject();
+      if (!p) return null;
+      const c = clean(p);
+      if (c.cover.shot) c.cover.shot = srcOf(c.cover.shot);
+      c.page = p.page || [];
+      return c;
+    },
+    src: srcOf,
+    blockInfo(id) {
+      if (id === "_head") return { name: "Шапка проекта" };
+      const b = findBlock(id);
+      if (!b) return { name: id };
+      return b.type ? { name: TYPES[b.type].name, movable: true, removable: true }
+        : { name: BLOCKS[id]?.name || id, movable: true, hideable: true, hidden: b.visible === false };
+    },
+    blockAction,
     onText(key, val) {
       site.text[seLang][key] = val;
       const inp = document.querySelector(`#sePanel [data-text="${CSS.escape(key)}"][data-l="${seLang}"]`);
       if (inp && inp !== document.activeElement) inp.value = val;
       updateStatus();
     },
-    openBlock(id) { seBlock = id; renderSeBlocks(); renderSePanel(); },
+    onField(id, path, val, raw) { // a text edited in place inside a block
+      const obj = id === "_head" ? seProject() : findBlock(id);
+      if (!obj) return;
+      if (raw) setPath(obj, path, val);
+      else {
+        let o = getPath(obj, path);
+        if (!o || typeof o !== "object") setPath(obj, path, o = loc());
+        o[seLang] = val;
+      }
+      if (seBlock === id) {
+        const inp = document.querySelector(`#sePanel [data-bp="${CSS.escape(path)}"]${raw ? "" : `[data-l="${seLang}"]`}`);
+        if (inp && inp !== document.activeElement) inp.value = val;
+      }
+      renderSeBlocks();
+      if (id === "_head") renderList();
+      updateStatus();
+    },
     ready() { frameLoaded = true; },
   };
 
@@ -607,52 +702,128 @@
     }, 30);
   }
   function scrollFrameTo(id) {
-    try {
-      q("#seFrame").contentDocument.querySelector(`[data-block="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch {}
+    setTimeout(() => { // after refreshFrame has rebuilt the blocks
+      try {
+        q("#seFrame").contentDocument.querySelector(`[data-block="${CSS.escape(id)}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch {}
+    }, 90);
+  }
+  // home and project pages are different documents; switching between projects only re-renders
+  function loadFrame() {
+    const fr = q("#seFrame");
+    const kind = seTarget === "home" ? "home" : "project";
+    if (fr.dataset.kind !== kind) {
+      fr.dataset.kind = kind;
+      frameLoaded = false;
+      fr.src = kind === "home" ? "index.html?edit=1" : "project.html?edit=1";
+    } else {
+      refreshFrame();
+    }
+    const p = seProject();
+    q("#seOpen").href = p ? `project.html?id=${encodeURIComponent(p.id)}` : "./";
+  }
+
+  function selectBlock(id) {
+    seBlock = id;
+    renderSeBlocks(); renderSePanel();
+    scrollFrameTo(id);
+  }
+
+  function blockAction(id, act) {
+    const arr = curBlocks();
+    const i = arr.findIndex((b) => b.id === id);
+    if (act === "open") { selectBlock(id); return; }
+    if (act === "add") { // "+ блок" under a block: insert after it (the header: at the top)
+      seAddAt = id === "_head" ? 0 : i + 1;
+      seBlock = "_add";
+      renderSeBlocks(); renderSePanel();
+      return;
+    }
+    if (i < 0) return;
+    if (act === "up" || act === "down") {
+      const j = act === "up" ? i - 1 : i + 1;
+      if (j < 0 || j >= arr.length) return;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    } else if (act === "vis") {
+      arr[i].visible = arr[i].visible === false;
+    } else if (act === "del") {
+      if (!arr[i].type) return; // built-in home blocks are only hidden, never deleted
+      seUndo = { target: seTarget, i, b: arr.splice(i, 1)[0] };
+      if (seBlock === id) seBlock = seTarget === "home" ? "hero" : "_head";
+    }
+    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+  }
+
+  function addBlock(type) {
+    const b = { id: newId(), type, visible: true, ...TYPES[type].blank() };
+    curBlocks().splice(Math.min(seAddAt, curBlocks().length), 0, b);
+    refreshFrame(); updateStatus();
+    selectBlock(b.id);
+  }
+
+  function renderTargets() {
+    q("#seTarget").innerHTML = `<option value="home">Главная страница</option>
+      <optgroup label="Страницы проектов">${data.projects.map((p) =>
+        `<option value="${h(p.id)}" ${p.id === seTarget ? "selected" : ""}>${h(p.title.ru || p.id)}${p.page?.length ? ` · ${p.page.length}` : ""}${p.visible ? "" : " (скрыт)"}</option>`).join("")}</optgroup>`;
+    q("#seTarget").value = seTarget;
   }
 
   function renderSeBlocks() {
-    const rows = site.blocks.map((b, i) => `
-      <div class="item${seBlock === b.id ? " on" : ""}${b.visible === false ? " hidden-p" : ""}" data-b="${i}">
+    if (seTarget !== "home" && !seProject()) { seTarget = "home"; seBlock = "hero"; } // the project was deleted
+    renderTargets();
+    const home = seTarget === "home";
+    const row = (b, i) => `
+      <div class="item${seBlock === b.id ? " on" : ""}${b.visible === false ? " hidden-p" : ""}" data-id="${h(b.id)}">
         <label class="sw" title="${b.visible === false ? "Скрыт" : "Показывается"}">
           <input type="checkbox" data-act="vis" ${b.visible === false ? "" : "checked"}><span></span>
         </label>
-        <div style="min-width:0"><span class="t">${h(BLOCKS[b.id]?.name || b.id)}</span></div>
+        <div style="min-width:0">${b.type && home ? `<span class="c">свой блок</span>` : ""}<span class="t">${h(blockLabel(b))}</span></div>
         <div class="mv">
-          <button type="button" data-act="up" aria-label="Выше">↑</button>
+          <button type="button" data-act="up" aria-label="Выше" ${i ? "" : "disabled"}>↑</button>
           <button type="button" data-act="down" aria-label="Ниже">↓</button>
+          ${b.type ? `<button type="button" data-act="del" aria-label="Удалить" title="Удалить блок">✕</button>` : ""}
         </div>
-      </div>`).join("");
-    q("#seBlocks").innerHTML = rows + `
-      <div class="item${seBlock === "general" ? " on" : ""}" data-b="general" style="margin-top:10px">
-        <span></span>
-        <div style="min-width:0"><span class="c">меню, футер, контакты</span><span class="t">Общие настройки</span></div>
-        <span></span>
       </div>`;
+    const fixed = (id, title, sub) => `
+      <div class="item${seBlock === id ? " on" : ""}" data-id="${id}">
+        <span></span><div style="min-width:0"><span class="c">${sub}</span><span class="t">${title}</span></div><span></span>
+      </div>`;
+    q("#seBlocks").innerHTML = (home ? "" : fixed("_head", "Шапка проекта", "название, текст, обложка"))
+      + curBlocks().map(row).join("")
+      + `<button class="btn ghost small${seBlock === "_add" && seAddAt === curBlocks().length ? " on" : ""}" type="button" data-act="add-end" style="margin-top:4px">+ Добавить блок</button>`
+      + (home ? `<div style="margin-top:10px">${fixed("general", "Общие настройки", "меню, футер, контакты")}</div>` : "");
   }
 
   q("#seBlocks").addEventListener("click", (e) => {
+    if (e.target.closest("[data-act='add-end']")) {
+      seAddAt = curBlocks().length; seBlock = "_add";
+      renderSeBlocks(); renderSePanel();
+      return;
+    }
     const item = e.target.closest(".item");
     if (!item) return;
-    if (item.dataset.b === "general") { seBlock = "general"; renderSeBlocks(); renderSePanel(); return; }
-    const i = +item.dataset.b;
+    const id = item.dataset.id;
     const act = e.target.dataset.act;
     if (!act && e.target.closest(".sw")) return; // the label forwards the click to its checkbox
     if (act === "vis") {
-      site.blocks[i].visible = e.target.checked;
-    } else if (act === "up" || act === "down") {
-      const j = act === "up" ? i - 1 : i + 1;
-      if (j < 0 || j >= site.blocks.length) return;
-      [site.blocks[i], site.blocks[j]] = [site.blocks[j], site.blocks[i]];
-    } else {
-      seBlock = site.blocks[i].id;
-      renderSeBlocks(); renderSePanel();
-      scrollFrameTo(seBlock);
-      return;
-    }
-    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+      findBlock(id).visible = e.target.checked;
+      renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+    } else if (act) blockAction(id, act);
+    else selectBlock(id);
   });
+
+  q("#seTarget").addEventListener("change", (e) => {
+    seTarget = e.target.value;
+    seBlock = seTarget === "home" ? "hero" : "_head";
+    renderSeBlocks(); renderSePanel(); loadFrame();
+    try { q("#seFrame").contentWindow.scrollTo(0, 0); } catch {}
+  });
+
+  function openPage(id) {
+    seTarget = id;
+    seBlock = "_head";
+    setMode("site");
+  }
 
   function textFields(keys) {
     return keys.map((k) => {
@@ -689,9 +860,86 @@
     </div>`;
   }
 
+  // a field of the selected block (or of the project for "_head"); data-bp = path inside it
+  const arrBtns = (path, i) => `<span class="mv">
+      <button type="button" data-arr="${h(path)}" data-i="${i}" data-act="up" aria-label="Выше">↑</button>
+      <button type="button" data-arr="${h(path)}" data-i="${i}" data-act="down" aria-label="Ниже">↓</button>
+      <button type="button" data-arr="${h(path)}" data-i="${i}" data-act="del" aria-label="Удалить">✕</button>
+    </span>`;
+  function bField(obj, path, label, type) {
+    const v = getPath(obj, path);
+    const bp = `data-bp="${h(path)}"`;
+    if (type === "loc" || type === "loc-area") {
+      const inp = (l) => `<textarea class="${type === "loc" ? "short" : ""}" ${bp} data-l="${l}" placeholder="${l.toUpperCase()}">${h(v?.[l])}</textarea>`;
+      return `<div class="tx"><span>${h(label)}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
+    }
+    if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
+    if (type.startsWith("num:")) return `<label class="f">${h(label)}<select ${bp} data-type="number">${type.slice(4).split(",").map((n) =>
+      `<option ${+n === +v ? "selected" : ""}>${n}</option>`).join("")}</select></label>`;
+    if (type === "img") return `<div class="f img-f"><span>${h(label)}</span>
+        <div class="shot-box">${v ? `<img src="${h(srcOf(v))}" alt="">` : ""}
+          <label class="btn ghost small" style="cursor:pointer">Загрузить картинку…<input type="file" data-up="${h(path)}" accept="image/*" hidden></label></div>
+        <input type="text" ${bp} value="${h(v)}" placeholder="или путь / ссылка: assets/… или https://…"></div>`;
+    if (type === "imgs") return `<div class="f img-f"><span>${h(label)}</span>
+        <div class="rep">${(v || []).map((s, i) => `<div class="img-row"><img src="${h(srcOf(s))}" alt="">
+          <input type="text" data-bp="${h(path)}.${i}" value="${h(s)}">${arrBtns(path, i)}</div>`).join("")}</div>
+        <div><label class="btn ghost small" style="cursor:pointer">+ Добавить картинки…<input type="file" data-upadd="${h(path)}" accept="image/*" multiple hidden></label></div></div>`;
+    if (type.startsWith("list:")) {
+      const S = SUBS[type.slice(5)];
+      return `<h2 class="sec">${h(label)}</h2><div class="rep">${(v || []).map((it, i) => `
+        <div class="rep-item">
+          <div class="rep-head"><b>${h(S.title(it))}</b>${arrBtns(path, i)}</div>
+          ${S.fields.map(([k, l, t]) => bField(obj, `${path}.${i}.${k}`, l, t)).join("")}
+        </div>`).join("")}
+        <div><button class="btn ghost small" type="button" data-arradd="${h(path)}" data-sub="${type.slice(5)}">+ Добавить</button></div></div>`;
+    }
+    return "";
+  }
+
   function renderSePanel() {
     if (!site) return;
+    const home = seTarget === "home";
+    const undo = seUndo && seUndo.target === seTarget
+      ? `<div class="undo"><span>Блок «${h(blockLabel(seUndo.b))}» удалён</span><button class="btn ghost small" type="button" data-undo>Вернуть</button></div>` : "";
+
+    if (seBlock === "_add") {
+      const arr = curBlocks();
+      const after = seAddAt === 0 ? (home ? "в начало" : "сразу после шапки") : `после «${blockLabel(arr[seAddAt - 1])}»`;
+      q("#sePanel").innerHTML = `${undo}<h2>Новый блок</h2><p class="hint">Встанет ${h(after)}. Потом его можно передвинуть стрелками.</p>
+        <div class="types">${Object.entries(TYPES).map(([k, T]) =>
+          `<button type="button" class="type-btn" data-newtype="${k}"><b>${T.name}</b><span>${T.hint}</span></button>`).join("")}</div>`;
+      return;
+    }
+
+    if (seBlock === "_head") {
+      const p = seProject();
+      q("#sePanel").innerHTML = `${undo}<h2>Шапка проекта</h2>
+        <p class="hint">Название и описание — те же, что на карточке проекта. Обложка, теги, ссылки и категория — во вкладке «Проекты».</p>
+        ${bField(p, "title", "Название", "loc")}${bField(p, "desc", "Описание", "loc-area")}
+        <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>
+        <p class="hint">Блоки ниже шапки: «+ блок» под любым блоком на странице или «+ Добавить блок» слева. Половинные блоки встают по два в ряд; удалите блок — остальные сдвинутся.</p>`;
+      return;
+    }
+
+    const cb = findBlock(seBlock);
+    if (cb?.type) {
+      const T = TYPES[cb.type];
+      q("#sePanel").innerHTML = `${undo}<h2>${T.name}</h2>
+        <label class="check"><input type="checkbox" data-bp="visible" data-type="bool" ${cb.visible === false ? "" : "checked"}> Показывать на сайте</label>
+        ${home ? "" : `<label class="f">Ширина<select data-bp="w">
+          <option value="">На всю ширину</option><option value="half" ${cb.w === "half" ? "selected" : ""}>Половина — два блока в ряд</option></select></label>`}
+        ${T.fields.map(([k, l, t]) => bField(cb, k, l, t)).join("")}
+        <p class="hint">Тексты можно править и прямо на странице.</p>
+        <div class="se-acts">
+          <button class="btn ghost small" type="button" data-bact="up">↑ Выше</button>
+          <button class="btn ghost small" type="button" data-bact="down">↓ Ниже</button>
+          <button class="btn danger small" type="button" data-bact="del">Удалить блок</button>
+        </div>`;
+      return;
+    }
+
     const B = BLOCKS[seBlock];
+    if (!B) { q("#sePanel").innerHTML = `${undo}<p class="hint">Выберите блок слева или на странице.</p>`; return; }
     const blk = site.blocks.find((b) => b.id === seBlock);
     const extra = {
       stats: `<h2 class="sec">Данные</h2>${field("profile.since", "Год начала работы в 3D (для «N+ лет»)", "number")}
@@ -707,9 +955,10 @@
         <h2 class="sec">Гость с CV</h2>${field("profile.guestDelay", "Через сколько секунд появляется курсор «Anton Egorov» с CV (0 — выключить)", "number")}
         <p class="hint">Один раз на посетителя (больше не повторяется), только на компьютере. Проверить заново — окно инкогнито. После замены CV обновить превью: python tools/cv_thumbs.py.</p>`,
     }[seBlock] || "";
-    q("#sePanel").innerHTML = `
+    q("#sePanel").innerHTML = `${undo}
       <h2>${h(B.name)}</h2>
-      ${blk ? `<label class="check"><input type="checkbox" data-blockvis ${blk.visible === false ? "" : "checked"}> Показывать блок на сайте</label>` : ""}
+      ${blk ? `<label class="check"><input type="checkbox" data-blockvis ${blk.visible === false ? "" : "checked"}> Показывать блок на сайте</label>
+        <p class="hint">Встроенный блок: его можно скрыть, но не удалить.</p>` : ""}
       <h2 class="sec">Тексты</h2>
       ${textFields(B.keys)}
       ${extra}`;
@@ -717,7 +966,20 @@
 
   q("#sePanel").addEventListener("input", (e) => {
     const el = e.target;
-    if (el.dataset.text) {
+    if (el.dataset.bp) {
+      const obj = panelObj();
+      const path = el.dataset.bp;
+      if (el.dataset.l) {
+        let o = getPath(obj, path);
+        if (!o || typeof o !== "object") setPath(obj, path, o = loc());
+        o[el.dataset.l] = el.value;
+      } else if (el.dataset.type === "bool") setPath(obj, path, el.checked);
+      else if (el.dataset.type === "number") setPath(obj, path, +el.value);
+      else if (path === "w" && !el.value) delete obj.w;
+      else setPath(obj, path, el.value);
+      renderSeBlocks();
+      if (seBlock === "_head") renderList();
+    } else if (el.dataset.text) {
       site.text[el.dataset.l][el.dataset.text] = el.value;
     } else if (el.dataset.path) {
       setPath(site, el.dataset.path, el.dataset.type === "bool" ? el.checked : fromField(el.dataset.type, el.value));
@@ -728,16 +990,70 @@
     refreshFrame(); updateStatus();
   });
 
+  // GIFs are kept as they are (animation); everything else goes through shrink() → JPEG
+  const readRaw = (file) => new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve({ dataURL: r.result, b64: r.result.split(",")[1] });
+    r.onerror = () => reject(new Error("не удалось прочитать файл"));
+    r.readAsDataURL(file);
+  });
+  async function upload(file, owner) {
+    const gif = file.type === "image/gif";
+    const img = gif ? await readRaw(file) : await shrink(file);
+    const path = `${SHOTS}${owner}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}.${gif ? "gif" : "jpg"}`;
+    pending.set(path, img);
+    return path;
+  }
+
+  q("#sePanel").addEventListener("change", async (e) => {
+    const el = e.target;
+    if (el.dataset.bp && el.closest(".img-f")) { renderSePanel(); return; } // a typed path: refresh the thumbnail
+    if (el.type !== "file" || !el.files.length) return;
+    const obj = panelObj();
+    try {
+      setStatus("Обрабатываю картинки…");
+      const paths = [];
+      for (const f of el.files) paths.push(await upload(f, seTarget === "home" ? "home" : seTarget));
+      if (el.dataset.up) setPath(obj, el.dataset.up, paths[0]);
+      else setPath(obj, el.dataset.upadd, [...(getPath(obj, el.dataset.upadd) || []), ...paths]);
+      renderSePanel(); refreshFrame(); updateStatus();
+    } catch (err) {
+      setStatus(`Не удалось прочитать картинку: ${err.message}`, "err");
+    }
+  });
+
   q("#sePanel").addEventListener("click", (e) => {
     const b = e.target.closest("button");
     if (!b) return;
-    if (b.dataset.goto) { setMode(b.dataset.goto); return; }
-    if (!b.dataset.rep) return;
-    const arr = getPath(site, b.dataset.rep);
+    if (b.dataset.goto) {
+      const p = seProject();
+      if (p) { sel = data.projects.indexOf(p); renderAll(); }
+      setMode(b.dataset.goto);
+      return;
+    }
+    if (b.dataset.newtype) { addBlock(b.dataset.newtype); return; }
+    if (b.hasAttribute("data-undo")) {
+      const arr = curBlocks();
+      arr.splice(Math.min(seUndo.i, arr.length), 0, seUndo.b);
+      const id = seUndo.b.id;
+      seUndo = null;
+      refreshFrame(); updateStatus();
+      selectBlock(id);
+      return;
+    }
+    if (b.dataset.bact) { blockAction(seBlock, b.dataset.bact); return; }
+    if (b.dataset.arradd) {
+      const obj = panelObj();
+      setPath(obj, b.dataset.arradd, [...(getPath(obj, b.dataset.arradd) || []), SUBS[b.dataset.sub].blank()]);
+      renderSePanel(); refreshFrame(); updateStatus();
+      return;
+    }
+    const arr = b.dataset.arr ? getPath(panelObj(), b.dataset.arr) : b.dataset.rep ? getPath(site, b.dataset.rep) : null;
+    if (!arr) return;
     const i = +b.dataset.i;
     if (b.dataset.act === "add") arr.push(LISTS[b.dataset.rep].blank());
     else if (b.dataset.act === "del") {
-      if (!confirm("Удалить этот пункт?")) return;
+      if (b.dataset.rep && !confirm("Удалить этот пункт?")) return;
       arr.splice(i, 1);
     } else {
       const j = b.dataset.act === "up" ? i - 1 : i + 1;
@@ -767,10 +1083,8 @@
     q("#projectsMode").hidden = mode !== "projects";
     q("#siteMode").hidden = mode !== "site";
     q(".adm").classList.toggle("wide", mode === "site");
-    if (mode === "site") {
-      const fr = q("#seFrame");
-      if (!fr.getAttribute("src")) fr.src = "index.html?edit=1";
-      else refreshFrame(); // pick up unsaved project edits (featured projects, covers)
+    if (mode === "site") { // also picks up unsaved project edits (featured projects, covers)
+      renderSeBlocks(); renderSePanel(); loadFrame();
     }
   }
   q("#modes").addEventListener("click", (e) => { const b = e.target.closest("[data-mode]"); if (b) setMode(b.dataset.mode); });
