@@ -67,8 +67,7 @@ function coverHTML(p) {
       `<img src="assets/gifts/${k}.webp" alt="" loading="lazy">`).join("")}</div>`;
   }
   if (c.shot) {
-    const pos = c.pos ? ` style="object-position:${esc(c.pos)}"` : "";
-    return `<div class="cover"><img class="shot" src="${esc(c.shot)}"${pos} alt="${esc(p.title[lang])}" loading="lazy"></div>`;
+    return `<div class="cover"><img class="shot" src="${esc(c.shot)}" alt="${esc(p.title[lang])}" loading="lazy"></div>`;
   }
   return `<div class="cover type" style="--tint:${c.tint}">
     <span class="glyph">${esc(c.glyph || "")}</span>

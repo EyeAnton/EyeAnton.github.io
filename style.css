@@ -119,7 +119,7 @@
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
 .cover { position: relative; aspect-ratio: 16 / 10; background: var(--card-2); overflow: hidden; }
-.cover img.shot { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform .8s var(--ease); }
+.cover img.shot { width: 100%; height: 100%; object-fit: contain; /* whole picture always fits; PNG keeps transparency */ transition: transform .8s var(--ease); }
 .card:hover .cover img.shot { transform: scale(1.04); }
 .cover::after {
   content: ""; position: absolute; inset: auto 0 0; height: 40%; pointer-events: none;

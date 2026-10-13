@@ -63,7 +63,9 @@
     .preview .card:hover { transform: none; }
     .pv-tabs { display: flex; gap: 6px; }
     .shot-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .shot-box img { width: 160px; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); background: var(--card-2); }
+    /* thumbnails: the whole picture, transparency on a checkerboard */
+    .shot-box img, .img-row img { object-fit: contain; background: repeating-conic-gradient(#2a2a2a 0 25%, #1a1a1a 0 50%) 0 0 / 12px 12px; }
+    .shot-box img { width: 160px; aspect-ratio: 16/10; border-radius: 8px; border: 1px solid var(--line); }
 
     .bar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
@@ -119,7 +121,7 @@
       border-radius: 12px; background: var(--card-2); border: 1px solid var(--line); font-size: 13px; }
     .img-f > span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     .img-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 8px; align-items: center; }
-    .img-row img { width: 56px; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: var(--card-2); }
+    .img-row img { width: 56px; aspect-ratio: 1; border-radius: 6px; }
     .img-row .mv button, .rep-head .mv button { background: none; border: 0; color: var(--muted); font-size: 15px; cursor: pointer; padding: 2px 5px; }
     .se-acts { display: flex; flex-wrap: wrap; gap: 8px; }
     details.rep-item > summary { cursor: pointer; list-style: none; }
