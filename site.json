@@ -37,7 +37,7 @@
       "nav.contact": "Контакты",
       "hero.eyebrow": "Антон Егоров · AI Creative Technologist",
       "hero.title": "Превращаю AI-генерацию в масштабируемый продакшен",
-      "hero.lead": "Дизайнер на стыке AI-генерации, motion/3D и автоматизации креативных процессов. От промптов и ComfyUI-воркфлоу до пакетной генерации и готовых ассетов для разработки.",
+      "hero.lead": "Дизайнер на стыке AI-генерации, 3D и автоматизации процессов. \nДовожу идеи до готового продукта.",
       "hero.where": "Ереван · удалённо или релокация",
       "hero.cta": "Смотреть проекты",
       "hero.cv": "Контакты и CV",
@@ -46,16 +46,16 @@
       "sLive": "живых сайтов",
       "areas.eyebrow": "",
       "areas.title": "Что я делаю",
-      "areas.text": "Делал видео-подарки, стикеры, 3D-иконки и онбординг-анимации для продукта с большим объёмом контента.",
+      "areas.text": "",
       "soft.title": "Soft skills",
-      "show.eyebrow": "Избранное",
-      "show.title": "Проекты, которыми я горжусь",
+      "show.eyebrow": "",
+      "show.title": "Мои проекты",
       "show.all": "Все проекты →",
       "stack.title": "Стек и инструменты",
       "exp.eyebrow": "Опыт",
       "exp.title": "Где я работал",
       "contact.title": "Давайте сотрудничать",
-      "contact.text": "Открыт к работе удалённо или с релокацией. Резюме и все способы связи — на странице контактов.",
+      "contact.text": "Открыт к работе удалённо или с релокацией. ",
       "contact.behance": "Behance ↗",
       "work.eyebrow": "Каталог",
       "work.title": "Проекты",
@@ -86,7 +86,7 @@
       "nav.contact": "Contact",
       "hero.eyebrow": "Anton Egorov · AI Creative Technologist",
       "hero.title": "I turn AI generation into scalable production",
-      "hero.lead": "Designer working at the intersection of generative AI, motion/3D and creative automation. From prompts and ComfyUI workflows to batch generation and dev-ready assets.",
+      "hero.lead": "A designer at the intersection of AI-generated content, 3D, and process automation.\nI take ideas and turn them into finished products.",
       "hero.where": "Yerevan, Armenia · remote or relocation",
       "hero.cta": "View work",
       "hero.cv": "Contact & CV",
@@ -95,16 +95,16 @@
       "sLive": "live sites",
       "areas.eyebrow": "Skills",
       "areas.title": "What I do",
-      "areas.text": "Shipped video gifts, stickers, 3D icons and onboarding animations for a high-volume content product.",
+      "areas.text": "",
       "soft.title": "Soft skills",
-      "show.eyebrow": "Selected",
-      "show.title": "Projects I'm proud of",
+      "show.eyebrow": "",
+      "show.title": "My projects",
       "show.all": "All projects →",
       "stack.title": "Stack & tools",
       "exp.eyebrow": "Experience",
       "exp.title": "Where I've worked",
       "contact.title": "Let's talk",
-      "contact.text": "Open to remote work or relocation. My CV and every way to reach me are on the contact page.",
+      "contact.text": "Open to remote work or relocation.",
       "contact.behance": "Behance ↗",
       "work.eyebrow": "Catalog",
       "work.title": "Work",
@@ -166,8 +166,8 @@
           "en": "AI generation"
         },
         "d": {
-          "ru": "Видео, изображения и звук для продукта — от промпта до готового ассета",
-          "en": "Video, imagery and sound for products — from prompt to finished asset"
+          "ru": "Видео, изображения и звук для продукта — от промпта до готового файла",
+          "en": "Video, imagery and sound for products — from prompt to finished file"
         },
         "tools": [
           "ComfyUI",
@@ -186,8 +186,8 @@
           "en": "Automation"
         },
         "d": {
-          "ru": "Пайплайны, которые превращают генерацию в масштабируемый продакшен",
-          "en": "Pipelines that turn generation into scalable production"
+          "ru": "Пайплайны, которые превращают генерацию в масштабируемый продукт",
+          "en": "Pipelines that turn generation into scalable product"
         },
         "tools": [
           "Google Cloud Run",
@@ -206,8 +206,8 @@
           "en": "Motion & 3D"
         },
         "d": {
-          "ru": "3D-подарки, иконки, онбординг-анимации и промо-ролики",
-          "en": "3D gifts, icons, onboarding animations and promo videos"
+          "ru": "Моделлинг, текстуринг, оптимизация и анимация",
+          "en": "Modelling, texturing, optimization and animation"
         },
         "tools": [
           "After Effects",
@@ -223,8 +223,8 @@
           "en": "Design"
         },
         "d": {
-          "ru": "Ассеты под разработку: mobile, web, Figma",
-          "en": "Dev-ready assets for mobile, web and Figma"
+          "ru": "Профессиональное владение базовыми инструментами дизайна",
+          "en": "Professional using of the basic design tools"
         },
         "tools": [
           "Figma",
