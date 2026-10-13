@@ -637,6 +637,7 @@
       blank: () => ({ ...head(), keys: [], matches: loc("Пары", "Matches"), prev: loc("отправила подарок", "sent you a gift"),
         match: loc("Вы понравились друг другу · сегодня", "You liked each other · today") }),
       fields: [["keys", "Какие подарки играют — ключи через запятую (пусто — первые шесть)", "csv"],
+        ["hires", "Подарки с файлами 1080px (assets/anim1080, tools/encode_showcase.sh) — ключи через запятую", "csv"],
         ["matches", "Заголовок списка в ноутбуке", "loc"], ["prev", "Подпись у Mia", "loc"], ["match", "Надпись в чате", "loc"],
         ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
     "gifts-process": { name: "Подарки: пять шагов", hint: "Вкладки по подаркам, кадры из Figma", group: "Подарки",
