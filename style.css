@@ -426,15 +426,22 @@
   display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; padding: 6px 4px;
   border-radius: 8px; color: var(--white); text-decoration: none; transition: opacity .3s, scale .3s;
 }
-.guest-file svg { width: 40px; height: 48px; filter: drop-shadow(0 4px 10px rgb(0 0 0 / .45)); transition: transform .3s; }
-.guest-file .pg { fill: var(--gray-100); }
-.guest-file .fold { fill: var(--gray-300); }
-.guest-file .arr { fill: none; stroke: var(--red-500); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.guest-thumb { position: relative; display: block; width: 46px; transition: transform .3s; }
+.guest-thumb img {
+  display: block; width: 100%; aspect-ratio: 210 / 297; object-fit: cover; object-position: top;
+  border-radius: 2px; box-shadow: 0 0 0 1px rgb(0 0 0 / .25), 0 4px 12px rgb(0 0 0 / .5);
+}
+.guest-thumb svg {
+  position: absolute; right: -6px; bottom: -6px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--red-500); opacity: 0; scale: .6; transition: opacity .2s, scale .2s;
+}
+.guest-thumb path { fill: none; stroke: var(--white); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.guest-file:hover .guest-thumb svg, .guest-file:focus-visible .guest-thumb svg { opacity: 1; scale: 1; }
 .guest-file span { padding: 1px 7px; border-radius: 4px; font-size: 12px; font-weight: 600; letter-spacing: .02em; }
-.guest-file.held svg { transform: rotate(-6deg) scale(1.06); }
+.guest-file.held .guest-thumb { transform: rotate(-6deg) scale(1.06); }
 .guest-file.held { opacity: .92; }
 .guest-file:hover span, .guest-file:focus-visible span { background: var(--blue-500); }
-.guest-file:hover svg { transform: translateY(-2px); }
+.guest-file:hover .guest-thumb { transform: translateY(-2px); }
 .guest-file.gone { opacity: 0; scale: .8; }
 .guest-x {
   position: absolute; top: -4px; right: 0; width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%;

@@ -15,12 +15,13 @@
 | Витрина дизайн-системы | `design-system.html` |
 | Страницы | `index.html` (блоки `data-block`), `projects.html`, `contact.html` |
 | Резюме | `assets/cv-ru.pdf`, `assets/cv-en.pdf` |
-| «Гость с CV»: курсор «Anton Egorov» раз за сеанс приносит иконку CV к курсору (только десктоп), задержка `profile.guestDelay` (сек, 0 — выкл; админка → Общие настройки) | `guest.js` (запуск из `app.js` после render), стили — конец `style.css` |
+| «Гость с CV»: курсор «Anton Egorov» один раз на посетителя (localStorage `guestShown`) приносит мини-превью CV `assets/cv-<lang>.png` к курсору (только десктоп), задержка `profile.guestDelay` (сек, 0 — выкл; админка → Общие настройки) | `guest.js` (запуск из `app.js` после render), стили — конец `style.css` |
 | Обложки проектов | `assets/shots/` |
 
 ## Ручные инструменты (вместо работы Claude)
 - Превью ссылки: правка текста в `tools/og.html` → `powershell -File tools/og.ps1` → `assets/og.jpg`.
 - Обложка проекта со скриншота сайта: `powershell -File tools/shot.ps1 -Url <адрес> -Name <id>` → `assets/shots/<id>.jpg`.
+- Превью CV для «гостя»: после замены PDF → `python tools/cv_thumbs.py` (нужен `pip install pymupdf`).
 - Проверка без входа: `python -m http.server 8000` → http://localhost:8000/admin.html?local (публикация отключена).
 
 ## Решения пользователя
