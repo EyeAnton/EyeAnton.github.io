@@ -390,6 +390,9 @@
 .channel:hover i { transform: translate(2px, -2px); }
 @media (max-width: 760px) { .contact-grid { grid-template-columns: 1fr; } }
 
+/* texts from site.json may contain line breaks ("\n") */
+[data-i18n] { white-space: pre-line; }
+
 /* =================== visual editor (home inside admin.html, ?edit) =================== */
 .editing [data-i18n]:not(.top *) {
   outline: 1px dashed transparent; outline-offset: 4px; border-radius: 4px; cursor: text;
