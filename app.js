@@ -5,7 +5,8 @@
 // project.links: page = section of this site, live = working site, code = public repo. visible: false hides it.
 // project.home: true puts it into "Selected work" on the main page.
 // project.page: [content blocks] — the project's own page project.html?id=<id> (cards link to it when not empty).
-// Content block: { id, type: text|image|gallery|video|stats|links|quote, visible, w: "half" (project pages), ...fields };
+// project.head: { eyebrow, lead, accent (part of the title in gradient), ctas: [{label, href}], cloud: [images] } — its hero.
+// Content block: { id, type (see BLOCK_HTML), visible, w: "half" (project pages), anchor, eyebrow/title/text (section head), items, ... };
 // localized fields are {ru, en}. Custom home blocks are the same objects in site.json → blocks (they have a type).
 // Pages: <body data-page="home|projects|project|contact">. admin.html and design-system.html have no data-page
 // and only reuse cardHTML / coverHTML (after loadSite()).
@@ -146,55 +147,113 @@ function expHTML() {
 }
 
 /* ---------------- content blocks (project pages, custom home blocks) ---------------- */
+// Markup follows the Emotions Club case (styles: case.css, cs-*). Any block may carry a section head —
+// eyebrow / title / text, centred; a block without one sits tight under the block above.
 
 // a localized field; an untranslated one falls back to the other language on the site (the editor shows it empty)
 const L = (o) => (o && typeof o === "object" ? o[lang] || (EDITOR ? "" : o[lang === "ru" ? "en" : "ru"]) || "" : o ?? "");
 const imgSrc = (s) => (EDITOR?.src ? EDITOR.src(s) : s); // the editor swaps not yet published uploads for data URLs
+const getIn = (o, path) => path.split(".").reduce((x, k) => (x == null ? x : x[k]), o);
 
-// an editable text: data-f = path inside the block, data-raw = not localized; empty ones exist only in the editor
+// an editable text: data-f = path inside the block, data-raw = not localized.
+// Empty: hidden on the site; in the editor a placeholder, but only when the key exists in the block.
 function fld(b, path, tag, ph, raw, cls) {
-  const v = path.split(".").reduce((o, k) => (o == null ? o : o[k]), b);
+  const v = getIn(b, path);
   const val = raw ? (v ?? "") : L(v);
-  if (!val && !EDITOR) return "";
+  if (!val && (!EDITOR || v === undefined)) return "";
   return `<${tag}${cls ? ` class="${cls}"` : ""} data-f="${path}"${raw ? " data-raw" : ""} data-ph="${ph}">${esc(val)}</${tag}>`;
 }
 
 const empty = (what) => (EDITOR ? `<div class="cb-empty">${what} — в панели справа</div>` : "");
-const imgHTML = (s) => (s ? `<img src="${esc(imgSrc(s))}" alt="" loading="lazy">` : empty("Загрузите картинку"));
+const imgHTML = (s, alt = "") => (s ? `<img src="${esc(imgSrc(s))}" alt="${esc(alt)}" loading="lazy">` : empty("Загрузите картинку"));
+// muted loops that play only while on screen (watchVideos)
+const loopHTML = (it) => it.src
+  ? `<video muted loop playsinline preload="none" data-play${it.poster ? ` poster="${esc(imgSrc(it.poster))}"` : ""} src="${esc(imgSrc(it.src))}"></video>`
+  : empty("Укажите видео");
+// code panels: plain text; <k>key</k>, <s>string</s>, <i>comment</i> are kept as highlighting
+const codeHTML = (s) => esc(s).replace(/&lt;(\/?)([ksi])&gt;/g, "<$1$2>");
+const ext = (href) => (/^https?:/.test(href) ? ' target="_blank" rel="noopener"' : "");
+const each = (b, f) => (b.items || []).map((it, i) => f(it, i, `items.${i}`)).join("") || empty("Добавьте пункты");
+const btns = (b, path = "items") => (getIn(b, path) || []).filter((it) => EDITOR || it.href).map((it, i) =>
+  `<a class="btn${i ? " ghost" : ""}" href="${esc(it.href || "#")}"${ext(it.href || "")}>${fld(b, `${path}.${i}.label`, "span", "Кнопка") || esc(it.href)}</a>`).join("");
 
 function videoHTML(src) {
   if (!src) return empty("Вставьте ссылку на видео");
   const yt = src.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
   const vm = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   const embed = yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}` : vm ? `https://player.vimeo.com/video/${vm[1]}` : "";
-  return `<div class="cb-video">${embed
+  return `<div class="pb-video">${embed
     ? `<iframe src="${embed}" title="Video" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
-    : `<video src="${esc(imgSrc(src))}" autoplay muted loop playsinline controls></video>`}</div>`;
+    : `<video src="${esc(imgSrc(src))}" muted loop playsinline controls data-play></video>`}</div>`;
 }
 
 const BLOCK_HTML = {
-  text: (b) => fld(b, "title", "h2", "Заголовок") + fld(b, "text", "p", "Текст"),
-  image: (b) => `<figure>${imgHTML(b.src)}${fld(b, "caption", "figcaption", "Подпись")}</figure>`,
-  gallery: (b) => `<div class="cb-gal" style="--cols:${+b.cols || 3}">${(b.images || []).map(imgHTML).join("") || empty("Добавьте картинки")}</div>
-    ${fld(b, "caption", "p", "Подпись", false, "cb-cap")}`,
-  video: (b) => videoHTML(b.src) + fld(b, "caption", "p", "Подпись", false, "cb-cap"),
-  stats: (b) => `<div class="cb-stats">${(b.items || []).map((it, i) =>
-    `<div class="stat">${fld(b, `items.${i}.n`, "b", "42", true)}${fld(b, `items.${i}.label`, "span", "подпись")}</div>`).join("")}</div>`,
-  links: (b) => `<div class="links">${(b.items || []).filter((it) => EDITOR || it.href).map((it, i) =>
-    `<a class="btn${i ? " ghost" : ""}" href="${esc(it.href || "#")}" target="_blank" rel="noopener">${fld(b, `items.${i}.label`, "span", "Кнопка") || esc(it.href)}</a>`).join("")}</div>`,
-  quote: (b) => `<blockquote>${fld(b, "text", "p", "Цитата")}${fld(b, "who", "cite", "Автор", true)}</blockquote>`,
+  text: () => "",
+  facts: (b) => `<dl class="cs-meta surface">${each(b, (it, i, p) =>
+    `<div>${fld(b, `${p}.k`, "dt", "Поле")}${fld(b, `${p}.v`, "dd", "Значение")}</div>`)}</dl>`,
+  stats: (b) => `<div class="stats">${each(b, (it, i, p) =>
+    `<div class="stat reveal" style="--d:${i * 80}ms">${fld(b, `${p}.n`, "b", "42", true)}${fld(b, `${p}.label`, "span", "подпись")}</div>`)}</div>`,
+  cards: (b) => `<div class="cs-cards">${each(b, (it, i, p) => `<article class="cs-card surface reveal" style="--d:${i * 80}ms">
+    <span class="cs-num">${num(i)}</span>${fld(b, `${p}.t`, "h3", "Заголовок")}${fld(b, `${p}.d`, "p", "Текст")}</article>`)}</div>`,
+  flow: (b) => `<ol class="cs-flow">${each(b, (it, i, p) =>
+    `<li class="reveal" style="--d:${i * 60}ms">${fld(b, `${p}.t`, "b", "Шаг")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ol>`,
+  code: (b) => `<div class="cs-code reveal">${each(b, (it, i, p) =>
+    `<div class="surface">${fld(b, `${p}.label`, "p", "Подпись", false, "cs-label")}<pre>${codeHTML(it.code || "")}</pre></div>`)}</div>`,
+  strip: (b) => `<div class="cs-strip reveal" tabindex="0">${each(b, (it, i, p) => `<figure>${imgHTML(it.src)}
+    <figcaption>${fld(b, `${p}.t`, "b", "Подпись") || "<b>&nbsp;</b>"}${fld(b, `${p}.c`, "code", "файл", true)}</figcaption></figure>`)}</div>
+    ${fld(b, "hint", "p", "Подсказка", false, "cs-hint")}`,
+  cast: (b) => `<div class="cs-cast reveal">${each(b, (it, i, p) => `<figure>${imgHTML(it.src, L(it.t))}
+    <figcaption>${fld(b, `${p}.t`, "b", "Имя")}${fld(b, `${p}.d`, "span", "Роль")}${fld(b, `${p}.c`, "code", "файл", true)}</figcaption></figure>`)}</div>`,
+  pair: (b) => `<div class="cs-pair reveal">${each(b, (it, i, p) =>
+    `<figure>${imgHTML(it.src)}${fld(b, `${p}.cap`, "figcaption", "Подпись")}</figure>`)}</div>`,
+  lineups: (b) => `<div class="cs-casts">${each(b, (it, i, p) => `<article class="cs-lineup reveal">${fld(b, `${p}.t`, "h3", "Название")}
+    <div>${(it.images || []).map((s) => imgHTML(s)).join("")}</div></article>`)}</div>`,
+  covers: (b) => `<div class="cs-covers">${each(b, (it, i, p) =>
+    `<figure class="reveal">${imgHTML(it.src, L(it.t))}${fld(b, `${p}.t`, "figcaption", "Название")}</figure>`)}</div>`,
+  vcovers: (b) => `<div class="cs-vcovers">${each(b, (it, i, p) =>
+    `<figure class="reveal">${loopHTML(it)}${fld(b, `${p}.t`, "figcaption", "Название")}</figure>`)}</div>`,
+  phones: (b) => `<div class="cs-phones">${each(b, (it) => `<div class="cs-phone reveal">${loopHTML(it)}</div>`)}</div>`,
+  results: (b) => `<ul class="cs-results">${each(b, (it, i, p) =>
+    `<li class="surface reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
+  image: (b) => `<figure class="pb-img reveal">${imgHTML(b.src)}${fld(b, "caption", "figcaption", "Подпись")}</figure>`,
+  gallery: (b) => `<div class="pb-gal reveal" style="--cols:${+b.cols || 3}">${(b.images || []).map((s) => imgHTML(s)).join("") || empty("Добавьте картинки")}</div>
+    ${fld(b, "caption", "p", "Подпись", false, "pb-cap")}`,
+  video: (b) => videoHTML(b.src) + fld(b, "caption", "p", "Подпись", false, "pb-cap"),
+  quote: (b) => `<blockquote class="pb-quote reveal">${fld(b, "quote", "p", "Цитата")}${fld(b, "who", "cite", "Автор")}</blockquote>`,
+  links: (b) => `<div class="pb-links reveal">${btns(b)}</div>`,
 };
 
-// home: a full-width section like the built-in ones; project page: a cell of the two-column grid (w: "half")
+const headHTML = (b) => {
+  const h = fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow") + fld(b, "title", "h2", "Заголовок") + fld(b, "text", "p", "Текст");
+  return h ? `<div class="sec-head reveal">${h}</div>` : "";
+};
+
+// "next": the closing CTA (like the site's contact section) — full bleed on project pages
+function nextHTML(b) {
+  return `<div class="beams" aria-hidden="true"></div>${fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow reveal")}
+    ${fld(b, "title", "h2", "Заголовок", false, "reveal")}${fld(b, "text", "p", "Текст", false, "reveal")}
+    <div class="contact-links reveal">${btns(b)}</div>`;
+}
+
+// home: a section like the built-in ones; project page: a cell of the two-column grid (w: "half")
 function blockHTML(b, home) {
-  const body = (BLOCK_HTML[b.type] || (() => ""))(b);
-  const cls = `cb cb-${b.type}${!home && b.w === "half" ? " half" : ""}`;
   const off = EDITOR && b.visible === false ? " block-off" : "";
-  return home
-    ? `<section class="block cb-home${off}" data-block="${esc(b.id)}"><div class="${cls} reveal">${body}</div></section>`
-    : `<div class="${cls} reveal${off}" data-block="${esc(b.id)}">${body}</div>`;
+  const attrs = `data-block="${esc(b.id)}"${b.anchor ? ` id="${esc(b.anchor)}"` : ""}`;
+  if (b.type === "next") {
+    return home ? `<section class="contact cb-home${off}" ${attrs}>${nextHTML(b)}</section>`
+      : `<div class="pb pb-next-wrap${off}" ${attrs}><section class="contact pb-next">${nextHTML(b)}</section></div>`;
+  }
+  const head = headHTML(b);
+  const body = (BLOCK_HTML[b.type] || (() => ""))(b);
+  return home ? `<section class="block cb-home${off}" ${attrs}>${head}${body}</section>`
+    : `<div class="pb pb-${b.type}${b.w === "half" ? " half" : ""}${head ? "" : " tight"}${off}" ${attrs}>${head}${body}</div>`;
 }
 const blocksHTML = (list, home) => (list || []).filter((b) => EDITOR || b.visible !== false).map((b) => blockHTML(b, home)).join("");
+
+const vio = "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches
+  ? new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause())), { threshold: 0.4 })
+  : null;
+const watchVideos = () => document.querySelectorAll("video[data-play]").forEach((v) => vio?.observe(v));
 
 /* ---------------- pages ---------------- */
 
@@ -258,30 +317,37 @@ function renderProjects() {
   $("#grid").innerHTML = list.map(cardHTML).join("");
 }
 
-// project.html?id=<id>: a header from the card fields (title, text, tags, links, cover), then project.page blocks
+// project.html?id=<id>: a case page like Emotions Club — hero (project.head + the card's title / text / links),
+// then project.page blocks. A "next" block replaces the default contact section at the bottom.
 function renderProject() {
   const t = UI[lang];
   const id = new URLSearchParams(location.search).get("id");
   const p = EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === id);
+  const crumb = `<a class="cs-crumb" href="projects.html">${esc(t["proj.back"])}</a>`;
   if (!p) {
-    $("#projHead").innerHTML = `<div class="proj-intro"><h1>${lang === "ru" ? "Проект не найден" : "Project not found"}</h1>
-      <div class="links"><a class="btn ghost" href="projects.html">${esc(t["proj.back"])}</a></div></div>`;
+    $("#projHead").innerHTML = `${crumb}<h1>${lang === "ru" ? "Проект не найден" : "Project not found"}</h1>`;
     $("#projBlocks").innerHTML = "";
     return;
   }
   document.title = `${p.title[lang]} — Anton Egorov`;
-  const links = linksHTML(p, true);
-  $("#projHead").innerHTML = `
-    <div class="proj-intro">
-      <a class="proj-back" href="projects.html">${esc(t["proj.back"])}</a>
-      <div class="meta"><span>${catName(p.cat)} · ${p.year}</span>${badgeHTML(p)}</div>
-      ${fld(p, "title", "h1", "Название")}
-      ${fld(p, "desc", "p", "Описание", false, "lead")}
-      ${tagsHTML(p.tags)}
-      ${links ? `<div class="links">${links}</div>` : ""}
-    </div>
-    <div class="show-media proj-cover">${coverHTML(p)}</div>`;
+  const h = p.head || {};
+  if (EDITOR) p.head = { eyebrow: {}, lead: {}, ...h }; // a copy: show the placeholders
+
+  // the "accent" part of the title gets the brand gradient (Emotions <Club>)
+  let title = esc(L(p.title));
+  if (h.accent && title.includes(esc(h.accent))) title = title.replace(esc(h.accent), `<span class="t-grad">${esc(h.accent)}</span>`);
+  const lead = fld(p, L(h.lead) || (EDITOR && !L(p.desc)) ? "head.lead" : "desc", "p", "Лид", false, "lead");
+  const ctas = btns(p, "head.ctas") + linksHTML(p, true);
+  const cloud = (h.cloud || []).map((s) => `<img src="${esc(imgSrc(s))}" alt="">`).join("");
+  $("#projHead").innerHTML = `<div class="aurora" aria-hidden="true"></div>${crumb}
+    ${fld(p, "head.eyebrow", "p", "Надзаголовок", false, "eyebrow")}
+    <h1 data-f="title" data-ph="Название">${title}</h1>
+    ${lead}
+    ${ctas ? `<div class="hero-cta">${ctas}</div>` : ""}
+    ${cloud ? `<div class="cs-cloud" aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
+      : `<div class="show-media cs-hero-cover">${coverHTML(p)}</div>`}`;
   $("#projBlocks").innerHTML = blocksHTML(p.page, false);
+  $("#projContact").hidden = (p.page || []).some((b) => b.type === "next" && (EDITOR || b.visible !== false));
 }
 
 let cvAvailable = {};
@@ -332,6 +398,7 @@ function render() {
   if (PAGE === "project") renderProject();
   if (PAGE === "contact") renderContact();
   watchReveal();
+  watchVideos();
   if (EDITOR) decorateForEditor();
 }
 

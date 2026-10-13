@@ -86,9 +86,926 @@
         "Characters",
         "Art direction"
       ],
-      "links": {
-        "page": "/emotions-club/"
-      }
+      "links": {},
+      "head": {
+        "eyebrow": {
+          "ru": "Кейс · AI-пайплайн",
+          "en": "Case study · AI pipeline"
+        },
+        "lead": {
+          "ru": "Интерактивные визуальные новеллы на двоих. Агент пишет один JSON на всю историю, а один ComfyUI-флоу превращает его в фоны, персонажей с эмоциями и обложки — в едином стиле и сразу с правильными именами файлов.",
+          "en": "Interactive visual novels for two players. An agent writes one JSON for the whole story, and one ComfyUI flow turns it into backgrounds, characters with emotions and covers — in one style, with the right file names from the start."
+        },
+        "accent": "Club",
+        "ctas": [
+          {
+            "label": {
+              "ru": "Смотреть новеллу ↓",
+              "en": "See a novel ↓"
+            },
+            "href": "#story"
+          },
+          {
+            "label": {
+              "ru": "Как это сделано",
+              "en": "How it was made"
+            },
+            "href": "#pipeline"
+          }
+        ],
+        "cloud": [
+          "/emotions-club/assets/covers/room_313.webp",
+          "/emotions-club/assets/covers/ghost_in_4b.webp",
+          "/emotions-club/assets/covers/the_cursed_crown.webp",
+          "/emotions-club/assets/covers/song_of_the_sea_court.webp",
+          "/emotions-club/assets/covers/daughter_of_the_flame.webp",
+          "/emotions-club/assets/covers/moonlight_heist.webp",
+          "/emotions-club/assets/covers/the_witch_next_door.webp",
+          "/emotions-club/assets/covers/hotel_mix_up.webp",
+          "/emotions-club/assets/covers/crimson_masquerade.webp",
+          "/emotions-club/assets/covers/the_thirst_pact.webp",
+          "/emotions-club/assets/covers/raiders_of_the_forgotten_star.webp",
+          "/emotions-club/assets/covers/the_island_escape.webp",
+          "/emotions-club/assets/covers/the_archivist_s_code.webp",
+          "/emotions-club/assets/covers/threads_of_the_moon.webp"
+        ]
+      },
+      "page": [
+        {
+          "id": "ec01",
+          "type": "facts",
+          "visible": true,
+          "items": [
+            {
+              "k": {
+                "ru": "Роль",
+                "en": "Role"
+              },
+              "v": {
+                "ru": "Senior CG Artist",
+                "en": "Senior CG Artist"
+              }
+            },
+            {
+              "k": {
+                "ru": "Формат",
+                "en": "Format"
+              },
+              "v": {
+                "ru": "In-house · NDA",
+                "en": "In-house · NDA"
+              }
+            },
+            {
+              "k": {
+                "ru": "Период",
+                "en": "Period"
+              },
+              "v": {
+                "ru": "2025",
+                "en": "2025"
+              }
+            },
+            {
+              "k": {
+                "ru": "Инструменты",
+                "en": "Tools"
+              },
+              "v": {
+                "ru": "ComfyUI · RunningHub · LLM-агент · Kling · After Effects",
+                "en": "ComfyUI · RunningHub · LLM agent · Kling · After Effects"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec02",
+          "type": "stats",
+          "visible": true,
+          "items": [
+            {
+              "n": "29",
+              "label": {
+                "ru": "новелл в одном стиле",
+                "en": "novels in one style"
+              }
+            },
+            {
+              "n": "~300",
+              "label": {
+                "ru": "экранов в одной истории",
+                "en": "screens in a single story"
+              }
+            },
+            {
+              "n": "1",
+              "label": {
+                "ru": "JSON на всю новеллу → все ассеты",
+                "en": "JSON per novel → every asset"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec03",
+          "type": "cards",
+          "visible": true,
+          "anchor": "task",
+          "eyebrow": {
+            "ru": "Задача",
+            "en": "The task"
+          },
+          "title": {
+            "ru": "Новелла, которую проходят вдвоём",
+            "en": "A novel you play together"
+          },
+          "text": {
+            "ru": "Каждая история — это сотни экранов, несколько локаций и целый актёрский состав. Новеллы выходили потоком, поэтому картинки нужно было производить как конвейер, а не рисовать каждую вручную.",
+            "en": "Every story is hundreds of screens, several locations and a whole cast. Novels shipped in a steady stream, so the art had to come off a production line rather than be drawn one by one."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Два игрока и актёрский состав",
+                "en": "Two players and a cast"
+              },
+              "d": {
+                "ru": "Героиня и герой — это два реальных игрока. Вокруг них NPC: злодеи, горничные, правители, призраки. Все должны выглядеть как одна история.",
+                "en": "The heroine and the hero are two real players. Around them, NPCs: villains, maids, rulers, ghosts. All of them have to look like one story."
+              }
+            },
+            {
+              "t": {
+                "ru": "Выбор меняет сцену",
+                "en": "Choices change the scene"
+              },
+              "d": {
+                "ru": "На каждой развилке один игрок выбирает из трёх вариантов, другой ждёт. У каждой ветки свои фоны, у премиум-веток — отдельные катсцены.",
+                "en": "At every branch one player picks one of three options while the other waits. Each branch has its own backgrounds; premium branches get their own cutscenes."
+              }
+            },
+            {
+              "t": {
+                "ru": "Эмоции в каждой реплике",
+                "en": "Emotion in every line"
+              },
+              "d": {
+                "ru": "Диалог держится на лицах: персонаж злится, смущается, улыбается. Набор эмоций генерируется сразу, и лицо остаётся тем же от первой сцены до финала.",
+                "en": "Dialogue lives on faces: a character is angry, flustered, smiling. The emotion set is generated up front, and the face stays the same from the first scene to the finale."
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec04",
+          "type": "flow",
+          "visible": true,
+          "anchor": "pipeline",
+          "eyebrow": {
+            "ru": "Пайплайн",
+            "en": "Pipeline"
+          },
+          "title": {
+            "ru": "Один JSON — вся новелла",
+            "en": "One JSON, the whole novel"
+          },
+          "text": {
+            "ru": "Ручная работа осталась там, где она важна: в стиле и отборе. Всё остальное — от промптов до раскладки файлов по папкам — делает связка «агент + ComfyUI».",
+            "en": "Hands-on work stayed where it matters: style and selection. Everything else — from prompts to putting files in the right folders — is done by the agent + ComfyUI pair."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Сценарий",
+                "en": "Script"
+              },
+              "d": {
+                "ru": "Сцены, ветки, описания персонажей и локаций",
+                "en": "Scenes, branches, character and location descriptions"
+              }
+            },
+            {
+              "t": {
+                "ru": "Агент → JSON",
+                "en": "Agent → JSON"
+              },
+              "d": {
+                "ru": "Один файл с маркерами: промпт фона 1, персонаж 1, обложка…",
+                "en": "One file with markers: background prompt 1, character 1, cover…"
+              }
+            },
+            {
+              "t": {
+                "ru": "ComfyUI-флоу",
+                "en": "ComfyUI flow"
+              },
+              "d": {
+                "ru": "Один флоу раскидывает маркеры по генеративным моделям",
+                "en": "One flow routes every marker to the right generative model"
+              }
+            },
+            {
+              "t": {
+                "ru": "Персонажи + эмоции",
+                "en": "Characters + emotions"
+              },
+              "d": {
+                "ru": "Базовый спрайт и набор эмоций с одним и тем же лицом",
+                "en": "A base sprite and an emotion set, all with the same face"
+              }
+            },
+            {
+              "t": {
+                "ru": "Нейминг",
+                "en": "Naming"
+              },
+              "d": {
+                "ru": "Каждый файл сразу ложится на своё место под data.json",
+                "en": "Every file lands in its place for data.json right away"
+              }
+            },
+            {
+              "t": {
+                "ru": "Редактор и промо",
+                "en": "Editor & promo"
+              },
+              "d": {
+                "ru": "Экраны собираются в редакторе, обложки оживают в видео",
+                "en": "Screens are assembled in the editor, covers come alive as video"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec05",
+          "type": "code",
+          "visible": true,
+          "items": [
+            {
+              "label": {
+                "ru": "Ассеты одной новеллы",
+                "en": "Assets of one novel"
+              },
+              "code": "room_313/\n├─ data.json\n└─ assets/\n   ├─ cover.webp\n   ├─ cutscene.webp\n   ├─ character_01_base.webp   <i>player · Anna</i>\n   ├─ character_02_base.webp   <i>player · James</i>\n   ├─ character_03_base.webp   <i>npc · Intruder</i>\n   ├─ character_04_base.webp   <i>npc · Piers Lark</i>\n   ├─ scene_01_a.webp  scene_01_b.webp\n   ├─ scene_02_a.webp  …  scene_02_c.webp\n   └─ … scene_06_b.webp"
+            },
+            {
+              "label": {
+                "ru": "Экран в data.json ссылается на файл по имени",
+                "en": "A screen in data.json points to a file by name"
+              },
+              "code": "{\n  <k>\"id\"</k>: <s>\"scene1_screen5\"</s>,\n  <k>\"type\"</k>: <s>\"dialog\"</s>,\n  <k>\"image\"</k>: <s>\"scene_01_a.webp\"</s>,\n  <k>\"actor\"</k>: { <k>\"playerId\"</k>: <s>\"player_fem_anna\"</s> },\n  <k>\"content\"</k>: <s>\"(mutters) Finally.\"</s>,\n  <k>\"next\"</k>: <s>\"scene1_screen6\"</s>\n}"
+            }
+          ]
+        },
+        {
+          "id": "ec06",
+          "type": "strip",
+          "visible": true,
+          "anchor": "story",
+          "eyebrow": {
+            "ru": "Одна новелла целиком",
+            "en": "One novel, start to finish"
+          },
+          "title": {
+            "ru": "Room 313",
+            "en": "Room 313"
+          },
+          "text": {
+            "ru": "Триллер на шесть сцен: отель, подставное убийство и старый враг. Все фоны истории подряд — от коридора у номера до утреннего аэропорта. Свет, палитра и манера не плывут от сцены к сцене.",
+            "en": "A six-scene thriller: a hotel, a staged murder and an old enemy. Every background of the story in a row — from the corridor outside the room to the airport at dawn. Light, palette and manner don't drift from scene to scene."
+          },
+          "hint": {
+            "ru": "Листайте вбок →",
+            "en": "Scroll sideways →"
+          },
+          "items": [
+            {
+              "src": "/emotions-club/assets/story/scene_01_a.webp",
+              "t": {
+                "ru": "Scene 1",
+                "en": "Scene 1"
+              },
+              "c": "scene_01_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_01_b.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_01_b.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_02_a.webp",
+              "t": {
+                "ru": "Scene 2",
+                "en": "Scene 2"
+              },
+              "c": "scene_02_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_02_c.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_02_c.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_03_a.webp",
+              "t": {
+                "ru": "Scene 3",
+                "en": "Scene 3"
+              },
+              "c": "scene_03_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_04_a.webp",
+              "t": {
+                "ru": "Scene 4",
+                "en": "Scene 4"
+              },
+              "c": "scene_04_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_04_b.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_04_b.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_04_c.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_04_c.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_04_d.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_04_d.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_04_e.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_04_e.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_05_a.webp",
+              "t": {
+                "ru": "Scene 5",
+                "en": "Scene 5"
+              },
+              "c": "scene_05_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_06_a.webp",
+              "t": {
+                "ru": "Epilogue",
+                "en": "Epilogue"
+              },
+              "c": "scene_06_a.webp"
+            },
+            {
+              "src": "/emotions-club/assets/story/scene_06_b.webp",
+              "t": {
+                "ru": "",
+                "en": ""
+              },
+              "c": "scene_06_b.webp"
+            }
+          ]
+        },
+        {
+          "id": "ec07",
+          "type": "cast",
+          "visible": true,
+          "items": [
+            {
+              "src": "/emotions-club/assets/story/character_01.webp",
+              "t": {
+                "ru": "Anna",
+                "en": "Anna"
+              },
+              "d": {
+                "ru": "игрок · героиня",
+                "en": "player · heroine"
+              },
+              "c": "character_01_base"
+            },
+            {
+              "src": "/emotions-club/assets/story/character_02.webp",
+              "t": {
+                "ru": "James",
+                "en": "James"
+              },
+              "d": {
+                "ru": "игрок · герой",
+                "en": "player · hero"
+              },
+              "c": "character_02_base"
+            },
+            {
+              "src": "/emotions-club/assets/story/character_03.webp",
+              "t": {
+                "ru": "Unseen Intruder",
+                "en": "Unseen Intruder"
+              },
+              "d": {
+                "ru": "NPC",
+                "en": "NPC"
+              },
+              "c": "character_03_base"
+            },
+            {
+              "src": "/emotions-club/assets/story/character_04.webp",
+              "t": {
+                "ru": "Piers Lark",
+                "en": "Piers Lark"
+              },
+              "d": {
+                "ru": "NPC · злодей",
+                "en": "NPC · villain"
+              },
+              "c": "character_04_base"
+            }
+          ]
+        },
+        {
+          "id": "ec08",
+          "type": "pair",
+          "visible": true,
+          "items": [
+            {
+              "src": "/emotions-club/assets/story/cover.webp",
+              "cap": {
+                "ru": "Обложка",
+                "en": "Cover"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/story/cutscene.webp",
+              "cap": {
+                "ru": "Катсцена премиум-ветки",
+                "en": "Premium-branch cutscene"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec09",
+          "type": "lineups",
+          "visible": true,
+          "anchor": "casts",
+          "eyebrow": {
+            "ru": "Актёрский состав",
+            "en": "The cast"
+          },
+          "title": {
+            "ru": "У каждой истории — свой каст",
+            "en": "Every story has its own cast"
+          },
+          "text": {
+            "ru": "Фэнтези, морское королевство, вампиры — жанры разные, а персонажи одной новеллы всегда выглядят как одна компания: тот же свет, та же манера, тот же масштаб.",
+            "en": "Fantasy, a sea kingdom, vampires — the genres differ, yet the characters of one novel always look like one company: the same light, the same manner, the same scale."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "The Cursed Crown",
+                "en": "The Cursed Crown"
+              },
+              "images": [
+                "/emotions-club/assets/casts/the_cursed_crown/character_01.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_02.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_03.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_04.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_05.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_06.webp",
+                "/emotions-club/assets/casts/the_cursed_crown/character_07.webp"
+              ]
+            },
+            {
+              "t": {
+                "ru": "Song of the Sea Court",
+                "en": "Song of the Sea Court"
+              },
+              "images": [
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_01.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_02.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_03.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_04.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_05.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_06.webp",
+                "/emotions-club/assets/casts/song_of_the_sea_court/character_07.webp"
+              ]
+            },
+            {
+              "t": {
+                "ru": "Daughter of the Flame",
+                "en": "Daughter of the Flame"
+              },
+              "images": [
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_01.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_02.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_03.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_04.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_05.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_06.webp",
+                "/emotions-club/assets/casts/daughter_of_the_flame/character_07.webp"
+              ]
+            },
+            {
+              "t": {
+                "ru": "The Thirst Pact",
+                "en": "The Thirst Pact"
+              },
+              "images": [
+                "/emotions-club/assets/casts/the_thirst_pact/character_01.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_02.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_03.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_04.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_05.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_06.webp",
+                "/emotions-club/assets/casts/the_thirst_pact/character_07.webp"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ec10",
+          "type": "covers",
+          "visible": true,
+          "anchor": "library",
+          "eyebrow": {
+            "ru": "Библиотека",
+            "en": "Library"
+          },
+          "title": {
+            "ru": "29 новелл в одном стиле",
+            "en": "29 novels in one style"
+          },
+          "text": {
+            "ru": "Триллеры, фэнтези, мистика и ромкомы. Обложки сделаны тем же флоу, что и сцены, поэтому витрина выглядит цельной.",
+            "en": "Thrillers, fantasy, mystery and rom-coms. Covers come from the same flow as the scenes, so the storefront looks whole."
+          },
+          "items": [
+            {
+              "src": "/emotions-club/assets/covers/room_313.webp",
+              "t": {
+                "ru": "Room 313",
+                "en": "Room 313"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/ghost_in_4b.webp",
+              "t": {
+                "ru": "The Ghost in 4B",
+                "en": "The Ghost in 4B"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_cursed_crown.webp",
+              "t": {
+                "ru": "The Cursed Crown",
+                "en": "The Cursed Crown"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/song_of_the_sea_court.webp",
+              "t": {
+                "ru": "Song of the Sea Court",
+                "en": "Song of the Sea Court"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/daughter_of_the_flame.webp",
+              "t": {
+                "ru": "Daughter of the Flame",
+                "en": "Daughter of the Flame"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/moonlight_heist.webp",
+              "t": {
+                "ru": "Moonlight Heist",
+                "en": "Moonlight Heist"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_witch_next_door.webp",
+              "t": {
+                "ru": "The Witch Next Door",
+                "en": "The Witch Next Door"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/hotel_mix_up.webp",
+              "t": {
+                "ru": "Hotel Mix-Up",
+                "en": "Hotel Mix-Up"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/crimson_masquerade.webp",
+              "t": {
+                "ru": "Crimson Masquerade",
+                "en": "Crimson Masquerade"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_thirst_pact.webp",
+              "t": {
+                "ru": "The Thirst Pact",
+                "en": "The Thirst Pact"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/raiders_of_the_forgotten_star.webp",
+              "t": {
+                "ru": "Raiders of the Forgotten Star",
+                "en": "Raiders of the Forgotten Star"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_island_escape.webp",
+              "t": {
+                "ru": "The Island Escape",
+                "en": "The Island Escape"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_archivist_s_code.webp",
+              "t": {
+                "ru": "The Archivist's Code",
+                "en": "The Archivist's Code"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/threads_of_the_moon.webp",
+              "t": {
+                "ru": "Threads of the Moon",
+                "en": "Threads of the Moon"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/talk_on_the_plane.webp",
+              "t": {
+                "ru": "Talk on the Plane",
+                "en": "Talk on the Plane"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/stuck_in_the_elevator.webp",
+              "t": {
+                "ru": "Stuck in the Elevator",
+                "en": "Stuck in the Elevator"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_double_life.webp",
+              "t": {
+                "ru": "The Double Life",
+                "en": "The Double Life"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/new_year_with_the_ex.webp",
+              "t": {
+                "ru": "New Year with the Ex",
+                "en": "New Year with the Ex"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/echoes_of_peru.webp",
+              "t": {
+                "ru": "Echoes of Peru",
+                "en": "Echoes of Peru"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/the_enchanted_stranger.webp",
+              "t": {
+                "ru": "The Enchanted Stranger",
+                "en": "The Enchanted Stranger"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/resort_fling.webp",
+              "t": {
+                "ru": "Resort Fling",
+                "en": "Resort Fling"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/midnight_pitch_for_two.webp",
+              "t": {
+                "ru": "Midnight Pitch for Two",
+                "en": "Midnight Pitch for Two"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/morning_in_paris.webp",
+              "t": {
+                "ru": "Morning in Paris",
+                "en": "Morning in Paris"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/rival_s_touch.webp",
+              "t": {
+                "ru": "Rival's Touch",
+                "en": "Rival's Touch"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/share_the_bed.webp",
+              "t": {
+                "ru": "Share the Bed?",
+                "en": "Share the Bed?"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/covers/private_lesson.webp",
+              "t": {
+                "ru": "Private Lesson",
+                "en": "Private Lesson"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec11",
+          "type": "vcovers",
+          "visible": true,
+          "anchor": "promo",
+          "eyebrow": {
+            "ru": "Промо",
+            "en": "Promo"
+          },
+          "title": {
+            "ru": "Обложки, которые двигаются",
+            "en": "Covers that move"
+          },
+          "text": {
+            "ru": "Из статичной обложки — пятисекундная видеообложка для витрины. Из сцен и AI-видео — вертикальные промо-ролики для рекламы в 9:16 и 1:1, отдельно для мужской и женской аудитории.",
+            "en": "A static cover becomes a five-second video cover for the storefront. Scenes and AI video become vertical ad spots in 9:16 and 1:1, cut separately for male and female audiences."
+          },
+          "items": [
+            {
+              "src": "/emotions-club/assets/videocovers/ghost_in_4b.mp4",
+              "poster": "/emotions-club/assets/videocovers/ghost_in_4b.webp",
+              "t": {
+                "ru": "The Ghost in 4B",
+                "en": "The Ghost in 4B"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/videocovers/moonlight_heist.mp4",
+              "poster": "/emotions-club/assets/videocovers/moonlight_heist.webp",
+              "t": {
+                "ru": "Moonlight Heist",
+                "en": "Moonlight Heist"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/videocovers/the_witch_next_door.mp4",
+              "poster": "/emotions-club/assets/videocovers/the_witch_next_door.webp",
+              "t": {
+                "ru": "The Witch Next Door",
+                "en": "The Witch Next Door"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/videocovers/treasure_of_two.mp4",
+              "poster": "/emotions-club/assets/videocovers/treasure_of_two.webp",
+              "t": {
+                "ru": "Treasure of Two",
+                "en": "Treasure of Two"
+              }
+            },
+            {
+              "src": "/emotions-club/assets/videocovers/the_double_life.mp4",
+              "poster": "/emotions-club/assets/videocovers/the_double_life.webp",
+              "t": {
+                "ru": "The Double Life",
+                "en": "The Double Life"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec12",
+          "type": "phones",
+          "visible": true,
+          "items": [
+            {
+              "src": "/emotions-club/assets/promo/promo_1.mp4",
+              "poster": "/emotions-club/assets/promo/promo_1.webp"
+            },
+            {
+              "src": "/emotions-club/assets/promo/promo_2.mp4",
+              "poster": "/emotions-club/assets/promo/promo_2.webp"
+            },
+            {
+              "src": "/emotions-club/assets/promo/promo_3.mp4",
+              "poster": "/emotions-club/assets/promo/promo_3.webp"
+            }
+          ]
+        },
+        {
+          "id": "ec13",
+          "type": "results",
+          "visible": true,
+          "anchor": "result",
+          "eyebrow": {
+            "ru": "Результат",
+            "en": "Result"
+          },
+          "title": {
+            "ru": "Новеллы выходят потоком",
+            "en": "Novels ship in a steady stream"
+          },
+          "text": {
+            "ru": "",
+            "en": ""
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Сценарий → ассеты без ручной раскладки",
+                "en": "Script → assets with no manual sorting"
+              },
+              "d": {
+                "ru": "Агент пишет JSON, флоу генерирует и сразу называет файлы так, как ждёт data.json.",
+                "en": "The agent writes the JSON; the flow generates and names files exactly as data.json expects."
+              }
+            },
+            {
+              "t": {
+                "ru": "Консистентные персонажи",
+                "en": "Consistent characters"
+              },
+              "d": {
+                "ru": "Одно лицо во всех эмоциях и сценах — без перерисовки.",
+                "en": "One face across every emotion and scene — no redraws."
+              }
+            },
+            {
+              "t": {
+                "ru": "Готовое промо",
+                "en": "Promo out of the box"
+              },
+              "d": {
+                "ru": "Видеообложки и ролики для рекламы из тех же ассетов.",
+                "en": "Video covers and ad spots made from the same assets."
+              }
+            }
+          ]
+        },
+        {
+          "id": "ec14",
+          "type": "next",
+          "visible": true,
+          "eyebrow": {
+            "ru": "Следующий проект",
+            "en": "Next project"
+          },
+          "title": {
+            "ru": "Virtual Gifts",
+            "en": "Virtual Gifts"
+          },
+          "text": {
+            "ru": "Коллекция анимированных 3D-подарков для соцприложения: от единого стиля до пакета для разработчиков.",
+            "en": "A collection of animated 3D gifts for a social app: from one shared style to a package for developers."
+          },
+          "items": [
+            {
+              "label": {
+                "ru": "Открыть кейс →",
+                "en": "Open the case →"
+              },
+              "href": "/gift-catalog/"
+            },
+            {
+              "label": {
+                "ru": "Все проекты",
+                "en": "All projects"
+              },
+              "href": "projects.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "visible": true,
