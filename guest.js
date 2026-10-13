@@ -27,13 +27,13 @@ function startGuest() {
 
     const file = document.createElement("a");
     file.className = "guest-file";
-    file.innerHTML = `<i class="guest-thumb"><img alt=""><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v7m-3-3 3 3 3-3M4.5 12.5h7"/></svg></i>
-      <span>CV</span><button class="guest-x" type="button" aria-label="Close">×</button>`;
+    file.innerHTML = `<i class="guest-thumb"><b class="guest-page"><img alt=""></b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v7m-3-3 3 3 3-3M4.5 12.5h7"/></svg></i>
+      <span></span><button class="guest-x" type="button" aria-label="Close">×</button>`;
     const setHref = () => {
       file.href = PROFILE.cv[lang];
       file.querySelector("img").src = PROFILE.cv[lang].replace(/\.pdf$/, ".png");
-      file.download = `Anton-Egorov-CV-${lang.toUpperCase()}.pdf`;
-      file.title = lang === "ru" ? "Скачать резюме" : "Download CV";
+      file.querySelector("span").textContent = lang === "ru" ? "Скачать CV" : "Download CV";
+      file.title = lang === "ru" ? "Открыть резюме" : "Open CV";
     };
     setHref();
     document.getElementById("lang")?.addEventListener("click", () => setTimeout(setHref));
@@ -43,8 +43,20 @@ function startGuest() {
     cur.innerHTML = `<svg viewBox="0 0 20 22" aria-hidden="true"><path d="M2 2l15 7.5-6.5 1.8L7.6 18z"/></svg><b>Anton Egorov</b>`;
 
     const remove = () => { file.classList.add("gone"); setTimeout(() => file.remove(), 300); removeEventListener("keydown", onKey); };
-    const onKey = (e) => { if (e.key === "Escape") remove(); };
+    const onKey = (e) => { if (e.key === "Escape" && !document.querySelector(".cv-modal")) remove(); };
     file.querySelector(".guest-x").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); remove(); });
+    file.addEventListener("click", (e) => { e.preventDefault(); if (!file.classList.contains("held")) openCvPreview(); });
+
+    // scrolling away fades the file out (in step with the distance), then it is gone for good
+    let y0 = null;
+    const onScroll = () => {
+      if (!file.isConnected) return removeEventListener("scroll", onScroll);
+      y0 ??= scrollY;
+      const o = Math.max(0, 1 - Math.abs(scrollY - y0) / 240);
+      file.style.opacity = o;
+      if (!o) { removeEventListener("scroll", onScroll); file.remove(); removeEventListener("keydown", onKey); }
+    };
+    addEventListener("scroll", onScroll, { passive: true });
     addEventListener("keydown", onKey);
 
     // drop spot: ~80px from the visitor's pointer, toward the screen centre, kept on screen
@@ -89,4 +101,24 @@ function startGuest() {
     };
     requestAnimationFrame(fly);
   }
+}
+
+// CV preview popup: all pages as one image (assets/cv-<lang>-full.jpg from tools/cv_thumbs.py) + a download button
+function openCvPreview() {
+  if (document.querySelector(".cv-modal")) return;
+  const ru = lang === "ru";
+  const m = document.createElement("div");
+  m.className = "cv-modal";
+  m.innerHTML = `<div class="cv-modal-box" role="dialog" aria-modal="true" aria-label="CV">
+      <button class="cv-modal-x" type="button" aria-label="${ru ? "Закрыть" : "Close"}">×</button>
+      <div class="cv-modal-scroll"><img src="${PROFILE.cv[lang].replace(/\.pdf$/, "-full.jpg")}" alt="CV"></div>
+      <a class="btn" href="${PROFILE.cv[lang]}" download="Anton-Egorov-CV-${lang.toUpperCase()}.pdf">${ru ? "Скачать" : "Download"}</a>
+    </div>`;
+  const close = () => { m.classList.remove("on"); removeEventListener("keydown", onKey); setTimeout(() => m.remove(), 250); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  m.addEventListener("click", (e) => { if (e.target === m || e.target.closest(".cv-modal-x")) close(); });
+  addEventListener("keydown", onKey);
+  document.body.append(m);
+  requestAnimationFrame(() => m.classList.add("on"));
+  m.querySelector(".cv-modal-x").focus();
 }

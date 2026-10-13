@@ -446,18 +446,28 @@
   display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; padding: 6px 4px;
   border-radius: 8px; color: var(--white); text-decoration: none; transition: opacity .3s, scale .3s;
 }
-.guest-thumb { position: relative; display: block; width: 46px; transition: transform .3s; }
-.guest-thumb img {
-  display: block; width: 100%; aspect-ratio: 210 / 297; object-fit: cover; object-position: top;
-  border-radius: 2px; box-shadow: 0 0 0 1px rgb(0 0 0 / .25), 0 4px 12px rgb(0 0 0 / .5);
+.guest-thumb {
+  position: relative; display: block; width: 46px; transition: transform .3s;
+  filter: drop-shadow(0 0 .5px rgb(0 0 0 / .5)) drop-shadow(0 4px 8px rgb(0 0 0 / .5));
 }
+/* page: rounded corners, top-right corner folded over (clip-path cut + fold triangle) */
+.guest-page {
+  position: relative; display: block; overflow: hidden; border-radius: 6px; background: var(--white);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+.guest-page::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 12px; height: 12px; border-bottom-left-radius: 3px;
+  background: linear-gradient(to bottom left, transparent 50%, #c9d1e3 50%);
+  box-shadow: -1px 1px 2px rgb(0 0 0 / .25);
+}
+.guest-thumb img { display: block; width: 100%; aspect-ratio: 210 / 297; object-fit: cover; object-position: top; }
 .guest-thumb svg {
   position: absolute; right: -6px; bottom: -6px; width: 20px; height: 20px; border-radius: 50%;
   background: var(--red-500); opacity: 0; scale: .6; transition: opacity .2s, scale .2s;
 }
 .guest-thumb path { fill: none; stroke: var(--white); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .guest-file:hover .guest-thumb svg, .guest-file:focus-visible .guest-thumb svg { opacity: 1; scale: 1; }
-.guest-file span { padding: 1px 7px; border-radius: 4px; font-size: 12px; font-weight: 600; letter-spacing: .02em; }
+.guest-file span { white-space: nowrap; padding: 1px 7px; border-radius: 4px; font-size: 12px; font-weight: 600; letter-spacing: .02em; }
 .guest-file.held .guest-thumb { transform: rotate(-6deg) scale(1.06); }
 .guest-file.held { opacity: .92; }
 .guest-file:hover span, .guest-file:focus-visible span { background: var(--blue-500); }
@@ -470,3 +480,39 @@
 }
 .guest-file:hover .guest-x { opacity: 1; }
 .guest-file.held .guest-x { display: none; }
+
+/* ---- CV preview popup (guest.js → openCvPreview) ---- */
+.cv-modal {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px;
+  background: rgb(5 10 24 / .72); backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s;
+}
+.cv-modal.on { opacity: 1; }
+.cv-modal-box {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  width: min(640px, 100%); height: min(88vh, 900px); padding: 16px; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--line); box-shadow: 0 24px 64px rgb(0 0 0 / .6);
+  translate: 0 12px; transition: translate .25s;
+}
+.cv-modal.on .cv-modal-box { translate: 0 0; }
+.cv-modal-scroll { flex: 1; min-height: 0; width: 100%; overflow-y: auto; border-radius: 8px; overscroll-behavior: contain; }
+.cv-modal-scroll img { display: block; width: 100%; height: auto; }
+.cv-modal-x {
+  position: absolute; top: -14px; right: -14px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line);
+  border-radius: 50%; background: var(--ink-3); color: var(--gray-100); font: inherit; font-size: 20px; line-height: 1; cursor: pointer;
+}
+.cv-modal-x:hover { background: var(--ink-4); }
+
+/* ---- stack chip tooltip (app.js: profile.stackInfo) ---- */
+.marquee-row span[data-tip] { cursor: pointer; }
+.marquee.hold .marquee-row { animation-play-state: paused; }
+.stack-tip {
+  position: fixed; z-index: 80; max-width: 260px; padding: 8px 12px; border-radius: 10px;
+  background: var(--ink-3); border: 1px solid var(--line-strong); color: var(--gray-100);
+  font-size: 14px; line-height: 1.4; box-shadow: 0 8px 24px rgb(0 0 0 / .5);
+  translate: -50% calc(-100% - 10px); pointer-events: none; opacity: 0; transition: opacity .15s;
+}
+.stack-tip.on { opacity: 1; }
+.stack-tip b { display: block; color: var(--hl); font-weight: 600; }
+
+/* texts from site.json: hide the HTML placeholders until the first render (no "Let's talk" flash) */
+html:not(.i18n-ready) main [data-i18n] { visibility: hidden; }
