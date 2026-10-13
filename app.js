@@ -290,18 +290,21 @@ function bootEditor() {
     const el = e.target.closest?.("[data-i18n]");
     if (!el) return;
     const key = el.dataset.i18n;
-    const val = el.textContent.replace(/\s*\n\s*/g, " ");
+    const val = el.innerText.replace(/\n{3,}/g, "\n\n").replace(/\n+$/, ""); // line breaks are kept (Shift+Enter)
     // the same text can appear twice on the page (e.g. the CV button) — keep the copies in step
     document.querySelectorAll(`[data-i18n="${key}"]`).forEach((o) => { if (o !== el) o.textContent = val; });
     EDITOR.onText(key, val);
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && e.target.closest?.("[data-i18n]")) { e.preventDefault(); e.target.blur(); }
+    if (e.key !== "Enter" || !e.target.closest?.("[data-i18n]")) return;
+    e.preventDefault();
+    if (e.shiftKey) document.execCommand("insertLineBreak"); // Shift+Enter — new line, Enter — done
+    else e.target.blur();
   });
   document.addEventListener("paste", (e) => {
     if (!e.target.closest?.("[data-i18n]")) return;
     e.preventDefault();
-    document.execCommand("insertText", false, (e.clipboardData.getData("text/plain") || "").replace(/\s*\n\s*/g, " "));
+    document.execCommand("insertText", false, e.clipboardData.getData("text/plain") || "");
   });
   sync();
   EDITOR.ready();

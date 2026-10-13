@@ -656,10 +656,9 @@
 
   function textFields(keys) {
     return keys.map((k) => {
+      // textareas everywhere: Enter adds a line break, which the site shows (white-space: pre-line)
       const long = Math.max((site.text.ru[k] || "").length, (site.text.en[k] || "").length) > 60;
-      const inp = (l) => long
-        ? `<textarea data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`
-        : `<input type="text" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}" value="${h(site.text[l][k])}">`;
+      const inp = (l) => `<textarea class="${long ? "" : "short"}" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`;
       return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
     }).join("");
   }
