@@ -4,7 +4,10 @@
 // project.cover: { shot: "path", pos: "center top" } | { gifts: [...] } | { glyph: "Text", tint: "#hex", sub: {ru, en} }
 // project.links: page = section of this site, live = working site, code = public repo. visible: false hides it.
 // project.home: true puts it into "Selected work" on the main page.
-// Pages: <body data-page="home|projects|contact">. admin.html and design-system.html have no data-page
+// project.page: [content blocks] — the project's own page project.html?id=<id> (cards link to it when not empty).
+// Content block: { id, type: text|image|gallery|video|stats|links|quote, visible, w: "half" (project pages), ...fields };
+// localized fields are {ru, en}. Custom home blocks are the same objects in site.json → blocks (they have a type).
+// Pages: <body data-page="home|projects|project|contact">. admin.html and design-system.html have no data-page
 // and only reuse cardHTML / coverHTML (after loadSite()).
 
 let CATEGORIES = [];
@@ -41,9 +44,9 @@ const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const PAGE = document.body.dataset.page;
 
-// Visual editor: the home page inside admin.html's iframe (?edit), driven by window.parent.siteEditor.
+// Visual editor: the home / project page inside admin.html's iframe (?edit), driven by window.parent.siteEditor.
 const EDITOR = (() => {
-  if (PAGE !== "home" || !new URLSearchParams(location.search).has("edit") || window.parent === window) return null;
+  if (!["home", "project"].includes(PAGE) || !new URLSearchParams(location.search).has("edit") || window.parent === window) return null;
   try { return window.parent.siteEditor || null; } catch { return null; }
 })();
 
@@ -79,10 +82,14 @@ function badgeHTML(p) {
     : p.private ? `<span class="badge">${esc(t.private)}</span>` : "";
 }
 
-function linksHTML(p) {
+// a section of this site (links.page) wins; otherwise the project's own page, once it has blocks
+const pageURL = (p) => p.links.page || (p.page?.length ? `project.html?id=${encodeURIComponent(p.id)}` : "");
+
+function linksHTML(p, onOwnPage) {
   const t = UI[lang];
+  const page = onOwnPage ? "" : pageURL(p);
   return [
-    p.links.page && `<a class="btn" href="${p.links.page}">${esc(t.page)} →</a>`,
+    page && `<a class="btn" href="${esc(page)}">${esc(t.page)} →</a>`,
     p.links.live && `<a class="btn" href="${p.links.live}" target="_blank" rel="noopener">${esc(t.live)} ↗</a>`,
     PROFILE.showCode && p.links.code && `<a class="btn ghost" href="${p.links.code}" target="_blank" rel="noopener">${esc(t.code)}</a>`,
     PROFILE.showCode && p.links.code2 && `<a class="btn ghost" href="${p.links.code2}" target="_blank" rel="noopener">${esc(t.code2)}</a>`,
@@ -138,12 +145,69 @@ function expHTML() {
     </article>`).join("");
 }
 
+/* ---------------- content blocks (project pages, custom home blocks) ---------------- */
+
+// a localized field; an untranslated one falls back to the other language on the site (the editor shows it empty)
+const L = (o) => (o && typeof o === "object" ? o[lang] || (EDITOR ? "" : o[lang === "ru" ? "en" : "ru"]) || "" : o ?? "");
+const imgSrc = (s) => (EDITOR?.src ? EDITOR.src(s) : s); // the editor swaps not yet published uploads for data URLs
+
+// an editable text: data-f = path inside the block, data-raw = not localized; empty ones exist only in the editor
+function fld(b, path, tag, ph, raw, cls) {
+  const v = path.split(".").reduce((o, k) => (o == null ? o : o[k]), b);
+  const val = raw ? (v ?? "") : L(v);
+  if (!val && !EDITOR) return "";
+  return `<${tag}${cls ? ` class="${cls}"` : ""} data-f="${path}"${raw ? " data-raw" : ""} data-ph="${ph}">${esc(val)}</${tag}>`;
+}
+
+const empty = (what) => (EDITOR ? `<div class="cb-empty">${what} — в панели справа</div>` : "");
+const imgHTML = (s) => (s ? `<img src="${esc(imgSrc(s))}" alt="" loading="lazy">` : empty("Загрузите картинку"));
+
+function videoHTML(src) {
+  if (!src) return empty("Вставьте ссылку на видео");
+  const yt = src.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+  const vm = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  const embed = yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}` : vm ? `https://player.vimeo.com/video/${vm[1]}` : "";
+  return `<div class="cb-video">${embed
+    ? `<iframe src="${embed}" title="Video" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
+    : `<video src="${esc(imgSrc(src))}" autoplay muted loop playsinline controls></video>`}</div>`;
+}
+
+const BLOCK_HTML = {
+  text: (b) => fld(b, "title", "h2", "Заголовок") + fld(b, "text", "p", "Текст"),
+  image: (b) => `<figure>${imgHTML(b.src)}${fld(b, "caption", "figcaption", "Подпись")}</figure>`,
+  gallery: (b) => `<div class="cb-gal" style="--cols:${+b.cols || 3}">${(b.images || []).map(imgHTML).join("") || empty("Добавьте картинки")}</div>
+    ${fld(b, "caption", "p", "Подпись", false, "cb-cap")}`,
+  video: (b) => videoHTML(b.src) + fld(b, "caption", "p", "Подпись", false, "cb-cap"),
+  stats: (b) => `<div class="cb-stats">${(b.items || []).map((it, i) =>
+    `<div class="stat">${fld(b, `items.${i}.n`, "b", "42", true)}${fld(b, `items.${i}.label`, "span", "подпись")}</div>`).join("")}</div>`,
+  links: (b) => `<div class="links">${(b.items || []).filter((it) => EDITOR || it.href).map((it, i) =>
+    `<a class="btn${i ? " ghost" : ""}" href="${esc(it.href || "#")}" target="_blank" rel="noopener">${fld(b, `items.${i}.label`, "span", "Кнопка") || esc(it.href)}</a>`).join("")}</div>`,
+  quote: (b) => `<blockquote>${fld(b, "text", "p", "Цитата")}${fld(b, "who", "cite", "Автор", true)}</blockquote>`,
+};
+
+// home: a full-width section like the built-in ones; project page: a cell of the two-column grid (w: "half")
+function blockHTML(b, home) {
+  const body = (BLOCK_HTML[b.type] || (() => ""))(b);
+  const cls = `cb cb-${b.type}${!home && b.w === "half" ? " half" : ""}`;
+  const off = EDITOR && b.visible === false ? " block-off" : "";
+  return home
+    ? `<section class="block cb-home${off}" data-block="${esc(b.id)}"><div class="${cls} reveal">${body}</div></section>`
+    : `<div class="${cls} reveal${off}" data-block="${esc(b.id)}">${body}</div>`;
+}
+const blocksHTML = (list, home) => (list || []).filter((b) => EDITOR || b.visible !== false).map((b) => blockHTML(b, home)).join("");
+
 /* ---------------- pages ---------------- */
 
-// order and visibility of the home sections come from site.json → blocks
+// order and visibility of the home sections come from site.json → blocks;
+// custom blocks (the ones with a type) are rebuilt from it on every render
 function arrangeBlocks() {
   const main = $("main");
+  main.querySelectorAll(".cb-home").forEach((el) => el.remove());
   for (const b of SITE.blocks || []) {
+    if (b.type) {
+      if (EDITOR || b.visible !== false) main.insertAdjacentHTML("beforeend", blockHTML(b, true));
+      continue;
+    }
     const el = main.querySelector(`[data-block="${b.id}"]`);
     if (!el) continue;
     main.appendChild(el);
@@ -194,6 +258,32 @@ function renderProjects() {
   $("#grid").innerHTML = list.map(cardHTML).join("");
 }
 
+// project.html?id=<id>: a header from the card fields (title, text, tags, links, cover), then project.page blocks
+function renderProject() {
+  const t = UI[lang];
+  const id = new URLSearchParams(location.search).get("id");
+  const p = EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === id);
+  if (!p) {
+    $("#projHead").innerHTML = `<div class="proj-intro"><h1>${lang === "ru" ? "Проект не найден" : "Project not found"}</h1>
+      <div class="links"><a class="btn ghost" href="projects.html">${esc(t["proj.back"])}</a></div></div>`;
+    $("#projBlocks").innerHTML = "";
+    return;
+  }
+  document.title = `${p.title[lang]} — Anton Egorov`;
+  const links = linksHTML(p, true);
+  $("#projHead").innerHTML = `
+    <div class="proj-intro">
+      <a class="proj-back" href="projects.html">${esc(t["proj.back"])}</a>
+      <div class="meta"><span>${catName(p.cat)} · ${p.year}</span>${badgeHTML(p)}</div>
+      ${fld(p, "title", "h1", "Название")}
+      ${fld(p, "desc", "p", "Описание", false, "lead")}
+      ${tagsHTML(p.tags)}
+      ${links ? `<div class="links">${links}</div>` : ""}
+    </div>
+    <div class="show-media proj-cover">${coverHTML(p)}</div>`;
+  $("#projBlocks").innerHTML = blocksHTML(p.page, false);
+}
+
 let cvAvailable = {};
 function renderContact() {
   const t = UI[lang];
@@ -239,6 +329,7 @@ function render() {
   }
   if (PAGE === "home") renderHome();
   if (PAGE === "projects") renderProjects();
+  if (PAGE === "project") renderProject();
   if (PAGE === "contact") renderContact();
   watchReveal();
   if (EDITOR) decorateForEditor();
@@ -259,15 +350,23 @@ const EDITABLE = (() => {
 })();
 
 function decorateForEditor() {
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
+  document.querySelectorAll("[data-i18n], [data-f]").forEach((el) => {
     if (el.closest(".top")) return; // header tabs stay plain; nav labels are edited in the side panel
     el.contentEditable = EDITABLE;
     el.spellcheck = false;
   });
+  // every block gets a bar (settings · move · hide or delete) and a "+ блок" under it that inserts a block after it
   document.querySelectorAll("[data-block]").forEach((el) => {
-    if (el.querySelector(":scope > .edit-handle")) return;
-    el.insertAdjacentHTML("afterbegin",
-      `<button type="button" class="edit-handle" data-for="${el.dataset.block}" contenteditable="false">${esc(EDITOR.blockName(el.dataset.block))} · настроить</button>`);
+    el.querySelectorAll(":scope > .edit-bar, :scope > .edit-add").forEach((x) => x.remove());
+    const id = el.dataset.block;
+    const info = EDITOR.blockInfo(id);
+    const btn = (act, label, title) => `<button type="button" data-act="${act}" title="${title}">${label}</button>`;
+    el.insertAdjacentHTML("afterbegin", `<div class="edit-bar" data-for="${esc(id)}" contenteditable="false">${
+      btn("open", `${esc(info.name)} · настроить`, "Настройки блока")}${
+      info.movable ? btn("up", "↑", "Выше") + btn("down", "↓", "Ниже") : ""}${
+      info.removable ? btn("del", "✕", "Удалить блок") : info.hideable ? btn("vis", info.hidden ? "показать" : "скрыть", "Показывать на сайте") : ""}</div>`);
+    el.insertAdjacentHTML("beforeend",
+      `<button type="button" class="edit-add" data-for="${esc(id)}" data-act="add" contenteditable="false" title="Добавить блок ниже">+ блок</button>`);
   });
 }
 
@@ -282,27 +381,31 @@ function bootEditor() {
   window.siteEdit = { refresh: sync };
 
   document.addEventListener("click", (e) => {
-    const handle = e.target.closest(".edit-handle");
-    if (handle) { e.preventDefault(); EDITOR.openBlock(handle.dataset.for); return; }
+    const b = e.target.closest(".edit-bar button, .edit-add");
+    if (b) { e.preventDefault(); EDITOR.blockAction(b.closest("[data-for]").dataset.for, b.dataset.act); return; }
     if (e.target.closest("a, #lang, .chip")) e.preventDefault(); // no navigation while editing
   }, true);
   document.addEventListener("input", (e) => {
-    const el = e.target.closest?.("[data-i18n]");
+    const el = e.target.closest?.("[data-f], [data-i18n]");
     if (!el) return;
-    const key = el.dataset.i18n;
     const val = el.innerText.replace(/\n{3,}/g, "\n\n").replace(/\n+$/, ""); // line breaks are kept (Shift+Enter)
+    if (el.dataset.f) { // a block field: data-block = which block ("_head" = the project itself), data-f = path in it
+      EDITOR.onField(el.closest("[data-block]").dataset.block, el.dataset.f, val, el.hasAttribute("data-raw"));
+      return;
+    }
+    const key = el.dataset.i18n;
     // the same text can appear twice on the page (e.g. the CV button) — keep the copies in step
     document.querySelectorAll(`[data-i18n="${key}"]`).forEach((o) => { if (o !== el) o.textContent = val; });
     EDITOR.onText(key, val);
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" || !e.target.closest?.("[data-i18n]")) return;
+    if (e.key !== "Enter" || !e.target.closest?.("[data-i18n], [data-f]")) return;
     e.preventDefault();
     if (e.shiftKey) document.execCommand("insertLineBreak"); // Shift+Enter — new line, Enter — done
     else e.target.blur();
   });
   document.addEventListener("paste", (e) => {
-    if (!e.target.closest?.("[data-i18n]")) return;
+    if (!e.target.closest?.("[data-i18n], [data-f]")) return;
     e.preventDefault();
     document.execCommand("insertText", false, e.clipboardData.getData("text/plain") || "");
   });
@@ -346,7 +449,7 @@ if (PAGE) {
       })
       .catch((err) => {
         console.error(err);
-        const box = $("#grid") || $("#showcase") || $("#channels");
+        const box = $("#grid") || $("#showcase") || $("#channels") || $("#projHead");
         if (box) box.textContent = "Could not load the page content.";
       });
   }
