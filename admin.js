@@ -1012,7 +1012,9 @@
         <h2 class="sec">Soft skills</h2>${field("profile.soft.ru", "RU — по одному на строку", "lines")}${field("profile.soft.en", "EN — по одному на строку", "lines")}`,
       showcase: `<p class="hint">Какие проекты здесь показывать — галочка «На главной (избранное)» во вкладке «Проекты»; порядок — как в списке проектов.</p>
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть «Проекты»</button></div>`,
-      stack: `<h2 class="sec">Бегущая строка</h2>${field("profile.stack.0", "Первый ряд — по одному на строку", "lines")}${field("profile.stack.1", "Второй ряд — по одному на строку", "lines")}`,
+      stack: `<h2 class="sec">Бегущая строка</h2>${field("profile.stack.0", "Первый ряд — по одному на строку", "lines")}${field("profile.stack.1", "Второй ряд — по одному на строку", "lines")}
+        <h2 class="sec">Подсказки по клику</h2><p class="hint">По строке: «Название — коротко что это». Название — как в бегущей строке.</p>
+        ${field("profile.stackInfo.ru", "RU", "lines")}${field("profile.stackInfo.en", "EN", "lines")}`,
       exp: `<h2 class="sec">Места работы</h2>${repeater("profile.experience")}`,
       general: `<h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
         <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>

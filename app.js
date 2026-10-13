@@ -299,7 +299,16 @@ function renderHome() {
 
   // stack ticker: the curated profile.stack rows (not raw project tags — those include libraries),
   // repeated 4× so a short row still covers wide screens; the -50% keyframe loops over two copies
-  const row = (list) => list.map((x) => `<span>${esc(x)}</span>`).join("").repeat(4);
+  // profile.stackInfo.<lang>: lines "Name — short description" → tooltip on click
+  const info = {};
+  for (const l of PROFILE.stackInfo?.[lang] || []) {
+    const [k, ...v] = l.split(" — ");
+    if (v.length) info[k.trim().toLowerCase()] = v.join(" — ").trim();
+  }
+  const row = (list) => list.map((x) => {
+    const tip = info[x.toLowerCase()];
+    return tip ? `<span data-tip="${esc(tip)}" tabindex="0">${esc(x)}</span>` : `<span>${esc(x)}</span>`;
+  }).join("").repeat(4);
   $("#stack").innerHTML = `<div class="marquee-row">${row(PROFILE.stack[0] || [])}</div>
     <div class="marquee-row rev">${row(PROFILE.stack[1] || [])}</div>`;
 
@@ -387,6 +396,7 @@ function render() {
     const v = t[el.dataset.i18n];
     if (v != null && el !== document.activeElement) el.textContent = v;
   });
+  document.documentElement.classList.add("i18n-ready");
   $("#lang").textContent = lang === "ru" ? "EN" : "RU";
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
@@ -511,9 +521,43 @@ function bootEditor() {
   EDITOR.ready();
 }
 
+// stack chips: click shows a short tooltip; the ticker stays paused while it is open
+function setupStackTips() {
+  const box = $("#stack");
+  if (!box) return;
+  const tip = document.createElement("div");
+  tip.className = "stack-tip";
+  tip.setAttribute("role", "tooltip");
+  document.body.append(tip);
+  let cur = null;
+  const hide = () => { tip.classList.remove("on"); box.classList.remove("hold"); cur = null; };
+  const show = (el) => {
+    if (cur === el) return hide();
+    cur = el;
+    tip.innerHTML = `<b>${esc(el.textContent)}</b>${esc(el.dataset.tip)}`;
+    const r = el.getBoundingClientRect();
+    tip.style.left = `${Math.min(Math.max(r.left + r.width / 2, 140), innerWidth - 140)}px`;
+    tip.style.top = `${r.top}px`;
+    tip.classList.add("on");
+    box.classList.add("hold");
+  };
+  box.addEventListener("click", (e) => {
+    const el = e.target.closest("span[data-tip]");
+    if (el) { e.stopPropagation(); show(el); }
+  });
+  box.addEventListener("keydown", (e) => {
+    const el = e.target.closest?.("span[data-tip]");
+    if (el && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); show(el); }
+  });
+  document.addEventListener("click", hide);
+  addEventListener("scroll", () => cur && hide(), { passive: true });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && cur) hide(); });
+}
+
 if (PAGE) {
   document.documentElement.classList.add("js");
   $("#year").textContent = new Date().getFullYear();
+  setupStackTips();
 
   if (EDITOR) {
     bootEditor();
@@ -547,6 +591,7 @@ if (PAGE) {
       })
       .catch((err) => {
         console.error(err);
+        document.documentElement.classList.add("i18n-ready");
         const box = $("#grid") || $("#showcase") || $("#channels") || $("#projHead");
         if (box) box.textContent = "Could not load the page content.";
       });
