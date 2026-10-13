@@ -1,5 +1,6 @@
-// "Guest cursor": once per session, a Figma-style collaborator cursor ("Anton Egorov")
-// drags a CV file next to the visitor's pointer. Delay — profile.guestDelay in site.json (0 = off).
+// "Guest cursor": once per visitor (never again), a Figma-style collaborator cursor ("Anton Egorov")
+// drags a CV file (Finder-style thumbnail, assets/cv-<lang>.png from tools/cv_thumbs.py)
+// next to the visitor's pointer. Delay — profile.guestDelay in site.json (0 = off).
 // Uses `lang` and `PROFILE` from app.js; app.js calls startGuest() after the first render.
 function startGuest() {
   if (startGuest.on) return;
@@ -7,7 +8,7 @@ function startGuest() {
   const delay = Number(PROFILE.guestDelay ?? 20);
   if (!delay || !PROFILE.cv?.[lang]) return;
   if (!matchMedia("(hover: hover) and (pointer: fine) and (min-width: 900px)").matches) return;
-  try { if (sessionStorage.getItem("guestShown")) return; } catch {}
+  try { if (localStorage.getItem("guestShown")) return; } catch {}
 
   let mx = innerWidth * 0.6, my = innerHeight * 0.5;
   addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
@@ -21,18 +22,16 @@ function startGuest() {
   }, delay * 1000);
 
   function run() {
-    try { sessionStorage.setItem("guestShown", "1"); } catch {}
+    try { localStorage.setItem("guestShown", "1"); } catch {}
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const file = document.createElement("a");
     file.className = "guest-file";
-    file.innerHTML = `<svg viewBox="0 0 40 48" aria-hidden="true">
-        <path class="pg" d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-        <path class="fold" d="M26 2v8a2 2 0 0 0 2 2h8"/>
-        <path class="arr" d="M19 18v15m-6-6 6 6 6-6M12 38h14"/>
-      </svg><span>CV</span><button class="guest-x" type="button" aria-label="Close">×</button>`;
+    file.innerHTML = `<i class="guest-thumb"><img alt=""><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v7m-3-3 3 3 3-3M4.5 12.5h7"/></svg></i>
+      <span>CV</span><button class="guest-x" type="button" aria-label="Close">×</button>`;
     const setHref = () => {
       file.href = PROFILE.cv[lang];
+      file.querySelector("img").src = PROFILE.cv[lang].replace(/\.pdf$/, ".png");
       file.download = `Anton-Egorov-CV-${lang.toUpperCase()}.pdf`;
       file.title = lang === "ru" ? "Скачать резюме" : "Download CV";
     };
