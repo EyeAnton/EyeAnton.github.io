@@ -53,7 +53,7 @@
       "show.all": "Все проекты →",
       "stack.title": "Стек и инструменты",
       "exp.eyebrow": "Опыт",
-      "exp.title": "Где я работал",
+      "exp.title": "Карьерный трек",
       "contact.title": "Давайте сотрудничать",
       "contact.text": "Открыт к работе удалённо или с релокацией. ",
       "contact.behance": "Behance ↗",
@@ -412,5 +412,10 @@
         }
       }
     ]
-  }
+  },
+  "hiddenText": [
+    "areas:areas.eyebrow",
+    "showcase:show.eyebrow",
+    "exp:exp.eyebrow"
+  ]
 }
