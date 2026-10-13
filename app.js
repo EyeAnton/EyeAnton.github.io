@@ -397,7 +397,7 @@ function render() {
     if (v != null && el !== document.activeElement) el.textContent = v;
   });
   document.documentElement.classList.add("i18n-ready");
-  $("#lang").textContent = lang === "ru" ? "EN" : "RU";
+  $("#lang").dataset.lang = lang; // ring around the active RUS / ENG
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
     cvTop.href = PROFILE.cv[lang];
