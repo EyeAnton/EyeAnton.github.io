@@ -68,7 +68,7 @@
 </head>
 <body>
   <header class="top">
-    <a class="logo" href="./">Anton<span>.</span></a>
+    <a class="logo" href="./">EyeAnton</a>
     <nav class="top-nav">
       <a href="./">Портфолио</a>
       <a href="#color">Цвет</a>
@@ -234,7 +234,8 @@
   <script src="app.js"></script>
   <script>
     // project cards rendered by the real cardHTML() from app.js
-    fetch("projects.json", { cache: "no-cache" }).then((r) => r.json()).then((d) => {
+    // card labels (Live, Open site…) come from site.json
+    Promise.all([loadSite(), fetch("projects.json", { cache: "no-cache" }).then((r) => r.json())]).then(([, d]) => {
       CATEGORIES = d.categories;
       const list = d.projects.filter((p) => p.visible !== false);
       const pick = [list.find((p) => p.cover.shot), list.find((p) => p.cover.glyph)].filter(Boolean);

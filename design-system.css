@@ -141,6 +141,7 @@ body {
 }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
+[hidden] { display: none !important; } /* sections with their own display (e.g. the hero's flex) must still hide */
 ::selection { background: var(--blue-500); color: var(--white); }
 :focus-visible { outline: 2px solid var(--blue-300); outline-offset: 3px; }
 

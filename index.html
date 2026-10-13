@@ -23,17 +23,18 @@
 </head>
 <body data-page="home">
   <header class="top">
-    <a class="logo" href="./">Anton<span>.</span></a>
+    <a class="logo" href="./" data-i18n="brand">EyeAnton</a>
     <nav class="tabs" aria-label="Разделы">
       <a href="./" data-i18n="nav.home" aria-current="page">Главная</a>
       <a href="projects.html" data-i18n="nav.work">Проекты</a>
       <a href="contact.html" data-i18n="nav.contact">Контакты</a>
+      <a class="cv-tab" id="cvTop" href="assets/cv-ru.pdf" download="Anton-Egorov-CV-RU.pdf">CV ↓</a>
     </nav>
     <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" data-block="hero">
       <div class="aurora" aria-hidden="true"></div>
       <p class="eyebrow" data-i18n="hero.eyebrow">Привет, я Антон</p>
       <h1 data-i18n="hero.title">Дизайн, AI-визуал и вещи, которые я собираю руками и кодом</h1>
@@ -45,9 +46,9 @@
       </div>
     </section>
 
-    <div class="stats" id="stats"></div>
+    <section data-block="stats"><div class="stats" id="stats"></div></section>
 
-    <section class="block">
+    <section class="block" data-block="areas">
       <div class="sec-head reveal">
         <p class="eyebrow" data-i18n="areas.eyebrow">Навыки</p>
         <h2 data-i18n="areas.title">Что я делаю</h2>
@@ -60,7 +61,7 @@
       </div>
     </section>
 
-    <section class="block">
+    <section class="block" data-block="showcase">
       <div class="sec-head reveal">
         <p class="eyebrow" data-i18n="show.eyebrow">Избранное</p>
         <h2 data-i18n="show.title">Проекты, которыми я горжусь</h2>
@@ -69,12 +70,12 @@
       <div class="center reveal"><a class="btn ghost" href="projects.html" data-i18n="show.all">Все проекты →</a></div>
     </section>
 
-    <section class="stack-sec" aria-labelledby="stackTitle">
+    <section class="stack-sec" data-block="stack" aria-labelledby="stackTitle">
       <h2 class="eyebrow center" id="stackTitle" data-i18n="stack.title">Стек и инструменты</h2>
       <div class="marquee" id="stack"></div>
     </section>
 
-    <section class="block">
+    <section class="block" data-block="exp">
       <div class="sec-head reveal">
         <p class="eyebrow" data-i18n="exp.eyebrow">Опыт</p>
         <h2 data-i18n="exp.title">Где я работал</h2>
@@ -82,13 +83,13 @@
       <div class="exp" id="exp"></div>
     </section>
 
-    <section class="contact">
+    <section class="contact" data-block="contact">
       <div class="beams" aria-hidden="true"></div>
       <h2 class="reveal" data-i18n="contact.title">Давайте поговорим</h2>
       <p class="reveal" data-i18n="contact.text"></p>
       <div class="contact-links reveal">
         <a class="btn" href="contact.html" data-i18n="hero.cv">Контакты и CV</a>
-        <a class="btn ghost" href="https://www.behance.net/EyeAnton" target="_blank" rel="noopener">Behance ↗</a>
+        <a class="btn ghost" href="https://www.behance.net/EyeAnton" target="_blank" rel="noopener" data-i18n="contact.behance">Behance ↗</a>
       </div>
     </section>
   </main>
