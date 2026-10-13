@@ -870,7 +870,7 @@
               }
             },
             {
-              "n": "~300",
+              "n": "~12",
               "label": {
                 "ru": "экранов в одной истории",
                 "en": "screens in a single story"
@@ -1041,13 +1041,9 @@
           "type": "strip",
           "visible": true,
           "anchor": "story",
-          "eyebrow": {
-            "ru": "Одна новелла целиком",
-            "en": "One novel, start to finish"
-          },
           "title": {
-            "ru": "Room 313",
-            "en": "Room 313"
+            "ru": "Thriller",
+            "en": "Thriller"
           },
           "text": {
             "ru": "Триллер на шесть сцен: отель, подставное убийство и старый враг. Все фоны истории подряд — от коридора у номера до утреннего аэропорта. Свет, палитра и манера не плывут от сцены к сцене.",
@@ -1245,22 +1241,18 @@
           "type": "lineups",
           "visible": true,
           "anchor": "casts",
-          "eyebrow": {
-            "ru": "Актёрский состав",
-            "en": "The cast"
-          },
           "title": {
             "ru": "У каждой истории — свой каст",
             "en": "Every story has its own cast"
           },
           "text": {
-            "ru": "Фэнтези, морское королевство, вампиры — жанры разные, а персонажи одной новеллы всегда выглядят как одна компания: тот же свет, та же манера, тот же масштаб.",
+            "ru": "Фэнтези, морское королевство, вампиры — жанры разные, \nа персонажи одной новеллы всегда выглядят как одна компания: тот же свет, та же манера, тот же масштаб.",
             "en": "Fantasy, a sea kingdom, vampires — the genres differ, yet the characters of one novel always look like one company: the same light, the same manner, the same scale."
           },
           "items": [
             {
               "t": {
-                "ru": "The Cursed Crown",
+                "ru": "The Cursed Ages",
                 "en": "The Cursed Crown"
               },
               "images": [
@@ -1275,7 +1267,7 @@
             },
             {
               "t": {
-                "ru": "Song of the Sea Court",
+                "ru": "Song of the Seas",
                 "en": "Song of the Sea Court"
               },
               "images": [
@@ -1290,7 +1282,7 @@
             },
             {
               "t": {
-                "ru": "Daughter of the Flame",
+                "ru": "Flame of the Dragon",
                 "en": "Daughter of the Flame"
               },
               "images": [
@@ -1305,7 +1297,7 @@
             },
             {
               "t": {
-                "ru": "The Thirst Pact",
+                "ru": "Midnight Pact",
                 "en": "The Thirst Pact"
               },
               "images": [
@@ -1325,16 +1317,12 @@
           "type": "covers",
           "visible": true,
           "anchor": "library",
-          "eyebrow": {
-            "ru": "Библиотека",
-            "en": "Library"
-          },
           "title": {
             "ru": "29 новелл в одном стиле",
             "en": "29 novels in one style"
           },
           "text": {
-            "ru": "Триллеры, фэнтези, мистика и ромкомы. Обложки сделаны тем же флоу, что и сцены, поэтому витрина выглядит цельной.",
+            "ru": "Триллеры, фэнтези, мистика и романтические комедии. \nОбложки сделаны тем же флоу, что и сцены,\nпоэтому витрина выглядит цельной.",
             "en": "Thrillers, fantasy, mystery and rom-coms. Covers come from the same flow as the scenes, so the storefront looks whole."
           },
           "items": [
@@ -1527,17 +1515,9 @@
           "type": "vcovers",
           "visible": true,
           "anchor": "promo",
-          "eyebrow": {
-            "ru": "Промо",
-            "en": "Promo"
-          },
           "title": {
-            "ru": "Обложки, которые двигаются",
+            "ru": "Анимированное промо",
             "en": "Covers that move"
-          },
-          "text": {
-            "ru": "Из статичной обложки — пятисекундная видеообложка для витрины. Из сцен и AI-видео — вертикальные промо-ролики для рекламы в 9:16 и 1:1, отдельно для мужской и женской аудитории.",
-            "en": "A static cover becomes a five-second video cover for the storefront. Scenes and AI video become vertical ad spots in 9:16 and 1:1, cut separately for male and female audiences."
           },
           "items": [
             {
@@ -1588,16 +1568,8 @@
           "visible": true,
           "items": [
             {
-              "src": "/emotions-club/assets/promo/promo_1.mp4",
-              "poster": "/emotions-club/assets/promo/promo_1.webp"
-            },
-            {
               "src": "/emotions-club/assets/promo/promo_2.mp4",
               "poster": "/emotions-club/assets/promo/promo_2.webp"
-            },
-            {
-              "src": "/emotions-club/assets/promo/promo_3.mp4",
-              "poster": "/emotions-club/assets/promo/promo_3.webp"
             }
           ]
         },
@@ -1606,17 +1578,9 @@
           "type": "results",
           "visible": true,
           "anchor": "result",
-          "eyebrow": {
-            "ru": "Результат",
-            "en": "Result"
-          },
           "title": {
             "ru": "Новеллы выходят потоком",
             "en": "Novels ship in a steady stream"
-          },
-          "text": {
-            "ru": "",
-            "en": ""
           },
           "items": [
             {
