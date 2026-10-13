@@ -925,6 +925,11 @@
     }
     if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
     if (type === "area") return `<label class="f">${h(label)}<textarea class="mono" ${bp}>${h(v)}</textarea></label>`;
+    if (type === "zoom") { // project.head.zoom; not set = 1.45 (as in the Virtual Gifts hero)
+      const cur = +(v ?? 1.45);
+      return `<label class="f">${h(label)}<select ${bp} data-type="number">${[[0, "Выключено"], [1.2, "1.2×"], [1.45, "1.45× — как в подарках"], [1.7, "1.7×"]]
+        .map(([n, l]) => `<option value="${n}" ${n === cur ? "selected" : ""}>${l}</option>`).join("")}</select></label>`;
+    }
     if (type.startsWith("num:")) return `<label class="f">${h(label)}<select ${bp} data-type="number">${type.slice(4).split(",").map((n) =>
       `<option ${+n === +v ? "selected" : ""}>${n}</option>`).join("")}</select></label>`;
     if (type === "img") return `<div class="f img-f"><span>${h(label)}</span>
@@ -977,6 +982,7 @@
         ${bField(p, "head.lead", "Лид — текст под названием (пусто — описание с карточки)", "loc-area")}
         ${bField(p, "head.ctas", "Кнопки под лидом (#якорь — на блок этой страницы)", "list:links")}
         ${bField(p, "head.cloud", "Бегущая лента картинок (пусто — обложка проекта)", "imgs")}
+        ${bField(p, "head.zoom", "Ленту при наведении: остановить и увеличить картинку", "zoom")}
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>
         <p class="hint">Блоки ниже шапки: «+ блок» под любым блоком на странице или «+ Добавить блок» слева. Половинные блоки встают по два в ряд; удалите блок — остальные сдвинутся.</p>`;
       return;
