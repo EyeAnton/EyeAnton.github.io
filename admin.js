@@ -412,11 +412,7 @@
             ${shotSrc ? `<img src="${h(shotSrc)}" alt="">` : ""}
             <label class="btn ghost small" style="cursor:pointer">Загрузить картинку…<input type="file" id="shotFile" accept="image/*" hidden></label>
           </div>
-          <p class="sub" style="margin:0">Любой размер — уменьшится до ${MAX_W}px по ширине и сохранится в JPEG. На карточке обложка обрезается до 16:10.</p>
-          <label class="f">Какую часть картинки показывать<select data-k="cover.pos">
-            ${[["", "Верх (по умолчанию)"], ["center center", "Центр"], ["center bottom", "Низ"]].map(([v, l]) =>
-              `<option value="${v}" ${(p.cover.pos || "") === v ? "selected" : ""}>${l}</option>`).join("")}
-          </select></label>` : ""}
+          <p class="sub" style="margin:0">Любой размер — уменьшится до ${MAX_W}px по ширине. PNG сохраняется с прозрачностью, остальное — в JPEG. На карточке картинка вписывается целиком.</p>` : ""}
         ${t === "glyph" ? `
           <div class="row">
             <label class="f">Надпись<input type="text" data-k="cover.glyph" value="${h(p.cover.glyph)}"></label>
@@ -477,8 +473,8 @@
     } else if (e.target.id === "shotFile" && e.target.files[0]) {
       try {
         setStatus("Обрабатываю картинку…");
-        const { b64, dataURL } = await shrink(e.target.files[0]);
-        const path = `${SHOTS}${p.id}-${Date.now().toString(36)}.jpg`; // new name each time, so caches never show the old one
+        const { b64, dataURL, ext } = await shrink(e.target.files[0]);
+        const path = `${SHOTS}${p.id}-${Date.now().toString(36)}.${ext}`; // new name each time, so caches never show the old one
         if (p.cover.shot) { pending.delete(p.cover.shot); replaced.add(p.cover.shot); }
         pending.set(path, { b64, dataURL });
         p.cover.shot = path;
@@ -502,7 +498,7 @@
     }
   });
 
-  // Downscale to MAX_W and re-encode as JPEG in the browser.
+  // Downscale to MAX_W and re-encode in the browser: PNG/WebP stay PNG (transparency kept), the rest → JPEG.
   function shrink(file) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -512,12 +508,15 @@
         cv.width = Math.round(img.naturalWidth * s);
         cv.height = Math.round(img.naturalHeight * s);
         const ctx = cv.getContext("2d");
-        ctx.fillStyle = "#0b0b0b"; // flatten transparency onto the card colour
-        ctx.fillRect(0, 0, cv.width, cv.height);
+        const alpha = /^image\/(png|webp)$/.test(file.type);
+        if (!alpha) {
+          ctx.fillStyle = "#0b0b0b"; // JPEG has no transparency: flatten onto the card colour
+          ctx.fillRect(0, 0, cv.width, cv.height);
+        }
         ctx.drawImage(img, 0, 0, cv.width, cv.height);
         URL.revokeObjectURL(img.src);
-        const dataURL = cv.toDataURL("image/jpeg", 0.86);
-        resolve({ dataURL, b64: dataURL.split(",")[1] });
+        const dataURL = alpha ? cv.toDataURL("image/png") : cv.toDataURL("image/jpeg", 0.86);
+        resolve({ dataURL, b64: dataURL.split(",")[1], ext: alpha ? "png" : "jpg" });
       };
       img.onerror = () => reject(new Error("формат не поддерживается"));
       img.src = URL.createObjectURL(file);
@@ -1069,7 +1068,7 @@
     refreshFrame(); updateStatus();
   });
 
-  // GIFs are kept as they are (animation); everything else goes through shrink() → JPEG
+  // GIFs are kept as they are (animation); everything else goes through shrink() → PNG or JPEG
   const readRaw = (file) => new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onload = () => resolve({ dataURL: r.result, b64: r.result.split(",")[1] });
@@ -1078,8 +1077,8 @@
   });
   async function upload(file, owner) {
     const gif = file.type === "image/gif";
-    const img = gif ? await readRaw(file) : await shrink(file);
-    const path = `${SHOTS}${owner}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}.${gif ? "gif" : "jpg"}`;
+    const img = gif ? { ...(await readRaw(file)), ext: "gif" } : await shrink(file);
+    const path = `${SHOTS}${owner}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}.${img.ext}`;
     pending.set(path, img);
     return path;
   }
