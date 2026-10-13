@@ -1202,17 +1202,13 @@
     },
     {
       "visible": true,
+      "home": true,
       "id": "stasik",
       "cat": "hardware",
       "year": 2026,
       "private": true,
       "cover": {
-        "glyph": "M5",
-        "tint": "#1f3330",
-        "sub": {
-          "ru": "ESP32 · Android",
-          "en": "ESP32 · Android"
-        }
+        "shot": "assets/shots/stasik.jpg"
       },
       "title": {
         "ru": "Стасик",
@@ -1228,7 +1224,9 @@
         "M5Unified",
         "Android"
       ],
-      "links": {}
+      "links": {
+        "page": "/stasik-page/"
+      }
     },
     {
       "visible": false,
