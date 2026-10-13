@@ -779,8 +779,18 @@
       if (seBlock !== id) seBlock = id;
       renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
     },
+    // ✕ on a built-in home text (app.js): it stays in site.text, the site just doesn't show it in this block
+    removeText(id, key) { hideText(id, key, true); },
     ready() { frameLoaded = true; },
   };
+  function hideText(id, key, on) {
+    const k = `${id}:${key}`, list = (site.hiddenText || []).filter((x) => x !== k);
+    if (on) list.push(k);
+    if (list.length) site.hiddenText = list; else delete site.hiddenText;
+    seUndo = on ? { target: seTarget, id, text: key } : null;
+    seBlock = id;
+    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+  }
 
   // coalesce bursts of edits into one re-render (a timer, not rAF: rAF stalls in background tabs)
   let refreshTimer = 0;
@@ -926,12 +936,16 @@
     setMode("site");
   }
 
-  function textFields(keys) {
+  function textFields(keys, id) {
     return keys.map((k) => {
+      // ✕ / «Вернуть»: a built-in text can be taken off the page (header and footer texts in «Общие настройки» stay)
+      if (id !== "general" && site.hiddenText?.includes(`${id}:${k}`))
+        return `<div class="tx"><span>${h(KEY_LABEL[k] || k)} — удалён со страницы <button class="btn ghost small" type="button" data-unhide="${h(k)}">Вернуть</button></span></div>`;
+      const ctl = id === "general" ? "" : ` <button class="btn ghost small" type="button" data-hide="${h(k)}" title="Убрать этот текст со страницы">✕</button>`;
       // textareas everywhere: Enter adds a line break, which the site shows (white-space: pre-line)
       const long = Math.max((site.text.ru[k] || "").length, (site.text.en[k] || "").length) > 60;
       const inp = (l) => `<textarea class="${long ? "" : "short"}" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`;
-      return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
+      return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}${ctl}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
     }).join("");
   }
 
@@ -1099,9 +1113,9 @@
     q("#sePanel").innerHTML = `${undo}
       <h2>${h(B.name)}</h2>
       ${blk ? `<label class="check"><input type="checkbox" data-blockvis ${blk.visible === false ? "" : "checked"}> Показывать блок на сайте</label>
-        <p class="hint">Встроенный блок: его можно скрыть, но не удалить.</p>` : ""}
+        <p class="hint">Встроенный блок: его можно скрыть, но не удалить. Ненужный текст в нём убирается ✕ — здесь или на странице («✕ текст» по наведению), место он больше не занимает.</p>` : ""}
       <h2 class="sec">Тексты</h2>
-      ${textFields(B.keys)}
+      ${textFields(B.keys, seBlock)}
       ${extra}`;
   }
 
@@ -1184,6 +1198,8 @@
       return;
     }
     if (b.dataset.newtype) { addBlock(b.dataset.newtype); return; }
+    if (b.dataset.hide || b.dataset.unhide) { hideText(seBlock, b.dataset.hide || b.dataset.unhide, !!b.dataset.hide); return; }
+    if (b.hasAttribute("data-undo") && seUndo.text) { hideText(seUndo.id, seUndo.text, false); return; }
     if (b.hasAttribute("data-undo") && !seUndo.b) { // a text / list item back into its block
       const { id, path, v } = seUndo;
       const obj = findBlock(id);

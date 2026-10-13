@@ -477,9 +477,12 @@ function watchReveal() {
 function render() {
   const t = UI[lang];
   document.documentElement.lang = lang;
+  const gone = new Set(SITE?.hiddenText || []); // home texts deleted in the editor: "block:key"
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const v = t[el.dataset.i18n];
     if (v != null && el !== document.activeElement) el.textContent = v;
+    const blk = el.closest("[data-block]");
+    el.hidden = !!blk && gone.has(`${blk.dataset.block}:${el.dataset.i18n}`);
   });
   document.documentElement.classList.add("i18n-ready");
   $("#lang").dataset.lang = lang; // ring around the active RUS / ENG
@@ -535,7 +538,8 @@ function decorateForEditor() {
 
 function bootEditor() {
   document.documentElement.classList.add("editing");
-  // ✕ over a text inside a block: delete that text, or the whole list item it sits in (a card, a step, a button)
+  // ✕ over a text inside a block: delete that text, or the whole list item it sits in (a card, a step, a button);
+  // on the home page the built-in texts (data-i18n) are deleted too — they stay in site.json, just not shown
   const del = document.createElement("div");
   del.className = "edit-del";
   del.contentEditable = "false";
@@ -545,12 +549,13 @@ function bootEditor() {
   document.addEventListener("mouseover", (e) => {
     clearTimeout(delTimer);
     if (e.target.closest(".edit-del")) return;
-    const el = e.target.closest("[data-block] [data-f]");
-    if (!el || !EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable) { delTimer = setTimeout(hideDel, 300); return; }
+    const el = e.target.closest("[data-block] [data-f], [data-block] [data-i18n]");
+    const ok = el && (el.dataset.f ? EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable : PAGE === "home");
+    if (!ok) { delTimer = setTimeout(hideDel, 300); return; }
     if (el === delFor) return;
     delFor = el;
     del.innerHTML = `<button type="button" data-del="field" title="Удалить этот текст">✕ текст</button>${
-      /\.\d+\.[^.]+$/.test(el.dataset.f) ? `<button type="button" data-del="item" title="Удалить весь пункт">✕ пункт</button>` : ""}`;
+      /\.\d+\.[^.]+$/.test(el.dataset.f || "") ? `<button type="button" data-del="item" title="Удалить весь пункт">✕ пункт</button>` : ""}`;
     const r = el.getBoundingClientRect();
     del.style.left = `${r.right + scrollX}px`;
     del.style.top = `${r.top + scrollY}px`;
@@ -572,7 +577,9 @@ function bootEditor() {
       e.preventDefault();
       const el = delFor;
       hideDel();
-      EDITOR.removeField(el.closest("[data-block]").dataset.block, el.dataset.f, d.dataset.del === "item");
+      const id = el.closest("[data-block]").dataset.block;
+      if (el.dataset.i18n) EDITOR.removeText(id, el.dataset.i18n);
+      else EDITOR.removeField(id, el.dataset.f, d.dataset.del === "item");
       return;
     }
     const b = e.target.closest(".edit-bar button, .edit-add");
