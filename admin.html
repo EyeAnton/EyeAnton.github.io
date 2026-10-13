@@ -122,6 +122,13 @@
     .img-row img { width: 56px; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: var(--card-2); }
     .img-row .mv button, .rep-head .mv button { background: none; border: 0; color: var(--muted); font-size: 15px; cursor: pointer; padding: 2px 5px; }
     .se-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+    details.rep-item > summary { cursor: pointer; list-style: none; }
+    details.rep-item > summary::-webkit-details-marker { display: none; }
+    details.rep-item > summary b::before { content: "▸ "; color: var(--muted); }
+    details.rep-item[open] > summary b::before { content: "▾ "; }
+    details.rep-item:not([open]) { gap: 0; }
+    textarea.mono { font: 13px/1.5 ui-monospace, Consolas, monospace; min-height: 180px; white-space: pre; }
+    h2.sec small { font-size: 13px; color: var(--muted); }
 
     @media (max-width: 1000px) {
       .layout, .editor { grid-template-columns: 1fr; }

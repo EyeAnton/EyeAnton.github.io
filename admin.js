@@ -227,15 +227,14 @@
     if (c.page && !c.page.length) delete c.page;
     return c;
   }
-  // every image path the content refers to: covers, project page blocks, custom home blocks
+  // every uploaded file the content refers to (covers, hero clouds, blocks and their items): any string under assets/shots/
   function imagesOf(projects, siteObj) {
     const out = new Set();
-    const add = (b) => { if (b.src) out.add(b.src); (b.images || []).forEach((s) => out.add(s)); };
-    for (const p of projects) {
-      if (p.cover?.shot) out.add(p.cover.shot);
-      (p.page || []).forEach(add);
-    }
-    (siteObj?.blocks || []).forEach(add);
+    const walk = (v) => {
+      if (typeof v === "string") { if (v.startsWith(SHOTS)) out.add(v); }
+      else if (v && typeof v === "object") Object.values(v).forEach(walk);
+    };
+    walk(projects); walk(siteObj?.blocks);
     return out;
   }
   const serialize = () => JSON.stringify({ categories: data.categories, projects: data.projects.map(clean) }, null, 2) + "\n";
@@ -587,35 +586,70 @@
     },
   };
 
-  // Content blocks (project pages + custom home blocks); app.js renders them (BLOCK_HTML).
-  // fields: [path, label, type]; types: loc | loc-area ({ru,en}) · text · img · imgs · num:a,b,c · list:<SUBS key>
+  // Content blocks (project pages + custom home blocks); app.js renders them (BLOCK_HTML), styles — case.css.
+  // fields: [path, label, type]; types: loc | loc-area ({ru,en}) · text · area (plain) · img · imgs · num:a,b,c · list:<SUBS key>
+  // Every block may also have a section head (eyebrow / title / text) — the "Заголовок секции" switch.
   const loc = (ru = "", en = "") => ({ ru, en });
+  const head = (title = "Заголовок", en = "Heading") => ({ eyebrow: loc(), title: loc(title, en), text: loc() });
+  const items = (kind, n) => () => ({ items: Array.from({ length: n }, () => SUBS[kind].blank()) });
   const TYPES = {
-    text: { name: "Текст", hint: "Заголовок и абзац", blank: () => ({ title: loc("Заголовок", "Heading"), text: loc() }),
-      fields: [["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"]] },
+    text: { name: "Заголовок и текст", hint: "Надзаголовок, заголовок, абзац", blank: () => head(), fields: [] },
+    facts: { name: "Факты", hint: "Роль · формат · период · инструменты", blank: items("facts", 4), fields: [["items", "Поля", "list:facts"]] },
+    stats: { name: "Цифры", hint: "Крупные числа с подписями", blank: items("stats", 3), fields: [["items", "Цифры", "list:stats"]] },
+    cards: { name: "Карточки 01 · 02 · 03", hint: "Задачи или принципы", blank: () => ({ ...head("Задача", "The task"), ...items("cards", 3)() }), fields: [["items", "Карточки", "list:cards"]] },
+    flow: { name: "Шаги", hint: "Пайплайн со стрелками", blank: () => ({ ...head("Пайплайн", "Pipeline"), ...items("flow", 4)() }), fields: [["items", "Шаги", "list:flow"]] },
+    code: { name: "Код / файлы", hint: "Панели с моноширинным текстом", blank: items("code", 2), fields: [["items", "Панели", "list:code"]] },
+    strip: { name: "Лента вбок", hint: "Кадры подряд, листаются", blank: () => ({ ...head(), items: [], hint: loc("Листайте вбок →", "Scroll sideways →") }),
+      fields: [["items", "Кадры", "list:strip"], ["hint", "Подсказка на телефоне", "loc"]] },
+    cast: { name: "Персонажи", hint: "Карточки с портретом и ролью", blank: () => ({ items: [] }), fields: [["items", "Персонажи", "list:cast"]] },
+    pair: { name: "Пара картинок", hint: "Две картинки рядом с подписями", blank: items("pair", 2), fields: [["items", "Картинки", "list:pair"]] },
+    lineups: { name: "Составы", hint: "Название + ряд картинок", blank: () => ({ ...head(), items: [] }), fields: [["items", "Ряды", "list:lineups"]] },
+    covers: { name: "Сетка обложек", hint: "Много квадратных картинок с подписями", blank: () => ({ ...head(), items: [] }), fields: [["items", "Обложки", "list:covers"]] },
+    vcovers: { name: "Видеообложки", hint: "Широкие видео, играют на экране", blank: () => ({ ...head(), items: [] }), fields: [["items", "Видео", "list:vcovers"]] },
+    phones: { name: "Телефоны", hint: "Вертикальные ролики 9:16", blank: () => ({ items: [] }), fields: [["items", "Ролики", "list:phones"]] },
+    results: { name: "Результаты", hint: "Итоги в три колонки", blank: () => ({ ...head("Результат", "Result"), ...items("results", 3)() }), fields: [["items", "Итоги", "list:results"]] },
     image: { name: "Картинка", hint: "Одна картинка с подписью", blank: () => ({ src: "", caption: loc() }),
       fields: [["src", "Картинка", "img"], ["caption", "Подпись", "loc"]] },
     gallery: { name: "Галерея", hint: "Сетка из нескольких картинок", blank: () => ({ images: [], cols: 3, caption: loc() }),
       fields: [["images", "Картинки", "imgs"], ["cols", "Колонок", "num:2,3,4"], ["caption", "Подпись", "loc"]] },
     video: { name: "Видео", hint: "YouTube, Vimeo или файл .mp4", blank: () => ({ src: "", caption: loc() }),
-      fields: [["src", "Ссылка на YouTube / Vimeo или путь к .mp4 в репозитории", "text"], ["caption", "Подпись", "loc"]] },
-    stats: { name: "Цифры", hint: "Крупные числа с подписями", blank: () => ({ items: [{ n: "10+", label: loc("подпись", "label") }, { n: "3", label: loc("подпись", "label") }] }),
-      fields: [["items", "Цифры", "list:stats"]] },
-    links: { name: "Кнопки", hint: "Ссылки на сайт, Behance, видео", blank: () => ({ items: [{ label: loc("Открыть", "Open"), href: "" }] }),
-      fields: [["items", "Кнопки", "list:links"]] },
-    quote: { name: "Цитата", hint: "Крупная цитата с автором", blank: () => ({ text: loc(), who: "" }),
-      fields: [["text", "Цитата", "loc-area"], ["who", "Автор", "text"]] },
+      fields: [["src", "Ссылка на YouTube / Vimeo или путь к .mp4", "text"], ["caption", "Подпись", "loc"]] },
+    quote: { name: "Цитата", hint: "Крупная цитата с автором", blank: () => ({ quote: loc(), who: loc() }),
+      fields: [["quote", "Цитата", "loc-area"], ["who", "Автор", "loc"]] },
+    links: { name: "Кнопки", hint: "Ссылки на сайт, Behance, видео", blank: items("links", 1), fields: [["items", "Кнопки", "list:links"]] },
+    next: { name: "Следующий проект", hint: "Финальный призыв со ссылками", noHead: true,
+      blank: () => ({ eyebrow: loc("Следующий проект", "Next project"), title: loc("Название", "Title"), text: loc(), items: [SUBS.links.blank()] }),
+      fields: [["eyebrow", "Надзаголовок", "loc"], ["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"], ["items", "Кнопки", "list:links"]] },
   };
+  const tl = (it) => it.t?.ru || it.t?.en || "";
   const SUBS = {
+    facts: { title: (it) => it.k?.ru || "Поле", blank: () => ({ k: loc(), v: loc() }), fields: [["k", "Название", "loc"], ["v", "Значение", "loc"]] },
     stats: { title: (it) => it.n || "Цифра", blank: () => ({ n: "", label: loc() }), fields: [["n", "Число", "text"], ["label", "Подпись", "loc"]] },
-    links: { title: (it) => it.label?.ru || "Кнопка", blank: () => ({ label: loc("Кнопка", "Button"), href: "" }), fields: [["label", "Текст", "loc"], ["href", "Ссылка", "text"]] },
+    cards: { title: (it) => tl(it) || "Карточка", blank: () => ({ t: loc(), d: loc() }), fields: [["t", "Заголовок", "loc"], ["d", "Текст", "loc-area"]] },
+    flow: { title: (it) => tl(it) || "Шаг", blank: () => ({ t: loc(), d: loc() }), fields: [["t", "Шаг", "loc"], ["d", "Описание", "loc"]] },
+    results: { title: (it) => tl(it) || "Итог", blank: () => ({ t: loc(), d: loc() }), fields: [["t", "Итог", "loc"], ["d", "Описание", "loc-area"]] },
+    code: { title: (it) => it.label?.ru || "Панель", blank: () => ({ label: loc(), code: "" }),
+      fields: [["label", "Подпись", "loc"], ["code", "Текст (подсветка: <k>ключ</k>, <s>строка</s>, <i>комментарий</i>)", "area"]] },
+    strip: { title: (it) => tl(it) || it.c || "Кадр", blank: () => ({ src: "", t: loc(), c: "" }),
+      fields: [["src", "Картинка", "img"], ["t", "Подпись", "loc"], ["c", "Имя файла (мелко)", "text"]] },
+    cast: { title: (it) => tl(it) || "Персонаж", blank: () => ({ src: "", t: loc(), d: loc(), c: "" }),
+      fields: [["src", "Портрет", "img"], ["t", "Имя", "loc"], ["d", "Роль", "loc"], ["c", "Имя файла (мелко)", "text"]] },
+    pair: { title: (it) => it.cap?.ru || "Картинка", blank: () => ({ src: "", cap: loc() }), fields: [["src", "Картинка", "img"], ["cap", "Подпись", "loc"]] },
+    lineups: { title: (it) => tl(it) || "Ряд", blank: () => ({ t: loc(), images: [] }), fields: [["t", "Название", "loc"], ["images", "Картинки", "imgs"]] },
+    covers: { title: (it) => tl(it) || "Обложка", blank: () => ({ src: "", t: loc() }), fields: [["src", "Картинка", "img"], ["t", "Название", "loc"]] },
+    vcovers: { title: (it) => tl(it) || "Видео", blank: () => ({ src: "", poster: "", t: loc() }),
+      fields: [["src", "Видео .mp4 (путь или ссылка)", "text"], ["poster", "Кадр-заставка", "img"], ["t", "Название", "loc"]] },
+    phones: { title: (it, i) => `Ролик ${i + 1}`, blank: () => ({ src: "", poster: "" }),
+      fields: [["src", "Видео .mp4 (путь или ссылка)", "text"], ["poster", "Кадр-заставка", "img"]] },
+    links: { title: (it) => it.label?.ru || "Кнопка", blank: () => ({ label: loc("Кнопка", "Button"), href: "" }),
+      fields: [["label", "Текст", "loc"], ["href", "Ссылка (https://… или #якорь)", "text"]] },
   };
-
   let seLang = "ru";
   let seTarget = "home"; // which page the visual editor shows: "home" or a project id
   let seBlock = "hero";  // selected block id; "_head" = project header, "_add" = picking a new block, "general"
   let seAddAt = 0;       // where "_add" inserts
   let seUndo = null;     // the last deleted block: { target, i, b }
+  const seFold = {};     // list items opened / closed by hand in the panel: key → open
   let frameLoaded = false;
 
   const getPath = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
@@ -632,7 +666,7 @@
   const newId = () => "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   function blockLabel(b) {
     if (!b.type) return BLOCKS[b.id]?.name || b.id;
-    const s = (b.title?.ru || b.text?.ru || b.caption?.ru || "").replace(/\s+/g, " ").trim();
+    const s = (b.title?.ru || b.text?.ru || b.caption?.ru || b.quote?.ru || "").replace(/\s+/g, " ").trim();
     return s ? `${TYPES[b.type].name}: ${s.length > 26 ? s.slice(0, 26) + "…" : s}` : TYPES[b.type].name;
   }
 
@@ -874,6 +908,7 @@
       return `<div class="tx"><span>${h(label)}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
     }
     if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
+    if (type === "area") return `<label class="f">${h(label)}<textarea class="mono" ${bp}>${h(v)}</textarea></label>`;
     if (type.startsWith("num:")) return `<label class="f">${h(label)}<select ${bp} data-type="number">${type.slice(4).split(",").map((n) =>
       `<option ${+n === +v ? "selected" : ""}>${n}</option>`).join("")}</select></label>`;
     if (type === "img") return `<div class="f img-f"><span>${h(label)}</span>
@@ -885,12 +920,17 @@
           <input type="text" data-bp="${h(path)}.${i}" value="${h(s)}">${arrBtns(path, i)}</div>`).join("")}</div>
         <div><label class="btn ghost small" style="cursor:pointer">+ Добавить картинки…<input type="file" data-upadd="${h(path)}" accept="image/*" multiple hidden></label></div></div>`;
     if (type.startsWith("list:")) {
+      // items fold up (long lists like 26 covers); opened / closed ones are remembered across re-renders
       const S = SUBS[type.slice(5)];
-      return `<h2 class="sec">${h(label)}</h2><div class="rep">${(v || []).map((it, i) => `
-        <div class="rep-item">
-          <div class="rep-head"><b>${h(S.title(it))}</b>${arrBtns(path, i)}</div>
+      const list = v || [];
+      return `<h2 class="sec">${h(label)} <small>${list.length}</small></h2><div class="rep">${list.map((it, i) => {
+        const key = `${seTarget}/${seBlock}/${path}.${i}`;
+        const open = seFold[key] ?? list.length <= 3;
+        return `<details class="rep-item" data-key="${h(key)}" ${open ? "open" : ""}>
+          <summary class="rep-head"><b>${h(S.title(it, i)) || "—"}</b>${arrBtns(path, i)}</summary>
           ${S.fields.map(([k, l, t]) => bField(obj, `${path}.${i}.${k}`, l, t)).join("")}
-        </div>`).join("")}
+        </details>`;
+      }).join("")}
         <div><button class="btn ghost small" type="button" data-arradd="${h(path)}" data-sub="${type.slice(5)}">+ Добавить</button></div></div>`;
     }
     return "";
@@ -915,7 +955,12 @@
       const p = seProject();
       q("#sePanel").innerHTML = `${undo}<h2>Шапка проекта</h2>
         <p class="hint">Название и описание — те же, что на карточке проекта. Обложка, теги, ссылки и категория — во вкладке «Проекты».</p>
-        ${bField(p, "title", "Название", "loc")}${bField(p, "desc", "Описание", "loc-area")}
+        ${bField(p, "title", "Название", "loc")}
+        ${bField(p, "head.accent", "Часть названия в градиенте (например, Club)", "text")}
+        ${bField(p, "head.eyebrow", "Надзаголовок (например, Кейс · AI-пайплайн)", "loc")}
+        ${bField(p, "head.lead", "Лид — текст под названием (пусто — описание с карточки)", "loc-area")}
+        ${bField(p, "head.ctas", "Кнопки под лидом (#якорь — на блок этой страницы)", "list:links")}
+        ${bField(p, "head.cloud", "Бегущая лента картинок (пусто — обложка проекта)", "imgs")}
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>
         <p class="hint">Блоки ниже шапки: «+ блок» под любым блоком на странице или «+ Добавить блок» слева. Половинные блоки встают по два в ряд; удалите блок — остальные сдвинутся.</p>`;
       return;
@@ -928,7 +973,10 @@
         <label class="check"><input type="checkbox" data-bp="visible" data-type="bool" ${cb.visible === false ? "" : "checked"}> Показывать на сайте</label>
         ${home ? "" : `<label class="f">Ширина<select data-bp="w">
           <option value="">На всю ширину</option><option value="half" ${cb.w === "half" ? "selected" : ""}>Половина — два блока в ряд</option></select></label>`}
+        ${T.noHead ? "" : `<label class="check"><input type="checkbox" data-head ${cb.title ? "checked" : ""}> Заголовок секции (надзаголовок, заголовок, текст)</label>
+          ${cb.title ? bField(cb, "eyebrow", "Надзаголовок", "loc") + bField(cb, "title", "Заголовок", "loc") + bField(cb, "text", "Текст", "loc-area") : ""}`}
         ${T.fields.map(([k, l, t]) => bField(cb, k, l, t)).join("")}
+        ${bField(cb, "anchor", "Якорь — для кнопок вида #story (латиницей, можно пусто)", "text")}
         <p class="hint">Тексты можно править и прямо на странице.</p>
         <div class="se-acts">
           <button class="btn ghost small" type="button" data-bact="up">↑ Выше</button>
@@ -966,6 +1014,13 @@
 
   q("#sePanel").addEventListener("input", (e) => {
     const el = e.target;
+    if (el.hasAttribute("data-head")) { // section head on / off
+      const cb = findBlock(seBlock);
+      if (el.checked) Object.assign(cb, head(), { eyebrow: cb.eyebrow || loc() });
+      else for (const k of ["eyebrow", "title", "text"]) delete cb[k];
+      renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+      return;
+    }
     if (el.dataset.bp) {
       const obj = panelObj();
       const path = el.dataset.bp;
@@ -1023,8 +1078,11 @@
   });
 
   q("#sePanel").addEventListener("click", (e) => {
+    const sum = e.target.closest("summary");
+    if (sum && !e.target.closest("button")) { seFold[sum.parentElement.dataset.key] = !sum.parentElement.open; return; }
     const b = e.target.closest("button");
     if (!b) return;
+    if (sum) e.preventDefault(); // ↑ ↓ ✕ in a folded item's title don't fold it
     if (b.dataset.goto) {
       const p = seProject();
       if (p) { sel = data.projects.indexOf(p); renderAll(); }

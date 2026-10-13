@@ -1,0 +1,256 @@
+/* Case pages (project.html) and content blocks; taken from the Emotions Club case.
+   Tokens and components: /design-system.css (Lighthouse). Header, tabs, footer, CTA, .stats,
+   .scs-head, .block, .reveal: /style.css of the portfolio. Everything page-specific is cs-*. */
+
+/* ---------- hero ---------- */
+.cs-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: clamp(40px, 7vw, 88px) var(--gutter) clamp(40px, 6vw, 72px);
+}
+.cs-crumb {
+  margin-bottom: clamp(28px, 5vw, 48px);
+  font-size: var(--fs-sm); color: var(--muted); text-decoration: none; transition: color .2s;
+}
+.cs-crumb:hover { color: var(--accent); }
+.cs-hero .eyebrow { margin-bottom: 20px; }
+.cs-hero h1 {
+  margin: 0;
+  font: var(--fw-medium) var(--fs-display)/1.02 var(--font);
+  letter-spacing: var(--track-tight);
+}
+.cs-hero .aurora { opacity: .7; }
+
+/* one row of covers drifting right to left; the track holds the set twice and moves by one set */
+.cs-cloud {
+  width: calc(100% + 2 * var(--gutter)); margin: clamp(40px, 6vw, 72px) calc(var(--gutter) * -1) 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.cs-cloud-track {
+  --size: clamp(120px, 15vw, 200px); --gap: clamp(12px, 1.6vw, 20px);
+  display: flex; gap: var(--gap); width: max-content; padding: 10px 0 24px;
+  animation: cs-drift 140s linear infinite;
+  will-change: transform;
+}
+.cs-cloud img {
+  flex: none; width: var(--size); height: var(--size); object-fit: cover;
+  border-radius: var(--radius); box-shadow: 0 18px 36px -18px rgba(0, 0, 0, .8);
+}
+@keyframes cs-drift { to { transform: translateX(calc(-50% - var(--gap) / 2)); } }
+@media (prefers-reduced-motion: reduce) { .cs-cloud-track { animation: none; } }
+
+/* ---------- facts ---------- */
+.cs-facts { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+.cs-meta {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
+  margin: 0 0 clamp(40px, 6vw, 64px); padding: 0; overflow: hidden;
+}
+.cs-meta > div { padding: 20px 22px; border-left: 1px solid var(--line); }
+.cs-meta > div:first-child { border-left: 0; }
+.cs-meta dt {
+  margin-bottom: 8px;
+  font-size: 11px; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--muted);
+}
+.cs-meta dd { margin: 0; font-size: 15px; font-weight: var(--fw-medium); }
+@media (max-width: 860px) {
+  .cs-meta { grid-template-columns: 1fr 1fr; }
+  .cs-meta > div:nth-child(3) { border-left: 0; }
+  .cs-meta > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+.cs-facts .stats { padding: 0; }
+
+/* ---------- shared bits ---------- */
+.cs-label {
+  margin: 0 0 14px;
+  font-size: 11px; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--muted);
+}
+figure { margin: 0; }
+figcaption { font-size: var(--fs-sm); color: var(--muted); }
+code { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12px; color: var(--blue-300); }
+
+/* ---------- task cards ---------- */
+.cs-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.cs-card { padding: 28px 26px; }
+.cs-card h3 { margin: 14px 0 10px; font-size: var(--fs-h3); font-weight: var(--fw-medium); }
+.cs-card p { margin: 0; color: var(--muted); }
+.cs-num { font-size: 13px; color: var(--accent); letter-spacing: var(--track-caps); }
+@media (max-width: 860px) { .cs-cards { grid-template-columns: 1fr; } }
+
+/* ---------- pipeline ---------- */
+.cs-flow {
+  counter-reset: step; list-style: none; margin: 0 0 24px; padding: 0;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px;
+}
+.cs-flow li {
+  counter-increment: step; position: relative;
+  padding: 22px 18px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--card);
+}
+.cs-flow li::before {
+  content: counter(step, decimal-leading-zero);
+  display: block; margin-bottom: 12px; font-size: 12px; color: var(--accent); letter-spacing: var(--track-caps);
+}
+.cs-flow li:not(:last-child)::after {
+  content: "→"; position: absolute; right: -11px; top: 22px; z-index: 1;
+  color: var(--blue-300); font-size: 14px;
+}
+.cs-flow b { display: block; margin-bottom: 6px; font-weight: var(--fw-medium); }
+.cs-flow span { font-size: var(--fs-sm); color: var(--muted); }
+@media (max-width: 1060px) {
+  .cs-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cs-flow li:nth-child(3)::after { content: none; }
+}
+@media (max-width: 600px) {
+  .cs-flow { grid-template-columns: 1fr; }
+  .cs-flow li::after { content: none !important; }
+}
+
+.cs-code { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cs-code > div { padding: 24px; min-width: 0; }
+.cs-code pre {
+  margin: 0; overflow-x: auto;
+  font: 13px/1.65 ui-monospace, "SF Mono", Consolas, monospace; color: var(--text);
+}
+.cs-code i { font-style: normal; color: var(--muted); }
+.cs-code k { color: var(--blue-300); }
+.cs-code s { text-decoration: none; color: var(--red-300); }
+@media (max-width: 860px) { .cs-code { grid-template-columns: 1fr; } }
+
+/* ---------- one story in a row ---------- */
+main { overflow-x: clip; } /* 100vw of the full-bleed strip includes the scrollbar */
+.cs-strip {
+  /* full-bleed: the row runs edge to edge, the first frame lines up with the text column */
+  --inset: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter)));
+  display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--inset);
+  margin: 0 calc(50% - 50vw); padding: 4px var(--inset) 14px;
+  scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent;
+}
+.cs-strip figure { flex: none; width: clamp(180px, 19vw, 260px); scroll-snap-align: start; }
+.cs-strip img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+  border-radius: var(--radius); background: var(--card);
+}
+.cs-strip figcaption { display: flex; justify-content: space-between; gap: 8px; padding-top: 10px; }
+.cs-strip figcaption b { font-weight: var(--fw-medium); color: var(--text); }
+.cs-hint { margin: 4px 0 0; font-size: var(--fs-sm); color: var(--muted); }
+@media (hover: hover) { .cs-hint { display: none; } }
+
+.cs-cast {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;
+  margin-top: clamp(40px, 6vw, 64px);
+}
+.cs-cast figure {
+  padding: 16px 16px 18px; border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: radial-gradient(80% 60% at 50% 35%, rgba(var(--glow-rgb), .16), transparent 70%), var(--card);
+}
+.cs-cast img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 20%; }
+.cs-cast figcaption { display: grid; gap: 2px; padding-top: 12px; }
+.cs-cast b { font-weight: var(--fw-medium); color: var(--text); font-size: 15px; }
+@media (max-width: 860px) { .cs-cast { grid-template-columns: 1fr 1fr; } }
+
+.cs-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.cs-pair img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-lg); }
+.cs-pair figcaption { padding-top: 10px; }
+@media (max-width: 600px) { .cs-pair { grid-template-columns: 1fr; } }
+
+/* ---------- casts ---------- */
+.cs-casts { display: grid; gap: 16px; }
+.cs-lineup {
+  display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 20px;
+  padding: 18px 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card);
+}
+.cs-lineup h3 { margin: 0; font-size: var(--fs-h3); font-weight: var(--fw-medium); }
+.cs-lineup > div { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.cs-lineup img { flex: 1 1 0; min-width: 64px; max-width: 150px; aspect-ratio: 3 / 5; object-fit: cover; }
+@media (max-width: 760px) { .cs-lineup { grid-template-columns: 1fr; gap: 10px; } }
+
+/* ---------- library ---------- */
+.cs-covers { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.cs-covers img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+  border-radius: var(--radius); background: var(--card); transition: transform .3s var(--ease);
+}
+.cs-covers figure:hover img { transform: translateY(-3px); }
+.cs-covers figcaption { padding-top: 8px; font-size: 13px; line-height: 1.3; }
+
+/* ---------- promo ---------- */
+.cs-vcovers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cs-vcovers video {
+  display: block; width: 100%; aspect-ratio: 1040 / 400; object-fit: cover;
+  border-radius: var(--radius); background: var(--card);
+}
+.cs-vcovers figcaption { padding-top: 8px; }
+/* odd count: the first cover spans the row, so the grid ends evenly */
+.cs-vcovers figure:first-child:nth-last-child(2n + 1) { grid-column: 1 / -1; }
+@media (max-width: 700px) { .cs-vcovers { grid-template-columns: 1fr; } }
+
+.cs-phones {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 260px)); justify-content: center; gap: clamp(14px, 3vw, 36px);
+  margin-top: clamp(40px, 6vw, 64px);
+}
+.cs-phone {
+  padding: 8px; border-radius: 34px;
+  background: linear-gradient(160deg, #3a3a3a, #121212 40%, #1d1d1d);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -30px rgba(0, 0, 0, .95), 0 0 60px -20px rgba(var(--glow-rgb), .45);
+}
+.cs-phone video { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 27px; background: #000; }
+@media (max-width: 600px) {
+  .cs-phones { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .cs-phone { padding: 4px; border-radius: 18px; }
+  .cs-phone video { border-radius: 14px; }
+}
+
+/* ---------- result ---------- */
+.cs-results { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.cs-results li { display: grid; gap: 8px; padding: 26px 24px; }
+.cs-results b { font-weight: var(--fw-medium); font-size: 17px; }
+.cs-results span { color: var(--muted); }
+@media (max-width: 860px) { .cs-results { grid-template-columns: 1fr; } }
+
+/* =================== content blocks (app.js → BLOCK_HTML) =================== */
+/* project page: blocks sit in a two-column grid; full width by default, w: "half" = two in a row.
+   Removing a block lets the rest close the gap. Home: each custom block is its own .block section. */
+.cs-blocks {
+  max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(16px, 3vw, 32px);
+}
+.cs-blocks > .pb { grid-column: 1 / -1; min-width: 0; padding-top: clamp(64px, 9vw, 120px); }
+.cs-blocks > .pb.half { grid-column: span 1; }
+.cs-blocks > .pb.tight { padding-top: clamp(16px, 3vw, 40px); } /* no heading: continues the section above */
+.cs-blocks > .pb:first-child { padding-top: 0; }
+@media (max-width: 760px) { .cs-blocks > .pb.half { grid-column: 1 / -1; } }
+.pb [data-f], .cs-hero [data-f] { white-space: pre-line; }
+.pb.half .sec-head { text-align: left; margin-inline: 0; }
+.pb.half .sec-head > p:not(.eyebrow) { margin-inline: 0; }
+
+.pb figure { margin: 0; }
+.pb-img img, .pb-gal img, .pb-video video {
+  display: block; width: 100%; height: auto; border-radius: var(--radius-lg); background: var(--card);
+}
+.pb figcaption, .pb .pb-cap { margin: 0; padding-top: 10px; color: var(--muted); font-size: var(--fs-sm); }
+.pb-gal { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 16px; }
+.pb-gal img { aspect-ratio: 1; object-fit: cover; border-radius: var(--radius); }
+.pb-gal .cb-empty { grid-column: 1 / -1; }
+@media (max-width: 640px) { .pb-gal { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pb-video { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--card); }
+.pb-video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+.pb-video video { border-radius: 0; }
+.pb .stats { padding: 0; }
+.pb-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.pb-quote { margin: 0 auto; max-width: 860px; padding-left: clamp(16px, 3vw, 32px); border-left: 2px solid var(--accent); }
+.pb-quote p { margin: 0; font: var(--fw-regular) clamp(22px, 2.6vw, 32px)/1.3 var(--font); letter-spacing: var(--track-snug); }
+.pb-quote cite { display: block; margin-top: 14px; color: var(--muted); font-style: normal; font-size: var(--fs-sm); }
+.cs-code pre { white-space: pre; }
+/* "next project": the site's closing CTA, full bleed */
+.pb-next { margin-inline: calc(50% - 50vw); margin-top: clamp(64px, 9vw, 120px); }
+.cs-blocks > .pb.pb-next-wrap { padding-top: 0; }
+.cs-blocks > .pb:first-child .sec-head { margin-top: 0; }
+
+/* hero without a cover cloud: the project cover under the text */
+.cs-hero-cover { width: 100%; max-width: var(--maxw); margin-top: clamp(40px, 6vw, 64px); }
+.cs-hero-cover .cover { aspect-ratio: 16 / 8; }
+.cs-hero .hero-cta { justify-content: center; }
+.pb > .cs-cast, .pb > .cs-pair, .pb > .cs-phones { margin-top: 0; }
+.pb > .cs-flow:last-child { margin-bottom: 0; }
