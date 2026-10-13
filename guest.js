@@ -59,7 +59,12 @@ function startGuest() {
     const remove = () => { file.classList.add("gone"); setTimeout(() => file.remove(), 300); removeEventListener("keydown", onKey); };
     const onKey = (e) => { if (e.key === "Escape" && !document.querySelector(".cv-modal")) remove(); };
     file.querySelector(".guest-x").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); remove(); });
-    file.addEventListener("click", (e) => { e.preventDefault(); if (!file.classList.contains("held")) openCvPreview(); });
+    let moved = false; // set by a drag, so the click that ends it does not open the preview
+    file.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (moved) return;
+      if (!file.classList.contains("held")) openCvPreview(file);
+    });
 
     // the file stays where it was dropped (position: fixed); scrolling away dims it down to 35%
     // (in step with the distance, back to full when scrolled back), hover shows it fully again
@@ -76,6 +81,34 @@ function startGuest() {
     const tx = Math.min(Math.max(mx + (mx > W / 2 ? -110 : 60), 16), W - 80);
     const ty = Math.min(Math.max(my + (my > H / 2 ? -110 : 50), 16), H - 90);
     const place = (el, x, y) => { el.style.transform = `translate(${x}px, ${y}px)`; };
+
+    // drag the file around like a layer in Figma; a press without movement stays a click
+    let drag = null;
+    file.addEventListener("dragstart", (e) => e.preventDefault()); // no native link/image drag
+    file.addEventListener("pointerdown", (e) => {
+      if (e.button || file.classList.contains("held") || e.target.closest(".guest-x")) return;
+      const r = file.getBoundingClientRect();
+      drag = { id: e.pointerId, ox: e.clientX - r.left, oy: e.clientY - r.top, sx: e.clientX, sy: e.clientY };
+      moved = false;
+    });
+    addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!moved) {
+        if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
+        moved = true;
+        file.classList.add("dragging");
+      }
+      place(file, Math.min(Math.max(e.clientX - drag.ox, 0), innerWidth - file.offsetWidth),
+        Math.min(Math.max(e.clientY - drag.oy, 0), innerHeight - file.offsetHeight));
+    });
+    const drop = () => {
+      if (!drag) return;
+      drag = null;
+      file.classList.remove("dragging");
+      setTimeout(() => { moved = false; }); // after the click that may follow this pointerup
+    };
+    addEventListener("pointerup", drop);
+    addEventListener("pointercancel", drop);
 
     if (reduce) { place(file, tx, ty); document.body.append(file); return; }
 
@@ -115,22 +148,60 @@ function startGuest() {
   }
 }
 
-// CV preview popup: all pages as one image (assets/cv-<lang>-full.jpg from tools/cv_thumbs.py) + a download button
-function openCvPreview() {
+// CV preview popup: the page (assets/cv-<lang>-full.jpg from tools/cv_thumbs.py) sized to fit the
+// window height, no frame, a download button under it. `from` (the guest file) is where it grows
+// out of and folds back into — a macOS-minimize-like move: scale + a pinch toward the icon.
+function openCvPreview(from) {
   if (document.querySelector(".cv-modal")) return;
   const ru = lang === "ru";
   const m = document.createElement("div");
   m.className = "cv-modal";
-  m.innerHTML = `<div class="cv-modal-box" role="dialog" aria-modal="true" aria-label="CV">
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  m.setAttribute("aria-label", "CV");
+  m.innerHTML = `<div class="cv-page">
+      <img src="${PROFILE.cv[lang].replace(/\.pdf$/, "-full.jpg")}" alt="CV">
       <button class="cv-modal-x" type="button" aria-label="${ru ? "Закрыть" : "Close"}">×</button>
-      <div class="cv-modal-scroll"><img src="${PROFILE.cv[lang].replace(/\.pdf$/, "-full.jpg")}" alt="CV"></div>
-      <a class="btn" href="${PROFILE.cv[lang]}" download="Anton-Egorov-CV-${lang.toUpperCase()}.pdf">${ru ? "Скачать" : "Download"}</a>
-    </div>`;
-  const close = () => { m.classList.remove("on"); removeEventListener("keydown", onKey); setTimeout(() => m.remove(), 250); };
+    </div>
+    <a class="btn" href="${PROFILE.cv[lang]}" download="Anton-Egorov-CV-${lang.toUpperCase()}.pdf">${ru ? "Скачать" : "Download"}</a>`;
+  document.body.append(m);
+  const page = m.querySelector(".cv-page");
+  const thumb = from?.querySelector(".guest-thumb");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // keyframes from the icon to the page's own place; the edge facing the icon is pinched
+  const genie = () => {
+    const a = thumb.getBoundingClientRect(), b = page.getBoundingClientRect();
+    const dx = a.left + a.width / 2 - (b.left + b.width / 2), dy = a.top + a.height / 2 - (b.top + b.height / 2);
+    const k = Math.max(-25, Math.min(25, (dx / b.width) * 50)); // pinch shifts toward the icon (in %)
+    const pinch = (w) => dy > 0
+      ? `polygon(0% 0%, 100% 0%, ${50 + k + w}% 100%, ${50 + k - w}% 100%)`
+      : `polygon(${50 + k - w}% 0%, ${50 + k + w}% 0%, 100% 100%, 0% 100%)`;
+    const full = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+    return [
+      { transform: `translate(${dx}px, ${dy}px) scale(${a.width / b.width}, ${a.height / b.height})`, clipPath: pinch(20), opacity: 0.6 },
+      { transform: `translate(${dx * 0.3}px, ${dy * 0.3}px) scale(0.6, 0.8)`, clipPath: pinch(32), opacity: 1, offset: 0.45 },
+      { transform: "none", clipPath: full, opacity: 1 },
+    ];
+  };
+  const anim = (dir) => thumb && !reduce
+    ? page.animate(genie(), { duration: 600, easing: "cubic-bezier(.4,0,.2,1)", direction: dir, fill: "both" }).finished
+    : Promise.resolve();
+
+  if (from) from.style.visibility = "hidden"; // the file "becomes" the page
+  requestAnimationFrame(() => m.classList.add("on"));
+  anim("normal").then(() => m.classList.add("ready"));
+  m.querySelector(".cv-modal-x").focus({ preventScroll: true });
+
+  let closing = false;
+  const close = () => {
+    if (closing) return;
+    closing = true;
+    removeEventListener("keydown", onKey);
+    m.classList.remove("ready", "on");
+    anim("reverse").then(() => { m.remove(); if (from) from.style.visibility = ""; });
+  };
   const onKey = (e) => { if (e.key === "Escape") close(); };
   m.addEventListener("click", (e) => { if (e.target === m || e.target.closest(".cv-modal-x")) close(); });
   addEventListener("keydown", onKey);
-  document.body.append(m);
-  requestAnimationFrame(() => m.classList.add("on"));
-  m.querySelector(".cv-modal-x").focus();
 }
