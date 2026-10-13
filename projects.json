@@ -66,6 +66,33 @@
     {
       "visible": true,
       "home": true,
+      "id": "emotions-club",
+      "cat": "ai",
+      "year": 2025,
+      "cover": {
+        "shot": "assets/shots/emotions-club.jpg"
+      },
+      "title": {
+        "ru": "Emotions Club",
+        "en": "Emotions Club"
+      },
+      "desc": {
+        "ru": "Интерактивные визуальные новеллы на двоих: агент пишет один JSON на историю, один ComfyUI-флоу делает фоны, персонажей с эмоциями, обложки и видеообложки в едином стиле. 29 новелл.",
+        "en": "Interactive visual novels for two players: an agent writes one JSON per story, one ComfyUI flow makes backgrounds, characters with emotions, covers and video covers in one style. 29 novels."
+      },
+      "tags": [
+        "ComfyUI",
+        "AI pipeline",
+        "Characters",
+        "Art direction"
+      ],
+      "links": {
+        "page": "/emotions-club/"
+      }
+    },
+    {
+      "visible": true,
+      "home": true,
       "id": "sticker-bot",
       "cat": "ai",
       "year": 2026,
