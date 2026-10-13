@@ -1118,7 +1118,7 @@
       }
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "wishlist",
       "cat": "web",
       "year": 2026,
@@ -1144,7 +1144,7 @@
       }
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "card-constructor",
       "cat": "web",
       "year": 2026,
@@ -1258,7 +1258,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "id": "keyboard-firmware",
       "cat": "hardware",
       "year": 2026,
