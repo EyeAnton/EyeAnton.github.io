@@ -6,7 +6,7 @@
     },
     {
       "id": "stats",
-      "visible": true
+      "visible": false
     },
     {
       "id": "areas",
