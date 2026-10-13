@@ -59,9 +59,688 @@
         "Art direction",
         "VP9 alpha"
       ],
-      "links": {
-        "page": "/gift-catalog/"
-      }
+      "links": {},
+      "head": {
+        "eyebrow": {
+          "ru": "Кейс · Motion & AI 3D",
+          "en": "Case study · Motion & AI 3D"
+        },
+        "lead": {
+          "ru": "Коллекция анимированных 3D-подарков для соцприложения: от идеи и единого стиля до пакета, который разработчики выкладывают без ручной работы.",
+          "en": "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work."
+        },
+        "accent": "Gifts",
+        "ctas": [
+          {
+            "label": {
+              "ru": "Отправить подарок ↓",
+              "en": "Send a gift ↓"
+            },
+            "href": "#catalog"
+          },
+          {
+            "label": {
+              "ru": "Как это сделано",
+              "en": "How it was made"
+            },
+            "href": "#pipeline"
+          }
+        ],
+        "cloud": [
+          "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp",
+          "/gift-catalog/assets/thumbs/wed__wedding_rings.webp",
+          "/gift-catalog/assets/thumbs/sep__crown_ai_3d.webp",
+          "/gift-catalog/assets/thumbs/wed__wedding_cake.webp",
+          "/gift-catalog/assets/thumbs/sep__yacht_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__panda_with_heart_ai_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__merry_go_round.webp",
+          "/gift-catalog/assets/thumbs/wed__wedding_kiss.webp",
+          "/gift-catalog/assets/thumbs/sep__roses2_bon_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__bear_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__paris_ticket.webp",
+          "/gift-catalog/assets/thumbs/sep__treasure_ai_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__diamond_3d.webp",
+          "/gift-catalog/assets/thumbs/sep__car_ai_3d.webp"
+        ],
+        "cloudStyle": "cutout",
+        "zoom": 1.45
+      },
+      "page": [
+        {
+          "id": "vg01",
+          "type": "facts",
+          "visible": true,
+          "items": [
+            {
+              "k": {
+                "ru": "Роль",
+                "en": "Role"
+              },
+              "v": {
+                "ru": "Senior CG Artist",
+                "en": "Senior CG Artist"
+              }
+            },
+            {
+              "k": {
+                "ru": "Формат",
+                "en": "Format"
+              },
+              "v": {
+                "ru": "In-house · NDA",
+                "en": "In-house · NDA"
+              }
+            },
+            {
+              "k": {
+                "ru": "Период",
+                "en": "Period"
+              },
+              "v": {
+                "ru": "2025 — 2026",
+                "en": "2025 — 2026"
+              }
+            },
+            {
+              "k": {
+                "ru": "Инструменты",
+                "en": "Tools"
+              },
+              "v": {
+                "ru": "Kling · Gemini · Blender · After Effects · ffmpeg · Node.js",
+                "en": "Kling · Gemini · Blender · After Effects · ffmpeg · Node.js"
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg02",
+          "type": "stats",
+          "visible": true,
+          "items": [
+            {
+              "n": "56",
+              "label": {
+                "ru": "подарков в одном стиле",
+                "en": "gifts in one style"
+              }
+            },
+            {
+              "n": "47",
+              "label": {
+                "ru": "анимаций с альфой и звуком",
+                "en": "animations with alpha and sound"
+              }
+            },
+            {
+              "n": "1540 px",
+              "label": {
+                "ru": "полноэкранная анимация в продукте",
+                "en": "full-screen animation in the product"
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg03",
+          "type": "gifts-showcase",
+          "visible": true,
+          "anchor": "showcase",
+          "eyebrow": {
+            "ru": "Как это видит получатель",
+            "en": "What the recipient sees"
+          },
+          "title": {
+            "ru": "Весь экран — подарку",
+            "en": "The whole screen belongs to the gift"
+          },
+          "text": {
+            "ru": "Сообщение с подарком приходит в дейтинг-чат, переписка гаснет, и поверх неё на весь экран проигрывается анимация с прозрачным фоном. Одинаково в приложении и в вебе.",
+            "en": "A gift message lands in a dating chat, the conversation dims, and a transparent-background animation plays full screen on top. The same in the app and on the web."
+          },
+          "keys": [
+            "wed__wedding_rings",
+            "sep__roses2_bon_3d",
+            "sep__bear_3d",
+            "sep__glass_heart_3d",
+            "sep__paris_ticket",
+            "sep__yacht_3d"
+          ],
+          "hires": [],
+          "matches": {
+            "ru": "Пары",
+            "en": "Matches"
+          },
+          "prev": {
+            "ru": "отправила подарок",
+            "en": "sent you a gift"
+          },
+          "match": {
+            "ru": "Вы понравились друг другу · сегодня",
+            "en": "You liked each other · today"
+          }
+        },
+        {
+          "id": "vg04",
+          "type": "points",
+          "visible": true,
+          "anchor": "task",
+          "eyebrow": {
+            "ru": "Задача",
+            "en": "The task"
+          },
+          "title": {
+            "ru": "Подарок — это эмоция, которая приходит в чат",
+            "en": "A gift is an emotion that lands in a chat"
+          },
+          "text": {
+            "ru": "Соцприложению с большим объёмом контента нужен постоянный поток подарков: к праздникам, свадьбам, признаниям и просто так. Каждый подарок живёт в трёх местах сразу.",
+            "en": "A social app with a lot of content needs a steady flow of gifts: for holidays, weddings, confessions and just because. Every gift lives in three places at once."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Маленький в сетке",
+                "en": "Tiny in the grid"
+              },
+              "d": {
+                "ru": "В витрине подарок — иконка размером с палец. Силуэт должен читаться сразу, без подписи.",
+                "en": "In the store a gift is a fingertip-sized icon. The silhouette has to read instantly, without a label."
+              }
+            },
+            {
+              "t": {
+                "ru": "Большой поверх чата",
+                "en": "Big over the chat"
+              },
+              "d": {
+                "ru": "Когда подарок отправлен, он проигрывается на весь экран над перепиской — с прозрачным фоном и звуком.",
+                "en": "Once sent, it plays full screen over the conversation — with a transparent background and sound."
+              }
+            },
+            {
+              "t": {
+                "ru": "Готовый для разработки",
+                "en": "Ready for developers"
+              },
+              "d": {
+                "ru": "Мобильные приложения, веб и Figma получают один пакет: файлы под каждую платформу, без ручной доводки.",
+                "en": "Mobile apps, web and Figma get one package: files for every platform, no manual finishing."
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg05",
+          "type": "split",
+          "visible": true,
+          "anchor": "style",
+          "eyebrow": {
+            "ru": "Подход и стиль",
+            "en": "Approach & style"
+          },
+          "title": {
+            "ru": "Один стиль на всю коллекцию",
+            "en": "One style for the whole collection"
+          },
+          "text": {
+            "ru": "Свадебный торт, яхта и панда с сердцем делаются в разное время и разными инструментами, но в чате должны выглядеть как один набор. Поэтому сначала — правила, потом — генерация.",
+            "en": "A wedding cake, a yacht and a panda with a heart are made at different times with different tools, yet in a chat they have to look like one set. So rules come first, generation second."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Мягкий объёмный 3D и тёплый свет — подарок хочется «взять в руки»",
+                "en": "Soft volumetric 3D and warm light — a gift you want to hold"
+              }
+            },
+            {
+              "t": {
+                "ru": "Чистый силуэт без фона: объект обрезан по контуру и центрирован",
+                "en": "A clean silhouette with no background: trimmed to the outline and centred"
+              }
+            },
+            {
+              "t": {
+                "ru": "Короткая анимация с началом и концом — подарок «приходит» и сам исчезает",
+                "en": "A short animation with a start and an end — the gift arrives and leaves on its own"
+              }
+            },
+            {
+              "t": {
+                "ru": "Свой звук у каждого анимированного подарка",
+                "en": "Every animated gift has its own sound"
+              }
+            }
+          ],
+          "images": [
+            "/gift-catalog/assets/thumbs/wed__wedding_cake.webp",
+            "/gift-catalog/assets/thumbs/sep__yacht_3d.webp",
+            "/gift-catalog/assets/thumbs/sep__panda_with_heart_ai_3d.webp",
+            "/gift-catalog/assets/thumbs/sep__crown_ai_3d.webp",
+            "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp",
+            "/gift-catalog/assets/thumbs/wed__wedding_rings.webp"
+          ]
+        },
+        {
+          "id": "vg06",
+          "type": "gifts-process",
+          "visible": true,
+          "anchor": "process",
+          "eyebrow": {
+            "ru": "Процесс",
+            "en": "Process"
+          },
+          "title": {
+            "ru": "Один подарок — пять шагов",
+            "en": "One gift, five steps"
+          },
+          "text": {
+            "ru": "Каждый подарок проходит один и тот же путь в Figma: исходник, бриф, черновики на хромакее, ключевые кадры и готовая анимация. На каждом шаге — отбор.",
+            "en": "Every gift takes the same path in Figma: source, brief, chroma-key drafts, key frames and the finished animation. Each step is a selection."
+          },
+          "keys": [],
+          "items": [
+            {
+              "t": {
+                "ru": "Исходник",
+                "en": "Source"
+              },
+              "d": {
+                "ru": "Статичный 3D-подарок — отправная точка",
+                "en": "A static 3D gift as the starting point"
+              }
+            },
+            {
+              "t": {
+                "ru": "Идея",
+                "en": "Idea"
+              },
+              "d": {
+                "ru": "Короткий бриф: что происходит в кадре",
+                "en": "A short brief: what happens in the frame"
+              }
+            },
+            {
+              "t": {
+                "ru": "Черновики",
+                "en": "Drafts"
+              },
+              "d": {
+                "ru": "Варианты кадров на хромакее, в работу идут лучшие",
+                "en": "Frame variants on chroma key; the best go further"
+              }
+            },
+            {
+              "t": {
+                "ru": "Ключевые кадры",
+                "en": "Key frames"
+              },
+              "d": {
+                "ru": "Начало, фазы и финал — опора для генерации видео",
+                "en": "Start, phases and end — the backbone for video generation"
+              }
+            },
+            {
+              "t": {
+                "ru": "Результат",
+                "en": "Result"
+              },
+              "d": {
+                "ru": "Фон вырезан в альфу, у анимации свой звук",
+                "en": "Background cut to alpha, the animation gets its own sound"
+              }
+            }
+          ],
+          "picked": {
+            "ru": "в работу",
+            "en": "picked"
+          },
+          "note": {
+            "ru": "Бриф из рабочего файла Figma",
+            "en": "Brief from the working Figma file (translated)"
+          },
+          "match": {
+            "ru": "Вы понравились друг другу · сегодня",
+            "en": "You liked each other · today"
+          }
+        },
+        {
+          "id": "vg07",
+          "type": "rail",
+          "visible": true,
+          "anchor": "pipeline",
+          "eyebrow": {
+            "ru": "Пайплайн",
+            "en": "Pipeline"
+          },
+          "title": {
+            "ru": "От сториборда до файла в приложении",
+            "en": "From storyboard to a file in the app"
+          },
+          "text": {
+            "ru": "Генерацию, хромакей и экспорт связывает скрипт на Node.js, поэтому новый подарок проходит путь целиком, а ручная работа остаётся там, где она нужна: в стиле и анимации.",
+            "en": "A Node.js script ties generation, chroma key and export together, so a new gift goes all the way through, and hands-on work stays where it matters: style and animation."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Идея и сториборд",
+                "en": "Idea & storyboard"
+              },
+              "d": {
+                "ru": "Повод, образ, ключевые кадры",
+                "en": "Occasion, look, key frames"
+              }
+            },
+            {
+              "t": {
+                "ru": "Генерация",
+                "en": "Generation"
+              },
+              "d": {
+                "ru": "Gemini — промпты и кадры, Kling API — видео",
+                "en": "Gemini for prompts and frames, Kling API for video"
+              }
+            },
+            {
+              "t": {
+                "ru": "Ревью и доработка",
+                "en": "Review & polish"
+              },
+              "d": {
+                "ru": "Blender, монтаж и правки в After Effects",
+                "en": "Blender, edit and fixes in After Effects"
+              }
+            },
+            {
+              "t": {
+                "ru": "Хромакей",
+                "en": "Chroma key"
+              },
+              "d": {
+                "ru": "ffmpeg вырезает фон в альфа-канал",
+                "en": "ffmpeg cuts the background into an alpha channel"
+              }
+            },
+            {
+              "t": {
+                "ru": "Экспорт",
+                "en": "Export"
+              },
+              "d": {
+                "ru": "VP9 alpha · HEVC alpha · WebP · MP3",
+                "en": "VP9 alpha · HEVC alpha · WebP · MP3"
+              }
+            },
+            {
+              "t": {
+                "ru": "Пакет",
+                "en": "Package"
+              },
+              "d": {
+                "ru": "Манифест JSON + медиа под mobile, web и Figma",
+                "en": "JSON manifest + media for mobile, web and Figma"
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg08",
+          "type": "gifts-catalog",
+          "visible": true,
+          "anchor": "catalog",
+          "eyebrow": {
+            "ru": "Интерактивный каталог",
+            "en": "Interactive catalog"
+          },
+          "title": {
+            "ru": "Отправьте подарок",
+            "en": "Send a gift"
+          },
+          "text": {
+            "ru": "Нажмите на любой — он придёт так, как его видит получатель в чате. Анимированные подарки играют со звуком.",
+            "en": "Tap any of them — it arrives the way the recipient sees it in a chat. Animated gifts play with sound."
+          }
+        },
+        {
+          "id": "vg09",
+          "type": "specs",
+          "visible": true,
+          "anchor": "delivery",
+          "eyebrow": {
+            "ru": "Техническая доставка",
+            "en": "Delivery"
+          },
+          "title": {
+            "ru": "Прозрачный фон в любом браузере",
+            "en": "A transparent background in any browser"
+          },
+          "text": {
+            "ru": "Каждый подарок собран в нескольких форматах: браузер берёт тот, который умеет показывать с альфа-каналом.",
+            "en": "Every gift ships in several formats, and the browser picks the one it can show with an alpha channel."
+          },
+          "items": [
+            {
+              "k": {
+                "ru": "Сетка",
+                "en": "Grid"
+              },
+              "t": {
+                "ru": "WebP · 360px",
+                "en": "WebP · 360px"
+              },
+              "d": {
+                "ru": "Статичный кадр ~26 KB и SVG-силуэт подарка, который мерцает, пока картинка грузится.",
+                "en": "A ~26 KB still plus the gift's SVG silhouette, which shimmers while the image loads."
+              }
+            },
+            {
+              "k": {
+                "ru": "Превью при наведении",
+                "en": "Hover preview"
+              },
+              "t": {
+                "ru": "VP9 alpha · 320px",
+                "en": "VP9 alpha · 320px"
+              },
+              "d": {
+                "ru": "~0.4 MB в Chrome и Firefox; для Safari — анимированный WebP с альфой.",
+                "en": "~0.4 MB in Chrome and Firefox; Safari gets an animated WebP with alpha."
+              }
+            },
+            {
+              "k": {
+                "ru": "Полный экран",
+                "en": "Full screen"
+              },
+              "t": {
+                "ru": "VP9 / HEVC alpha · 1540px",
+                "en": "VP9 / HEVC alpha · 1540px"
+              },
+              "d": {
+                "ru": "В продукте — 1540px. На этой странице — облегчённые 640px: ~1 MB на анимацию + MP3 ~190 KB. Звук стартует синхронно с первым кадром.",
+                "en": "1540px in the product. This page uses light 640px files: ~1 MB per animation + a ~190 KB MP3. Sound starts in sync with the first frame."
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg10",
+          "type": "lanes",
+          "visible": true,
+          "eyebrow": {
+            "ru": "Прозрачность на всех платформах",
+            "en": "Transparency on every platform"
+          },
+          "title": {
+            "ru": "Одна анимация — два кодека",
+            "en": "One animation, two codecs"
+          },
+          "text": {
+            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают по-разному, и проверить это можно только на реальных устройствах.",
+            "en": "The least obvious part of delivery: browsers handle transparent video differently, and the only way to check is on real devices."
+          },
+          "items": [
+            {
+              "icons": "win, android",
+              "plat": {
+                "ru": "Windows · Android",
+                "en": "Windows · Android"
+              },
+              "platSub": {
+                "ru": "Chrome, Firefox, Edge",
+                "en": "Chrome, Firefox, Edge"
+              },
+              "codec": {
+                "ru": "WebM · VP9 alpha",
+                "en": "WebM · VP9 alpha"
+              },
+              "codecSub": {
+                "ru": "ffmpeg · libvpx-vp9",
+                "en": "ffmpeg · libvpx-vp9"
+              },
+              "state": "ok",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            },
+            {
+              "icons": "apple",
+              "plat": {
+                "ru": "macOS · iOS",
+                "en": "macOS · iOS"
+              },
+              "platSub": {
+                "ru": "Safari и все браузеры на iPhone",
+                "en": "Safari and every browser on iPhone"
+              },
+              "codec": {
+                "ru": "WebM · VP9 alpha",
+                "en": "WebM · VP9 alpha"
+              },
+              "codecSub": {
+                "ru": "альфа теряется — подарок на чёрном квадрате",
+                "en": "alpha is dropped — the gift lands on a black square"
+              },
+              "state": "bad",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            },
+            {
+              "icons": "apple",
+              "plat": {
+                "ru": "macOS · iOS",
+                "en": "macOS · iOS"
+              },
+              "platSub": {
+                "ru": "отдельный файл для WebKit",
+                "en": "a separate file for WebKit"
+              },
+              "codec": {
+                "ru": "MOV · HEVC alpha",
+                "en": "MOV · HEVC alpha"
+              },
+              "codecSub": {
+                "ru": "ffmpeg пишет поток, который Safari не декодирует, — поэтому своя утилита на Swift через AVFoundation",
+                "en": "ffmpeg writes a stream Safari can't decode, so a small Swift tool builds it through AVFoundation"
+              },
+              "state": "fix",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            }
+          ]
+        },
+        {
+          "id": "vg11",
+          "type": "list2",
+          "visible": true,
+          "anchor": "result",
+          "eyebrow": {
+            "ru": "Результат",
+            "en": "Result"
+          },
+          "title": {
+            "ru": "Коллекция, которую можно выкладывать",
+            "en": "A collection ready to ship"
+          },
+          "text": {
+            "ru": "",
+            "en": ""
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "56 подарков",
+                "en": "56 gifts"
+              },
+              "d": {
+                "ru": "праздники, свадьба, романтика и символы — в одном визуальном языке",
+                "en": "holidays, weddings, romance and symbols — in one visual language"
+              }
+            },
+            {
+              "t": {
+                "ru": "Повторяемый процесс",
+                "en": "A repeatable process"
+              },
+              "d": {
+                "ru": "новый подарок проходит тот же пайплайн — от сториборда до готовых файлов",
+                "en": "a new gift goes through the same pipeline, from storyboard to finished files"
+              }
+            },
+            {
+              "t": {
+                "ru": "Ноль ручной упаковки",
+                "en": "Zero manual packaging"
+              },
+              "d": {
+                "ru": "разработчики получают манифест и медиа под каждую платформу",
+                "en": "developers get a manifest and media for every platform"
+              }
+            },
+            {
+              "t": {
+                "ru": "Работает везде",
+                "en": "Works everywhere"
+              },
+              "d": {
+                "ru": "прозрачная анимация со звуком в Chrome, Firefox, Safari и на iPhone",
+                "en": "transparent animation with sound in Chrome, Firefox, Safari and on iPhone"
+              }
+            }
+          ]
+        },
+        {
+          "id": "vg12",
+          "type": "next",
+          "visible": true,
+          "eyebrow": {
+            "ru": "Следующий проект",
+            "en": "Next project"
+          },
+          "title": {
+            "ru": "Sticker Bot",
+            "en": "Sticker Bot"
+          },
+          "text": {
+            "ru": "Telegram-бот, который превращает фото в стикеры и стилизованные портреты через AI-пайплайны.",
+            "en": "A Telegram bot that turns photos into stickers and stylised portraits through AI pipelines."
+          },
+          "items": [
+            {
+              "label": {
+                "ru": "Все проекты →",
+                "en": "All projects →"
+              },
+              "href": "/projects.html"
+            },
+            {
+              "label": {
+                "ru": "Контакты и CV",
+                "en": "Contact & CV"
+              },
+              "href": "/contact.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "visible": true,

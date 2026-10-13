@@ -264,3 +264,11 @@ main { overflow-x: clip; } /* 100vw of the full-bleed strip includes the scrollb
 .cs-hero .hero-cta { justify-content: center; }
 .pb > .cs-cast, .pb > .cs-pair, .pb > .cs-phones { margin-top: 0; }
 .pb > .cs-flow:last-child { margin-bottom: 0; }
+
+/* hero cloud of cut-out objects (project.head.cloudStyle: "cutout", e.g. the gifts): smaller, no tiles, a soft shadow */
+.cs-cloud.cutout { --size: clamp(76px, 9vw, 120px); }
+.cs-cloud.cutout .cs-cloud-track { --size: clamp(76px, 9vw, 120px); --gap: clamp(20px, 3vw, 40px); animation-duration: 120s; }
+.cs-cloud.cutout img { object-fit: contain; border-radius: 0; box-shadow: none; filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .6)); }
+/* "1540 px": the unit after a space is set small */
+.stat b small { font-size: .45em; letter-spacing: 0; }
+.contact .eyebrow { margin-bottom: 16px; }

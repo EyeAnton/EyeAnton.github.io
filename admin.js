@@ -617,6 +617,37 @@
     quote: { name: "Цитата", hint: "Крупная цитата с автором", blank: () => ({ quote: loc(), who: loc() }),
       fields: [["quote", "Цитата", "loc-area"], ["who", "Автор", "loc"]] },
     links: { name: "Кнопки", hint: "Ссылки на сайт, Behance, видео", blank: items("links", 1), fields: [["items", "Кнопки", "list:links"]] },
+    // the Virtual Gifts case (gifts.css; the three "Подарки" blocks are interactive, data from the gift-catalog repo)
+    points: { name: "Карточки с крупными номерами", hint: "01 · 02 · 03 градиентом", group: "Как в Virtual Gifts",
+      blank: () => ({ ...head("Задача", "The task"), ...items("cards", 3)() }), fields: [["items", "Карточки", "list:cards"]] },
+    specs: { name: "Характеристики", hint: "Подпись · формат · текст", group: "Как в Virtual Gifts",
+      blank: () => ({ ...head(), ...items("specs", 3)() }), fields: [["items", "Карточки", "list:specs"]] },
+    split: { name: "Текст + доска картинок", hint: "Слева правила списком, справа картинки", group: "Как в Virtual Gifts", noHead: true,
+      blank: () => ({ ...head(), items: [SUBS.rules.blank()], images: [] }),
+      fields: [["eyebrow", "Надзаголовок", "loc"], ["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"],
+        ["items", "Правила", "list:rules"], ["images", "Картинки справа", "imgs"]] },
+    rail: { name: "Шаги на линии", hint: "Пайплайн с номерами в кружках", group: "Как в Virtual Gifts",
+      blank: () => ({ ...head("Пайплайн", "Pipeline"), ...items("flow", 4)() }), fields: [["items", "Шаги", "list:flow"]] },
+    list2: { name: "Итоги в две колонки", hint: "Крупный пункт + пояснение", group: "Как в Virtual Gifts",
+      blank: () => ({ ...head("Результат", "Result"), ...items("results", 4)() }), fields: [["items", "Итоги", "list:results"]] },
+    lanes: { name: "Платформы", hint: "Платформа → формат → результат", group: "Как в Virtual Gifts", noHead: true,
+      blank: () => ({ eyebrow: loc(), title: loc("Заголовок", "Heading"), text: loc(), ...items("lanes", 2)() }),
+      fields: [["eyebrow", "Надзаголовок", "loc"], ["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"], ["items", "Строки", "list:lanes"]] },
+    "gifts-showcase": { name: "Подарки: ноутбук и телефон", hint: "Подарок приходит в чат и играет на весь экран", group: "Подарки",
+      blank: () => ({ ...head(), keys: [], matches: loc("Пары", "Matches"), prev: loc("отправила подарок", "sent you a gift"),
+        match: loc("Вы понравились друг другу · сегодня", "You liked each other · today") }),
+      fields: [["keys", "Какие подарки играют — ключи через запятую (пусто — первые шесть)", "csv"],
+        ["matches", "Заголовок списка в ноутбуке", "loc"], ["prev", "Подпись у Mia", "loc"], ["match", "Надпись в чате", "loc"],
+        ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
+    "gifts-process": { name: "Подарки: пять шагов", hint: "Вкладки по подаркам, кадры из Figma", group: "Подарки",
+      blank: () => ({ ...head("Процесс", "Process"), keys: [], ...items("flow", 5)(), picked: loc("в работу", "picked"),
+        note: loc("Бриф из рабочего файла Figma", "Brief from the working Figma file"), match: loc("Вы понравились друг другу · сегодня", "You liked each other · today") }),
+      fields: [["items", "Шаги (их пять: исходник, бриф, черновики, кадры, результат)", "list:flow"],
+        ["keys", "Какие подарки во вкладках — ключи через запятую (пусто — все из process.json)", "csv"],
+        ["picked", "Метка выбранного черновика", "loc"], ["note", "Подпись под брифом", "loc"], ["match", "Надпись в чате телефона", "loc"],
+        ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
+    "gifts-catalog": { name: "Подарки: каталог", hint: "Все подарки, нажать — придёт в чат", group: "Подарки",
+      blank: () => ({ ...head("Отправьте подарок", "Send a gift") }), fields: [["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
     next: { name: "Следующий проект", hint: "Финальный призыв со ссылками", noHead: true,
       blank: () => ({ eyebrow: loc("Следующий проект", "Next project"), title: loc("Название", "Title"), text: loc(), items: [SUBS.links.blank()] }),
       fields: [["eyebrow", "Надзаголовок", "loc"], ["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"], ["items", "Кнопки", "list:links"]] },
@@ -641,6 +672,14 @@
       fields: [["src", "Видео .mp4 (путь или ссылка)", "text"], ["poster", "Кадр-заставка", "img"], ["t", "Название", "loc"]] },
     phones: { title: (it, i) => `Ролик ${i + 1}`, blank: () => ({ src: "", poster: "" }),
       fields: [["src", "Видео .mp4 (путь или ссылка)", "text"], ["poster", "Кадр-заставка", "img"]] },
+    specs: { title: (it) => tl(it) || "Карточка", blank: () => ({ k: loc(), t: loc(), d: loc() }),
+      fields: [["k", "Подпись (мелко, красным)", "loc"], ["t", "Заголовок", "loc"], ["d", "Текст", "loc-area"]] },
+    rules: { title: (it) => tl(it).slice(0, 40) || "Правило", blank: () => ({ t: loc() }), fields: [["t", "Правило", "loc-area"]] },
+    lanes: { title: (it) => `${it.plat?.ru || "Строка"}${it.state === "bad" ? " ✕" : ""}`,
+      blank: () => ({ icons: "", plat: loc(), platSub: loc(), codec: loc(), codecSub: loc(), state: "ok", img: "" }),
+      fields: [["icons", "Иконки: win, android, apple — через запятую", "text"], ["plat", "Платформа", "loc"], ["platSub", "Браузеры", "loc"],
+        ["codec", "Формат", "loc"], ["codecSub", "Пояснение", "loc"],
+        ["state", "Итог", "sel:ok=работает (галочка),bad=не работает (зачёркнуто и крестик),fix=решение (подсветка)"], ["img", "Картинка в квадрате", "img"]] },
     links: { title: (it) => it.label?.ru || "Кнопка", blank: () => ({ label: loc("Кнопка", "Button"), href: "" }),
       fields: [["label", "Текст", "loc"], ["href", "Ссылка (https://… или #якорь)", "text"]] },
   };
@@ -758,18 +797,22 @@
     }, 90);
   }
   // home and project pages are different documents; switching between projects only re-renders
+  // a project whose page is a separate hand-made site (links.page, e.g. /stasik-page/) and has no blocks:
+  // the editor only shows that page as it is on the site
+  const externalPage = (p) => (p && p.links.page && !p.page?.length ? p.links.page : "");
   function loadFrame() {
     const fr = q("#seFrame");
-    const kind = seTarget === "home" ? "home" : "project";
+    const p = seProject();
+    const ext = externalPage(p);
+    const kind = ext ? `ext:${ext}` : seTarget === "home" ? "home" : "project";
     if (fr.dataset.kind !== kind) {
       fr.dataset.kind = kind;
       frameLoaded = false;
-      fr.src = kind === "home" ? "index.html?edit=1" : "project.html?edit=1";
+      fr.src = ext || (kind === "home" ? "index.html?edit=1" : "project.html?edit=1");
     } else {
       refreshFrame();
     }
-    const p = seProject();
-    q("#seOpen").href = p ? `project.html?id=${encodeURIComponent(p.id)}` : "./";
+    q("#seOpen").href = ext || (p ? `project.html?id=${encodeURIComponent(p.id)}` : "./");
   }
 
   function selectBlock(id) {
@@ -810,10 +853,13 @@
     selectBlock(b.id);
   }
 
+  // only pages that exist: block pages, separate sites, and the one being started right now
+  // (a new page is started from the project card: «Страница проекта →»)
   function renderTargets() {
+    const pages = data.projects.filter((p) => p.page?.length || p.links.page || p.id === seTarget);
     q("#seTarget").innerHTML = `<option value="home">Главная страница</option>
-      <optgroup label="Страницы проектов">${data.projects.map((p) =>
-        `<option value="${h(p.id)}" ${p.id === seTarget ? "selected" : ""}>${h(p.title.ru || p.id)}${p.page?.length ? ` · ${p.page.length}` : ""}${p.visible ? "" : " (скрыт)"}</option>`).join("")}</optgroup>`;
+      <optgroup label="Страницы проектов">${pages.map((p) =>
+        `<option value="${h(p.id)}">${h(p.title.ru || p.id)}${externalPage(p) ? " · отдельная страница" : p.page?.length ? ` · ${p.page.length}` : " · новая"}${p.visible ? "" : " (скрыт)"}</option>`).join("")}</optgroup>`;
     q("#seTarget").value = seTarget;
   }
 
@@ -821,6 +867,11 @@
     if (seTarget !== "home" && !seProject()) { seTarget = "home"; seBlock = "hero"; } // the project was deleted
     renderTargets();
     const home = seTarget === "home";
+    if (externalPage(seProject())) {
+      q("#seBlocks").innerHTML = `<div class="item on"><span></span><div style="min-width:0"><span class="c">только просмотр</span>
+        <span class="t">Отдельная страница</span></div><span></span></div>`;
+      return;
+    }
     const row = (b, i) => `
       <div class="item${seBlock === b.id ? " on" : ""}${b.visible === false ? " hidden-p" : ""}" data-id="${h(b.id)}">
         <label class="sw" title="${b.visible === false ? "Скрыт" : "Показывается"}">
@@ -924,6 +975,11 @@
     }
     if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
     if (type === "area") return `<label class="f">${h(label)}<textarea class="mono" ${bp}>${h(v)}</textarea></label>`;
+    if (type === "csv") return `<label class="f">${h(label)}<input type="text" ${bp} data-type="csv" value="${h((v || []).join(", "))}"></label>`;
+    if (type.startsWith("sel:")) return `<label class="f">${h(label)}<select ${bp}>${type.slice(4).split(",").map((o) => {
+      const [val, l] = o.split("=");
+      return `<option value="${h(val)}" ${val === (v ?? "") ? "selected" : ""}>${h(l)}</option>`;
+    }).join("")}</select></label>`;
     if (type === "zoom") { // project.head.zoom; not set = 1.45 (as in the Virtual Gifts hero)
       const cur = +(v ?? 1.45);
       return `<label class="f">${h(label)}<select ${bp} data-type="number">${[[0, "Выключено"], [1.2, "1.2×"], [1.45, "1.45× — как в подарках"], [1.7, "1.7×"]]
@@ -962,12 +1018,24 @@
     const undo = seUndo && seUndo.target === seTarget
       ? `<div class="undo"><span>${seUndo.b ? `Блок «${h(blockLabel(seUndo.b))}» удалён` : seUndo.item ? "Пункт удалён" : "Текст удалён"}</span><button class="btn ghost small" type="button" data-undo>Вернуть</button></div>` : "";
 
+    const ext = externalPage(seProject());
+    if (ext) {
+      q("#sePanel").innerHTML = `<h2>Отдельная страница</h2>
+        <p class="hint">Страница этого проекта — отдельный сайт <b>${h(ext)}</b>, собранный вручную (например, 3D-модель с живой прошивкой).
+          Слева — как она выглядит на сайте сейчас. Её код лежит в своём репозитории и правится там, не в админке.</p>
+        <div><a class="btn ghost small" href="${h(ext)}" target="_blank" rel="noopener">Открыть на сайте ↗</a></div>
+        <p class="hint">Чтобы собрать страницу из блоков здесь, очистите у проекта поле «Раздел этого сайта» и добавьте блоки — карточка поведёт на новую страницу.</p>
+        <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>`;
+      return;
+    }
+
     if (seBlock === "_add") {
       const arr = curBlocks();
       const after = seAddAt === 0 ? (home ? "в начало" : "сразу после шапки") : `после «${blockLabel(arr[seAddAt - 1])}»`;
       q("#sePanel").innerHTML = `${undo}<h2>Новый блок</h2><p class="hint">Встанет ${h(after)}. Потом его можно передвинуть стрелками.</p>
-        <div class="types">${Object.entries(TYPES).map(([k, T]) =>
-          `<button type="button" class="type-btn" data-newtype="${k}"><b>${T.name}</b><span>${T.hint}</span></button>`).join("")}</div>`;
+        ${[...new Set(Object.values(TYPES).map((T) => T.group || ""))].map((g) => `${g ? `<h2 class="sec">${h(g)}</h2>` : ""}
+          <div class="types">${Object.entries(TYPES).filter(([, T]) => (T.group || "") === g).map(([k, T]) =>
+            `<button type="button" class="type-btn" data-newtype="${k}"><b>${T.name}</b><span>${T.hint}</span></button>`).join("")}</div>`).join("")}`;
       return;
     }
 
@@ -981,6 +1049,7 @@
         ${bField(p, "head.lead", "Лид — текст под названием (пусто — описание с карточки)", "loc-area")}
         ${bField(p, "head.ctas", "Кнопки под лидом (#якорь — на блок этой страницы)", "list:links")}
         ${bField(p, "head.cloud", "Бегущая лента картинок (пусто — обложка проекта)", "imgs")}
+        ${bField(p, "head.cloudStyle", "Вид ленты", "sel:=обложки (квадратные плитки),cutout=вырезанные объекты (как подарки)")}
         ${bField(p, "head.zoom", "Ленту при наведении: остановить и увеличить картинку", "zoom")}
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>
         <p class="hint">Блоки ниже шапки: «+ блок» под любым блоком на странице или «+ Добавить блок» слева. Половинные блоки встают по два в ряд; удалите блок — остальные сдвинутся.</p>`;
@@ -1053,6 +1122,7 @@
         o[el.dataset.l] = el.value;
       } else if (el.dataset.type === "bool") setPath(obj, path, el.checked);
       else if (el.dataset.type === "number") setPath(obj, path, +el.value);
+      else if (el.dataset.type === "csv") setPath(obj, path, el.value.split(",").map((s) => s.trim()).filter(Boolean));
       else if (path === "w" && !el.value) delete obj.w;
       else setPath(obj, path, el.value);
       renderSeBlocks();
