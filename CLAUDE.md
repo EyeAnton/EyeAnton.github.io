@@ -24,6 +24,9 @@
 | Стек: ховер стопает ленту, клик — тултип из `profile.stackInfo.<lang>` (строки «Название — описание»; админка → блок «Стек») | `setupStackTips` в `app.js`, стили `.stack-tip` в `style.css` |
 | Все тексты `[data-i18n]` (и шапка/футер) скрыты до первого render (класс `i18n-ready` на `<html>`) — без мелькания заглушек из HTML | `app.js` render, конец `style.css` |
 
+## Тексты в HTML
+Источник текстов — только `site.json`. Текст внутри `[data-i18n]` в HTML — запасной (его видят GitHub, поисковики и превью ссылок); `tools/bake.py` вписывает туда RU-тексты из site.json, а Action `.github/workflows/bake.yml` запускает его сам после каждого изменения site.json или HTML и коммитит «Тексты в HTML из site.json». Тексты в HTML руками не править.
+
 ## Ручные инструменты (вместо работы Claude)
 - Превью ссылки: правка текста в `tools/og.html` → `powershell -File tools/og.ps1` → `assets/og.jpg`.
 - Обложка проекта со скриншота сайта: `powershell -File tools/shot.ps1 -Url <адрес> -Name <id>` → `assets/shots/<id>.jpg`.
