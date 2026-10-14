@@ -781,6 +781,7 @@
     },
     // ✕ on a built-in home text (app.js): it stays in site.text, the site just doesn't show it in this block
     removeText(id, key) { hideText(id, key, true); },
+    removeTab(key) { hideTab(key, true); },
     ready() { frameLoaded = true; },
   };
   function hideText(id, key, on) {
@@ -789,6 +790,15 @@
     if (list.length) site.hiddenText = list; else delete site.hiddenText;
     seUndo = on ? { target: seTarget, id, text: key } : null;
     seBlock = id;
+    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+  }
+
+  // header tab on / off (site.navHidden); the «Общие настройки» panel opens, where it can be brought back
+  function hideTab(key, on) {
+    const list = (site.navHidden || []).filter((x) => x !== key);
+    if (on) list.push(key);
+    if (list.length) site.navHidden = list; else delete site.navHidden;
+    seBlock = "general";
     renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
   }
 
@@ -941,7 +951,12 @@
       // ✕ / «Вернуть»: a built-in text can be taken off the page (header and footer texts in «Общие настройки» stay)
       if (id !== "general" && site.hiddenText?.includes(`${id}:${k}`))
         return `<div class="tx"><span>${h(KEY_LABEL[k] || k)} — удалён со страницы <button class="btn ghost small" type="button" data-unhide="${h(k)}">Вернуть</button></span></div>`;
-      const ctl = id === "general" ? "" : ` <button class="btn ghost small" type="button" data-hide="${h(k)}" title="Убрать этот текст со страницы">✕</button>`;
+      // header tabs (nav.*): ✕ takes the tab off the header (site.navHidden), «Вернуть» brings it back
+      const tab = id === "general" && k.startsWith("nav.");
+      if (tab && site.navHidden?.includes(k))
+        return `<div class="tx"><span>${h(KEY_LABEL[k] || k)} — вкладка убрана из шапки <button class="btn ghost small" type="button" data-untab="${h(k)}">Вернуть</button></span></div>`;
+      const ctl = tab ? ` <button class="btn ghost small" type="button" data-tab="${h(k)}" title="Убрать вкладку из шапки">✕</button>`
+        : id === "general" ? "" : ` <button class="btn ghost small" type="button" data-hide="${h(k)}" title="Убрать этот текст со страницы">✕</button>`;
       // textareas everywhere: Enter adds a line break, which the site shows (white-space: pre-line)
       const long = Math.max((site.text.ru[k] || "").length, (site.text.en[k] || "").length) > 60;
       const inp = (l) => `<textarea class="${long ? "" : "short"}" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`;
@@ -1133,7 +1148,7 @@
         <h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
         <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>
         <h2 class="sec">Гость с CV</h2>${field("profile.guestDelay", "Через сколько секунд появляется курсор «Anton Egorov» с CV (0 — выключить)", "number")}
-        <p class="hint">Один раз за визит (в новой вкладке — снова), только на компьютере. На страницах проектов — не по таймеру, а после 3 секунд на последних экранах. После замены CV обновить превью: python tools/cv_thumbs.py.</p>`,
+        <p class="hint">Один раз за визит (в новой вкладке — снова); на телефоне иконка ложится в правый нижний угол. На страницах проектов — не по таймеру, а после 3 секунд на последних экранах. После замены CV обновить превью: python tools/cv_thumbs.py.</p>`,
     }[seBlock] || "";
     q("#sePanel").innerHTML = `${undo}
       <h2>${h(B.name)}</h2>
@@ -1177,9 +1192,7 @@
       site.pages ||= {};
       if (el.checked) delete site.pages[el.dataset.page]; else site.pages[el.dataset.page] = false;
     } else if (el.dataset.nav) {
-      const set = new Set(site.navHidden || []);
-      if (el.checked) set.delete(el.dataset.nav); else set.add(el.dataset.nav);
-      site.navHidden = [...set];
+      return hideTab(el.dataset.nav, !el.checked); // the tab's text field above switches to ✕ / «Вернуть» too
     } else if (el.dataset.path) {
       setPath(site, el.dataset.path, el.dataset.type === "bool" ? el.checked : fromField(el.dataset.type, el.value));
     } else if (el.hasAttribute("data-blockvis")) {
@@ -1234,6 +1247,7 @@
       return;
     }
     if (b.dataset.newtype) { addBlock(b.dataset.newtype); return; }
+    if (b.dataset.tab || b.dataset.untab) { hideTab(b.dataset.tab || b.dataset.untab, !!b.dataset.tab); return; }
     if (b.dataset.hide || b.dataset.unhide) { hideText(seBlock, b.dataset.hide || b.dataset.unhide, !!b.dataset.hide); return; }
     if (b.hasAttribute("data-undo") && seUndo.text) { hideText(seUndo.id, seUndo.text, false); return; }
     if (b.hasAttribute("data-undo") && !seUndo.b) { // a text / list item back into its block

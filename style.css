@@ -482,6 +482,7 @@ main [data-block] { scroll-margin-top: 72px; }
   opacity: 0; pointer-events: none; transition: opacity .15s;
 }
 .edit-del.on { opacity: 1; pointer-events: auto; }
+.edit-del.below { translate: -50% 6px; } /* header tabs sit at the very top: the ✕ goes under the tab */
 .edit-del button {
   font: var(--fw-medium) 12px/1 var(--font); color: var(--white); white-space: nowrap;
   background: none; border: 0; border-radius: var(--pill); padding: 6px 10px; cursor: pointer;

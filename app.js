@@ -571,16 +571,19 @@ function bootEditor() {
   document.addEventListener("mouseover", (e) => {
     clearTimeout(delTimer);
     if (e.target.closest(".edit-del")) return;
-    const el = e.target.closest("[data-block] [data-f], [data-block] [data-i18n]");
-    const ok = el && (el.dataset.f ? EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable : PAGE === "home");
+    const tab = e.target.closest(".top nav a[data-i18n]"); // header tab: taken off the header (site.navHidden)
+    const el = tab || e.target.closest("[data-block] [data-f], [data-block] [data-i18n]");
+    const ok = el && (tab || (el.dataset.f ? EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable : PAGE === "home"));
     if (!ok) { delTimer = setTimeout(hideDel, 300); return; }
     if (el === delFor) return;
     delFor = el;
-    del.innerHTML = `<button type="button" data-del="field" title="Удалить этот текст">✕ текст</button>${
+    del.innerHTML = tab ? `<button type="button" data-del="tab" title="Убрать вкладку из шапки (вернуть — «Общие настройки»)">✕ вкладка</button>`
+      : `<button type="button" data-del="field" title="Удалить этот текст">✕ текст</button>${
       /\.\d+\.[^.]+$/.test(el.dataset.f || "") ? `<button type="button" data-del="item" title="Удалить весь пункт">✕ пункт</button>` : ""}`;
     const r = el.getBoundingClientRect();
-    del.style.left = `${r.right + scrollX}px`;
-    del.style.top = `${r.top + scrollY}px`;
+    del.classList.toggle("below", !!tab);
+    del.style.left = `${(tab ? r.left + r.width / 2 : r.right) + scrollX}px`;
+    del.style.top = `${(tab ? r.bottom : r.top) + scrollY}px`;
     del.classList.add("on");
   });
 
@@ -599,6 +602,7 @@ function bootEditor() {
       e.preventDefault();
       const el = delFor;
       hideDel();
+      if (d.dataset.del === "tab") return EDITOR.removeTab(el.dataset.i18n);
       const id = el.closest("[data-block]").dataset.block;
       if (el.dataset.i18n) EDITOR.removeText(id, el.dataset.i18n);
       else EDITOR.removeField(id, el.dataset.f, d.dataset.del === "item");
