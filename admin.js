@@ -271,6 +271,7 @@
         setStatus("Сохраняю главную страницу…");
         await putFile(SITE_FILE, utf8ToB64(serializeSite()), restoredFrom ? `Admin: restore ${restoredFrom.slice(0, 7)}` : "Admin: update home page");
         siteSaved = serializeSite();
+        await bakePages();
       }
       restoredFrom = "";
       history = null; // the new version is on top now
@@ -281,6 +282,29 @@
       setStatus(`Ошибка публикации: ${e.message}`, "err");
     } finally {
       btn.disabled = false;
+    }
+  }
+
+  // The pages take their texts from site.json ([data-i18n] = key); the text inside the tag is only a fallback that
+  // GitHub, search engines and link previews see. On publish it is rewritten to the current RU texts —
+  // the same as tools/bake.py (keep the two in step). Elements with markup inside are left alone.
+  const PAGES = ["index.html", "projects.html", "contact.html", "project.html", "design-system.html"];
+  const I18N_EL = /(<([a-z][a-z0-9]*)\b[^>]*\bdata-i18n="([^"]+)"[^>]*>)([^<]*)(<\/\2>)/g;
+  const bakeHTML = (src, strings) => src.replace(I18N_EL, (m, open, tag, key, text, close) => {
+    const v = strings[key];
+    if (v == null) return m;
+    const clean = v.split("\n").map((l) => l.trimEnd()).join("\n").trim();
+    return open + clean.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + close;
+  });
+  async function bakePages() {
+    for (const p of PAGES) {
+      const f = await getFile(p);
+      if (!f) continue;
+      const old = b64ToUtf8(f.content);
+      const baked = bakeHTML(old, site.text.ru);
+      if (baked === old) continue;
+      setStatus(`Обновляю тексты в ${p}…`);
+      await putFile(p, utf8ToB64(baked), `Admin: texts in ${p} from site.json`);
     }
   }
 
