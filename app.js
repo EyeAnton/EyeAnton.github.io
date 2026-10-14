@@ -479,6 +479,24 @@ function renderContact() {
   $("#areas").innerHTML = areasHTML(true);
 }
 
+/* ---------------- block style (site.json / project.page → block.style) ---------------- */
+// { bg: card|band|glow|accent, space: 0|s|l, align: left|center, w: narrow|wide, h: s|l, accent: blue|teal|white, anim: false }
+// set as data-s-* attributes on the [data-block] element (rules: end of style.css); built-in home sections stay
+// in the DOM between renders, so every pass clears what the previous one set
+const STYLE_KEYS = ["bg", "space", "align", "w", "h", "accent", "anim"];
+function styleBlocks(list) {
+  const by = new Map((list || []).map((b) => [b.id, b.style]));
+  document.querySelectorAll("main [data-block]").forEach((el) => {
+    const st = by.get(el.dataset.block) || {};
+    for (const k of STYLE_KEYS) {
+      const v = st[k];
+      if (v === undefined || v === "") el.removeAttribute(`data-s-${k}`);
+      else el.setAttribute(`data-s-${k}`, String(v));
+    }
+    if (st.anim === false) el.querySelectorAll(".reveal").forEach((r) => r.classList.add("in"));
+  });
+}
+
 /* ---------------- reveal on scroll ---------------- */
 
 const io = "IntersectionObserver" in window
@@ -517,6 +535,8 @@ function render() {
   if (PAGE === "projects") renderProjects();
   if (PAGE === "project") renderProject();
   if (PAGE === "contact") renderContact();
+  if (PAGE === "home") styleBlocks(SITE.blocks);
+  if (PAGE === "project") styleBlocks((EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === new URLSearchParams(location.search).get("id")))?.page);
   watchReveal();
   watchVideos();
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)

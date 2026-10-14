@@ -145,6 +145,21 @@
     details.rep-item:not([open]) { gap: 0; }
     textarea.mono { font: 13px/1.5 ui-monospace, Consolas, monospace; min-height: 180px; white-space: pre; }
     h2.sec small { font-size: 13px; color: var(--muted); }
+    /* block «Оформление»: one row of chips per setting */
+    .st-row { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+    .st-row .pv-tabs { flex-wrap: wrap; }
+    .st-row .chip { font-size: 12px; padding: 6px 10px; }
+    details.rep-item > summary b { white-space: nowrap; }
+    details.rep-item > summary .hint { font-size: 12px; text-align: right; }
+    /* «История»: published versions of the content */
+    .hist { display: flex; flex-direction: column; gap: 6px; max-width: 860px; }
+    .hist-item { display: grid; grid-template-columns: 150px 1fr auto; gap: 12px; align-items: center;
+      background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+    .hist-item.on { border-color: var(--gold); }
+    .hist-item time { color: var(--muted); font-size: 13px; }
+    .hist-item .m { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-item .m small { color: var(--muted); margin-left: 6px; }
+    @media (max-width: 640px) { .hist-item { grid-template-columns: 1fr auto; } .hist-item time { grid-column: 1 / -1; } }
 
     @media (max-width: 1000px) {
       .layout, .editor { grid-template-columns: 1fr; }
@@ -195,6 +210,7 @@
       <div class="modes" id="modes" role="tablist">
         <button class="chip" type="button" role="tab" data-mode="projects" aria-selected="true">Проекты</button>
         <button class="chip" type="button" role="tab" data-mode="site" aria-selected="false">Страницы</button>
+        <button class="chip" type="button" role="tab" data-mode="history" aria-selected="false">История</button>
       </div>
 
       <div id="projectsMode">
@@ -232,6 +248,13 @@
           </div>
           <aside class="panel se-panel" id="sePanel"></aside>
         </div>
+      </div>
+
+      <!-- Published versions of the content (projects.json + site.json): any of them comes back as a draft -->
+      <div id="historyMode" hidden>
+        <p class="sub" style="margin:0 0 6px">Каждая публикация — точка, к которой можно вернуться: тексты, блоки, оформление, проекты и их картинки.
+          «Вернуть» загружает ту версию как черновик — посмотрите её во вкладке «Страницы», потом «Опубликовать» (или «Отменить изменения»).</p>
+        <div class="hist" id="hist"></div>
       </div>
     </section>
   </main>

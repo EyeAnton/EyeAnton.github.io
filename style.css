@@ -589,3 +589,67 @@ main [data-block] { scroll-margin-top: 72px; }
 /* texts from site.json: hide the HTML placeholders (Russian) until the first render — header and footer too,
    so the English site never flashes Russian */
 html:not(.i18n-ready) [data-i18n] { visibility: hidden; }
+
+/* =================== block style (admin → «Оформление»; app.js styleBlocks → data-s-*) =================== */
+/* works on any [data-block]: built-in home sections (.hero, .block, .stack-sec, .contact), custom home blocks,
+   project page blocks (.pb in the .cs-blocks grid) */
+main [data-block][data-s-space="0"]:not([data-s-bg="card"]) { padding-top: 0 !important; }
+main [data-block][data-s-space="s"]:not([data-s-bg="card"]) { padding-top: clamp(24px, 4vw, 48px) !important; }
+main [data-block][data-s-space="l"]:not([data-s-bg="card"]) { padding-top: clamp(112px, 15vw, 200px) !important; }
+
+/* card: a raised panel; spacing above becomes the gap before it */
+main [data-block][data-s-bg="card"] {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: clamp(32px, 5vw, 64px) clamp(20px, 4vw, 48px) !important; margin-top: clamp(48px, 7vw, 96px);
+}
+main > [data-block][data-s-bg="card"] { width: min(100% - 2 * var(--gutter), var(--maxw) - 2 * var(--gutter)); margin-inline: auto; }
+main [data-block][data-s-bg="card"][data-s-space="0"] { margin-top: 0; }
+main [data-block][data-s-bg="card"][data-s-space="s"] { margin-top: clamp(16px, 3vw, 32px); }
+main [data-block][data-s-bg="card"][data-s-space="l"] { margin-top: clamp(96px, 12vw, 160px); }
+/* band / deep: a full-width stripe behind the block (the box-shadow paints past the column, clip-path keeps it flat) */
+main [data-block][data-s-bg="band"], main [data-block][data-s-bg="deep"] {
+  --band: var(--surface); background: var(--band); box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(0 -100vmax);
+  margin-top: clamp(48px, 7vw, 96px); padding-bottom: clamp(48px, 7vw, 96px);
+}
+main [data-block][data-s-bg="deep"] { --band: var(--blue-950); }
+main [data-block][data-s-bg="line"] { border-top: 1px solid var(--line); margin-top: clamp(48px, 7vw, 96px); }
+
+main [data-block][data-s-align="left"] { text-align: left; }
+main [data-block][data-s-align="left"] .sec-head, main [data-block][data-s-align="left"] .sec-head > p { text-align: left; margin-inline: 0; }
+main [data-block][data-s-align="left"] :is(.hero-cta, .contact-links, .pb-links) { justify-content: flex-start; }
+main [data-block][data-s-align="center"], main [data-block][data-s-align="center"] .sec-head { text-align: center; }
+main [data-block][data-s-align="center"] .sec-head, main [data-block][data-s-align="center"] .sec-head > p { margin-inline: auto; }
+main [data-block][data-s-align="center"] :is(.hero-cta, .contact-links, .pb-links) { justify-content: center; }
+
+main > [data-block][data-s-w="narrow"] { max-width: calc(760px + 2 * var(--gutter)); margin-inline: auto; }
+main > [data-block][data-s-w="narrow"][data-s-bg="card"] { width: min(100% - 2 * var(--gutter), 760px); }
+main > [data-block][data-s-w="wide"] { max-width: 1440px; }
+main > [data-block][data-s-w="wide"][data-s-bg="card"] { width: min(100% - 2 * var(--gutter), 1440px - 2 * var(--gutter)); }
+.cs-blocks > [data-s-w="narrow"] { width: 100%; max-width: 760px; justify-self: center; }
+.cs-blocks > [data-s-w="wide"] { margin-inline: min(0px, (var(--maxw) - min(100vw, 1440px)) / 2); }
+
+[data-block][data-s-h="s"] { --fs-h2: clamp(24px, 3vw, 36px); --fs-display: clamp(32px, 5vw, 60px); }
+[data-block][data-s-h="l"] { --fs-h2: clamp(40px, 6.4vw, 80px); --fs-display: clamp(48px, 9vw, 120px); }
+
+[data-block][data-s-accent="blue"] {
+  --accent: var(--blue-400); --accent-rgb: 74, 130, 245; --accent-soft: rgba(74, 130, 245, .12); --accent-glow: rgba(74, 130, 245, .3);
+  --grad-fill: linear-gradient(90deg, var(--blue-600) 0%, var(--blue-500) 50%, var(--blue-400) 100%);
+}
+[data-block][data-s-accent="teal"] {
+  --accent: var(--teal-400); --accent-rgb: 47, 196, 160; --accent-soft: rgba(47, 196, 160, .12); --accent-glow: rgba(47, 196, 160, .3);
+  --grad-fill: linear-gradient(90deg, var(--teal-600) 0%, var(--teal-500) 50%, var(--teal-400) 100%);
+}
+[data-block][data-s-accent="white"] {
+  --accent: var(--white); --accent-rgb: 255, 255, 255; --accent-soft: rgba(255, 255, 255, .1); --accent-glow: rgba(255, 255, 255, .2);
+  --on-accent: var(--ink-0); --grad-fill: linear-gradient(90deg, var(--gray-100), var(--white));
+}
+/* derived tokens are resolved where they are declared (:root), so a block with its own accent re-derives them */
+[data-block][data-s-accent] {
+  --gold: var(--accent); --glow-sm: 0 5px 10.4px var(--accent-glow); --glow-lg: 0 0 30.8px var(--accent-glow);
+  --shadow-btn: var(--glow-sm), var(--glow-lg), var(--inset-shade);
+}
+[data-block][data-s-accent="blue"] .eyebrow { color: var(--blue-300); }
+[data-block][data-s-accent="teal"] .eyebrow { color: var(--teal-300); }
+[data-block][data-s-accent="white"] .eyebrow { color: var(--white); }
+/* a band keeps its content off both edges (a block without a heading would otherwise sit flush on its top) */
+main [data-block]:is([data-s-bg="band"], [data-s-bg="deep"]):not([data-s-space]) { padding-top: clamp(48px, 7vw, 96px); }
