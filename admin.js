@@ -636,7 +636,7 @@
     "gifts-showcase": { name: "Подарки: ноутбук и телефон", hint: "Подарок приходит в чат и играет на весь экран", group: "Подарки",
       blank: () => ({ ...head(), keys: [], matches: loc("Пары", "Matches"), prev: loc("отправила подарок", "sent you a gift"),
         match: loc("Вы понравились друг другу · сегодня", "You liked each other · today") }),
-      fields: [["keys", "Какие подарки играют — ключи через запятую (пусто — первые шесть)", "csv"],
+      fields: [["keys", "Какие подарки играют (по порядку)", "gifts:all"],
         ["hires", "Подарки с файлами 1080px (assets/anim1080, tools/encode_showcase.sh) — ключи через запятую", "csv"],
         ["matches", "Заголовок списка в ноутбуке", "loc"], ["prev", "Подпись у Mia", "loc"], ["match", "Надпись в чате", "loc"],
         ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
@@ -644,7 +644,7 @@
       blank: () => ({ ...head("Процесс", "Process"), keys: [], ...items("flow", 5)(), picked: loc("в работу", "picked"),
         note: loc("Бриф из рабочего файла Figma", "Brief from the working Figma file"), match: loc("Вы понравились друг другу · сегодня", "You liked each other · today") }),
       fields: [["items", "Шаги (их пять: исходник, бриф, черновики, кадры, результат)", "list:flow"],
-        ["keys", "Какие подарки во вкладках — ключи через запятую (пусто — все из process.json)", "csv"],
+        ["keys", "Какие подарки во вкладках шагов (по порядку; в списке — те, у кого есть кадры из Figma)", "gifts:process"],
         ["picked", "Метка выбранного черновика", "loc"], ["note", "Подпись под брифом", "loc"], ["match", "Надпись в чате телефона", "loc"],
         ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
     "gifts-catalog": { name: "Подарки: каталог", hint: "Все подарки, нажать — придёт в чат", group: "Подарки",
@@ -1007,6 +1007,53 @@
     </div>`;
   }
 
+  // gifts from the gift-catalog repo for the "Подарки" blocks: field type "gifts:all" (any gift) or "gifts:process"
+  // (only gifts with Figma steps in process.json). Selected ones in order (↑ ↓ ✕), the rest below — a click adds.
+  const giftsBase = (obj) => new URL(obj.base || "/gift-catalog/",
+    location.hostname.endsWith("github.io") ? location.origin : "https://eyeanton.github.io").href;
+  const giftsCache = {};
+  function giftsFor(base) {
+    if (!giftsCache[base]) {
+      giftsCache[base] = { ready: false };
+      const get = (f) => fetch(base + f, { cache: "no-cache" }).then((r) => r.json()).catch(() => ({ items: [] }));
+      Promise.all([get("gifts.json"), get("process.json")]).then(([g, p]) => {
+        Object.assign(giftsCache[base], { ready: true, items: g.items || [], process: new Set((p.items || []).map((x) => x.key)) });
+        renderSePanel();
+      });
+    }
+    return giftsCache[base];
+  }
+  function giftPicker(obj, path, label, src) {
+    const base = giftsBase(obj), data = giftsFor(base);
+    if (!data.ready) return `<div class="f gpick"><span>${h(label)}</span><p class="hint">Загружаю подарки…</p></div>`;
+    const pool = data.items.filter((g) => src !== "process" || data.process.has(g.key));
+    const byKey = new Map(pool.map((g) => [g.key, g]));
+    const sel = (getPath(obj, path) || []).filter((k) => byKey.has(k));
+    const chip = (g, inner) => `<span class="gp-chip" title="${h(g.key)}"><img src="${h(base + g.still)}" alt="" loading="lazy">${h(g.name)}${inner}</span>`;
+    return `<div class="f gpick"><span>${h(label)}</span>
+      <div class="gp-sel">${sel.length ? sel.map((k, i) => chip(byKey.get(k), `<span class="gp-mv">
+        <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="up" aria-label="Раньше" ${i ? "" : "disabled"}>↑</button>
+        <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="down" aria-label="Позже" ${i < sel.length - 1 ? "" : "disabled"}>↓</button>
+        <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="del" aria-label="Убрать">✕</button></span>`)).join("")
+        : `<p class="hint">Ничего не выбрано — ${src === "process" ? "показываются все" : "играют первые шесть"}.</p>`}</div>
+      <p class="hint">Добавить — нажать на подарок:</p>
+      <div class="gp-pool">${pool.filter((g) => !sel.includes(g.key)).map((g) =>
+        `<button type="button" class="gp-chip" data-gp="${h(path)}" data-k="${h(g.key)}" data-act="add" title="${h(g.key)}"><img src="${h(base + g.still)}" alt="" loading="lazy">${h(g.name)}</button>`).join("")}</div>
+    </div>`;
+  }
+  function giftPick(path, key, act) {
+    const obj = panelObj();
+    const list = [...(getPath(obj, path) || [])].filter((k) => k !== key || act !== "del");
+    const i = list.indexOf(key);
+    if (act === "add" && i < 0) list.push(key);
+    if ((act === "up" && i > 0) || (act === "down" && i >= 0 && i < list.length - 1)) {
+      const j = act === "up" ? i - 1 : i + 1;
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    setPath(obj, path, list);
+    renderSeBlocks(); renderSePanel(); refreshFrame(); updateStatus();
+  }
+
   // a field of the selected block (or of the project for "_head"); data-bp = path inside it
   const arrBtns = (path, i) => `<span class="mv">
       <button type="button" data-arr="${h(path)}" data-i="${i}" data-act="up" aria-label="Выше">↑</button>
@@ -1023,6 +1070,7 @@
     if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
     if (type === "area") return `<label class="f">${h(label)}<textarea class="mono" ${bp}>${h(v)}</textarea></label>`;
     if (type === "csv") return `<label class="f">${h(label)}<input type="text" ${bp} data-type="csv" value="${h((v || []).join(", "))}"></label>`;
+    if (type.startsWith("gifts:")) return giftPicker(obj, path, label, type.slice(6));
     if (type.startsWith("sel:")) return `<label class="f">${h(label)}<select ${bp}>${type.slice(4).split(",").map((o) => {
       const [val, l] = o.split("=");
       return `<option value="${h(val)}" ${val === (v ?? "") ? "selected" : ""}>${h(l)}</option>`;
@@ -1247,6 +1295,7 @@
       return;
     }
     if (b.dataset.newtype) { addBlock(b.dataset.newtype); return; }
+    if (b.dataset.gp) { giftPick(b.dataset.gp, b.dataset.k, b.dataset.act); return; }
     if (b.dataset.tab || b.dataset.untab) { hideTab(b.dataset.tab || b.dataset.untab, !!b.dataset.tab); return; }
     if (b.dataset.hide || b.dataset.unhide) { hideText(seBlock, b.dataset.hide || b.dataset.unhide, !!b.dataset.hide); return; }
     if (b.hasAttribute("data-undo") && seUndo.text) { hideText(seUndo.id, seUndo.text, false); return; }
