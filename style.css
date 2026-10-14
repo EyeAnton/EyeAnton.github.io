@@ -65,8 +65,9 @@ main [data-block] { scroll-margin-top: 72px; }
 .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
 
 /* Коробка с подарком над текстом: слои дно → подарок → передние стенки → крышка (все в одной рамке 180×180).
-   Сначала коробка открыта и пуста (.empty): курсор «Anton Egorov» приносит подарок (.deliver), роняет его внутрь,
-   крышка опускается. Дальше наведение — крышка парит и приоткрывается, клик — улетает и подарок поднимается.
+   При каждой загрузке коробка открыта и пуста (.empty): курсор «Anton Egorov» приносит подарок (.deliver), роняет его
+   внутрь (.lidless), крышка опускается сверху. Наведение — крышка парит вверх-вправо; клик — распаковка: крышка улетает
+   вправо, коробка уходит вниз, подарок чуть поднимается и растёт; повторный клик — коробка собирается обратно.
    Крышку двигает setupUnbox() в app.js (Web Animations, без скачков из любой фазы). */
 .unbox {
   position: relative; width: clamp(120px, 14vw, 160px); aspect-ratio: 1; margin: -24px 0 18px;
@@ -79,12 +80,12 @@ main [data-block] { scroll-margin-top: 72px; }
   position: absolute; left: 22%; top: 30%; width: 56%; height: auto; pointer-events: none;
   transform: translateY(18%) scale(.82); transition: transform .5s cubic-bezier(.5, 0, .75, 0);
 }
-.unbox-lid { transform-origin: 15% 70%; }
-.unbox.empty .unbox-lid, .unbox.deliver .unbox-lid, .unbox.empty .unbox-gift { opacity: 0; }
+.unbox-lid { transform-origin: 50% 50%; }
+.unbox.empty .unbox-lid, .unbox.deliver .unbox-lid, .unbox.lidless .unbox-lid, .unbox.empty .unbox-gift { opacity: 0; }
 .unbox.deliver .unbox-gift { transition: none; } /* JS ведёт подарок за курсором */
 .unbox.open .unbox-gift {
-  transform: translateY(-48%) scale(1.08);
-  transition: transform .7s cubic-bezier(.3, 1.6, .5, 1) .25s;
+  transform: translateY(-8%) scale(1.22);
+  transition: transform 1.05s cubic-bezier(.34, .9, .4, 1);
 }
 .unbox .guest-cursor { position: absolute; z-index: 5; }
 
