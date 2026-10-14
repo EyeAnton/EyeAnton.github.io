@@ -1,6 +1,9 @@
 /* Page layout. Tokens and components live in design-system.css (load it first). */
 
 /* ---------- header ---------- */
+/* home anchors (#work, #contact…) land below the sticky header */
+main [data-block] { scroll-margin-top: 72px; }
+
 .top {
   position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;

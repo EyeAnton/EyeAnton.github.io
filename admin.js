@@ -945,9 +945,26 @@
       // textareas everywhere: Enter adds a line break, which the site shows (white-space: pre-line)
       const long = Math.max((site.text.ru[k] || "").length, (site.text.en[k] || "").length) > 60;
       const inp = (l) => `<textarea class="${long ? "" : "short"}" data-text="${h(k)}" data-l="${l}" placeholder="${l.toUpperCase()}">${h(site.text[l][k])}</textarea>`;
-      return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}${ctl}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>`;
+      return `<div class="tx"><span>${h(KEY_LABEL[k] || k)}${ctl}</span><i>RU</i>${inp("ru")}<i>EN</i>${inp("en")}</div>${linkField(id, k)}`;
     }).join("");
   }
+
+  // where a button leads: site.links["блок:ключ"] (header and footer — "top:ключ"); empty = as in the page html
+  const LINK_DEFAULT = {
+    brand: "./", "nav.home": "./", "nav.work": "projects.html", "nav.contact": "contact.html", "foot.ds": "design-system.html",
+    "hero.cta": "projects.html", "hero.cv": "contact.html", "show.all": "projects.html", "contact.behance": "https://www.behance.net/EyeAnton",
+  };
+  const ANCHORS = [["#home", "Первый экран"], ["#about", "Что я делаю"], ["#work", "Избранные проекты"], ["#tools", "Стек"],
+    ["#experience", "Опыт"], ["#contact", "Контакты (блок «Давайте поговорим»)"], ["./", "Главная страница"],
+    ["projects.html", "Страница «Проекты»"], ["contact.html", "Страница «Контакты»"], ["design-system.html", "Дизайн-система"]];
+  function linkField(id, k) {
+    if (!(k in LINK_DEFAULT)) return "";
+    const key = `${id === "general" ? "top" : id}:${k}`;
+    return `<label class="f link-f">Куда ведёт — якорь главной, страница или адрес
+      <input type="text" list="seAnchors" data-link="${h(key)}" value="${h(site.links?.[key] || "")}" placeholder="как сейчас: ${h(LINK_DEFAULT[k])}"></label>`;
+  }
+  const anchorList = () => `<datalist id="seAnchors">${ANCHORS.map(([v, l]) => `<option value="${h(v)}">${h(l)}</option>`).join("")}${
+    (site.blocks || []).filter((b) => b.anchor).map((b) => `<option value="#${h(b.anchor)}">${h(blockLabel(b))}</option>`).join("")}</datalist>`;
 
   function field(path, label, type) {
     const v = toField(type, getPath(site, path));
@@ -1105,7 +1122,15 @@
         <h2 class="sec">Подсказки по клику</h2><p class="hint">По строке: «Название — коротко что это». Название — как в бегущей строке.</p>
         ${field("profile.stackInfo.ru", "RU", "lines")}${field("profile.stackInfo.en", "EN", "lines")}`,
       exp: `<h2 class="sec">Места работы</h2>${repeater("profile.experience")}`,
-      general: `<h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
+      general: `<h2 class="sec">Структура сайта</h2>
+        <p class="hint">Выключенная страница больше не открывается: её адрес и все ссылки на неё ведут на блок главной (Проекты → #work, Контакты → #contact).</p>
+        ${[["projects", "Отдельная страница «Проекты»"], ["contact", "Отдельная страница «Контакты»"]].map(([pg, l]) =>
+          `<label class="check"><input type="checkbox" data-page="${pg}" ${site.pages?.[pg] === false ? "" : "checked"}> ${l}</label>`).join("")}
+        <p class="hint">Вкладки в шапке:</p>
+        ${[["nav.home", "Главная"], ["nav.work", "Проекты"], ["nav.contact", "Контакты"]].map(([k, l]) =>
+          `<label class="check"><input type="checkbox" data-nav="${k}" ${(site.navHidden || []).includes(k) ? "" : "checked"}> ${l}</label>`).join("")}
+        <p class="hint">Куда ведут вкладки — поле «Куда ведёт» под их текстами выше.</p>
+        <h2 class="sec">Контакты</h2><p class="hint">Показываются на странице «Контакты».</p>${repeater("profile.channels")}
         <label class="check"><input type="checkbox" data-path="profile.showCode" data-type="bool" ${site.profile.showCode ? "checked" : ""}> Показывать кнопки «Код» у проектов</label>
         <h2 class="sec">Гость с CV</h2>${field("profile.guestDelay", "Через сколько секунд появляется курсор «Anton Egorov» с CV (0 — выключить)", "number")}
         <p class="hint">Один раз за визит (в новой вкладке — снова), только на компьютере. На страницах проектов — не по таймеру, а после 3 секунд на последних экранах. После замены CV обновить превью: python tools/cv_thumbs.py.</p>`,
@@ -1116,7 +1141,7 @@
         <p class="hint">Встроенный блок: его можно скрыть, но не удалить. Ненужный текст в нём убирается ✕ — здесь или на странице («✕ текст» по наведению), место он больше не занимает.</p>` : ""}
       <h2 class="sec">Тексты</h2>
       ${textFields(B.keys, seBlock)}
-      ${extra}`;
+      ${extra}${anchorList()}`;
   }
 
   q("#sePanel").addEventListener("input", (e) => {
@@ -1144,6 +1169,17 @@
       if (seBlock === "_head") renderList();
     } else if (el.dataset.text) {
       site.text[el.dataset.l][el.dataset.text] = el.value;
+    } else if (el.dataset.link) {
+      const v = el.value.trim();
+      site.links ||= {};
+      if (v) site.links[el.dataset.link] = v; else delete site.links[el.dataset.link];
+    } else if (el.dataset.page) {
+      site.pages ||= {};
+      if (el.checked) delete site.pages[el.dataset.page]; else site.pages[el.dataset.page] = false;
+    } else if (el.dataset.nav) {
+      const set = new Set(site.navHidden || []);
+      if (el.checked) set.delete(el.dataset.nav); else set.add(el.dataset.nav);
+      site.navHidden = [...set];
     } else if (el.dataset.path) {
       setPath(site, el.dataset.path, el.dataset.type === "bool" ? el.checked : fromField(el.dataset.type, el.value));
     } else if (el.hasAttribute("data-blockvis")) {
