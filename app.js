@@ -669,10 +669,33 @@ function setupStackTips() {
   addEventListener("keydown", (e) => { if (e.key === "Escape" && cur) hide(); });
 }
 
+// Box above the hero title: click — the lid flies off and the gift rises; click again — the lid lands back.
+function setupUnbox() {
+  const box = $(".unbox");
+  if (!box) return;
+  const label = () => {
+    const ru = document.documentElement.lang !== "en", open = box.classList.contains("open");
+    box.setAttribute("aria-label", open ? (ru ? "Закрыть подарок" : "Close the gift") : (ru ? "Открыть подарок" : "Open the gift"));
+    box.setAttribute("aria-pressed", open);
+  };
+  let t;
+  box.addEventListener("click", () => {
+    const open = !box.classList.contains("open");
+    box.classList.toggle("open", open);
+    box.classList.toggle("shut", !open);
+    clearTimeout(t);
+    if (!open) t = setTimeout(() => box.classList.remove("shut"), 600); // landing done — hover peek again
+    label();
+  });
+  new MutationObserver(label).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  label();
+}
+
 if (PAGE) {
   document.documentElement.classList.add("js");
   $("#year").textContent = new Date().getFullYear();
   setupStackTips();
+  setupUnbox();
 
   if (EDITOR) {
     bootEditor();
