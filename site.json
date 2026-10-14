@@ -427,6 +427,7 @@
   },
   "navHidden": [
     "nav.work",
-    "nav.contact"
+    "nav.contact",
+    "nav.home"
   ]
 }
