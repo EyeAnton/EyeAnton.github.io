@@ -31,6 +31,27 @@ function applySite(site) {
   PROFILE = site.profile;
   for (const l of ["ru", "en"]) Object.assign(UI[l], site.text[l]);
 }
+// site.links["блок:ключ"] — where a button leads ("top:ключ" — header and footer): "#якорь" of the home page, a page or a URL.
+// site.pages.<page> = false — the page is switched off: links to it go to its home anchor, the page itself redirects there.
+// site.navHidden — header tabs taken off (keys nav.*).
+const PAGE_ANCHOR = { projects: "#work", contact: "#contact" };
+const offPage = (href) => {
+  const m = /^(projects|contact)\.html$/.exec(href || "");
+  return m && SITE?.pages?.[m[1]] === false ? PAGE_ANCHOR[m[1]] : null;
+};
+const linkHref = (v) => (v.startsWith("#") && PAGE !== "home" ? "./" + v : v);
+function applyLinks() {
+  document.querySelectorAll("a[data-i18n]").forEach((a) => {
+    if (a.dataset.href0 == null) a.dataset.href0 = a.getAttribute("href") || "";
+    const blk = a.closest("[data-block]")?.dataset.block || "top";
+    const set = SITE?.links?.[`${blk}:${a.dataset.i18n}`];
+    a.setAttribute("href", linkHref(set || offPage(a.dataset.href0) || a.dataset.href0));
+    if (set) { // an outside address opens in a new tab, an anchor / page of the site — in this one
+      if (/^https?:/.test(set)) { a.target = "_blank"; a.rel = "noopener"; } else a.removeAttribute("target");
+    }
+    if (a.closest(".top nav")) a.hidden = (SITE?.navHidden || []).includes(a.dataset.i18n);
+  });
+}
 const loadSite = () => fetch("site.json", { cache: "no-cache" }).then((r) => r.json()).then(applySite);
 
 const store = {
@@ -416,7 +437,7 @@ function renderProject() {
   const t = UI[lang];
   const id = new URLSearchParams(location.search).get("id");
   const p = EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === id);
-  const crumb = `<a class="cs-crumb" href="projects.html">${esc(t["proj.back"])}</a>`;
+  const crumb = `<a class="cs-crumb" href="${linkHref(offPage("projects.html") || "projects.html")}">${esc(t["proj.back"])}</a>`;
   if (!p) {
     $("#projHead").innerHTML = `${crumb}<h1>${lang === "ru" ? "Проект не найден" : "Project not found"}</h1>`;
     $("#projBlocks").innerHTML = "";
@@ -485,6 +506,7 @@ function render() {
     el.hidden = !!blk && gone.has(`${blk.dataset.block}:${el.dataset.i18n}`);
   });
   document.documentElement.classList.add("i18n-ready");
+  applyLinks();
   $("#lang").dataset.lang = lang; // ring around the active RUS / ENG
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
@@ -677,9 +699,15 @@ if (PAGE) {
 
     Promise.all([loadSite(), fetch("projects.json", { cache: "no-cache" }).then((r) => r.json())])
       .then(async ([, data]) => {
+        const off = offPage(`${PAGE}.html`);
+        if (off) { location.replace("./" + off); return; }
         if (PAGE === "contact") await checkCv();
         setProjects(data);
         render();
+        // the home page is built after load: jump to #якорь (from another page) once the blocks are in place
+        if (location.hash.length > 1 && PAGE === "home") {
+          try { document.querySelector(location.hash)?.scrollIntoView({ behavior: "instant" }); } catch {}
+        }
         if (typeof startGuest === "function") startGuest();
       })
       .catch((err) => {

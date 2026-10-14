@@ -418,5 +418,11 @@
     "showcase:show.eyebrow",
     "exp:exp.eyebrow",
     "areas:areas.text"
-  ]
+  ],
+  "links": {
+    "hero:hero.cta": "#work",
+    "hero:hero.cv": "#contact",
+    "top:nav.work": "#work",
+    "top:nav.contact": "#contact"
+  }
 }
