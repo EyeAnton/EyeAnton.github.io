@@ -65,41 +65,28 @@ main [data-block] { scroll-margin-top: 72px; }
 .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
 
 /* Коробка с подарком над текстом: слои дно → подарок → передние стенки → крышка (все в одной рамке 180×180).
-   Наведение — крышка парит и приоткрывается; клик — улетает, подарок поднимается; повторный клик — закрыть. */
+   Сначала коробка открыта и пуста (.empty): курсор «Anton Egorov» приносит подарок (.deliver), роняет его внутрь,
+   крышка опускается. Дальше наведение — крышка парит и приоткрывается, клик — улетает и подарок поднимается.
+   Крышку двигает setupUnbox() в app.js (Web Animations, без скачков из любой фазы). */
 .unbox {
   position: relative; width: clamp(120px, 14vw, 160px); aspect-ratio: 1; margin: -24px 0 18px;
   padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
+.unbox.empty, .unbox.deliver { cursor: default; }
 .unbox:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; border-radius: 12px; }
 .unbox-l { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .unbox-gift {
   position: absolute; left: 22%; top: 30%; width: 56%; height: auto; pointer-events: none;
   transform: translateY(18%) scale(.82); transition: transform .5s cubic-bezier(.5, 0, .75, 0);
 }
-.unbox-lid { transform-origin: 15% 70%; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1), opacity .3s; }
-.unbox:hover .unbox-lid, .unbox:focus-visible .unbox-lid { animation: unbox-peek 1.6s ease-in-out infinite; }
-@keyframes unbox-peek {
-  0%, 100% { transform: translateY(-6%) rotate(0); }
-  50%      { transform: translateY(-14%) rotate(-7deg); }
-}
-.unbox.open .unbox-lid {
-  animation: unbox-fly .8s cubic-bezier(.4, 0, .7, .2) forwards;
-}
-@keyframes unbox-fly {
-  0%   { transform: translateY(-10%) rotate(-5deg); opacity: 1; }
-  25%  { transform: translateY(-30%) rotate(-12deg); opacity: 1; }
-  100% { transform: translate(120%, -260%) rotate(40deg) scale(.6); opacity: 0; }
-}
+.unbox-lid { transform-origin: 15% 70%; }
+.unbox.empty .unbox-lid, .unbox.deliver .unbox-lid, .unbox.empty .unbox-gift { opacity: 0; }
+.unbox.deliver .unbox-gift { transition: none; } /* JS ведёт подарок за курсором */
 .unbox.open .unbox-gift {
   transform: translateY(-48%) scale(1.08);
   transition: transform .7s cubic-bezier(.3, 1.6, .5, 1) .25s;
 }
-.unbox.shut .unbox-lid { animation: unbox-land .55s cubic-bezier(.3, 1.3, .5, 1); }
-@keyframes unbox-land {
-  0%   { transform: translateY(-120%) rotate(-10deg); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: none; opacity: 1; }
-}
+.unbox .guest-cursor { position: absolute; z-index: 5; }
 
 .stats {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;

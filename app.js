@@ -673,26 +673,135 @@ function setupStackTips() {
   addEventListener("keydown", (e) => { if (e.key === "Escape" && cur) hide(); });
 }
 
-// Box above the hero title: click — the lid flies off and the gift rises; click again — the lid lands back.
+// Box above the hero title (layers in index.html, states in style.css). Once per visit (sessionStorage) it starts
+// open and empty: the "Anton Egorov" cursor (as in guest.js) brings the gift, drops it in, the lid lands.
+// Then hover — the lid floats and peeks (amplitude eases in/out, so it starts and stops without a jump);
+// click — the lid flies off and the gift rises, click again — it comes back. Every lid move starts from where it is.
 function setupUnbox() {
   const box = $(".unbox");
   if (!box) return;
+  const lid = box.querySelector(".unbox-lid"), gift = box.querySelector(".unbox-gift");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canHover = matchMedia("(hover: hover)").matches;
   const label = () => {
     const ru = document.documentElement.lang !== "en", open = box.classList.contains("open");
     box.setAttribute("aria-label", open ? (ru ? "Закрыть подарок" : "Close the gift") : (ru ? "Открыть подарок" : "Open the gift"));
     box.setAttribute("aria-pressed", open);
   };
-  let t;
-  box.addEventListener("click", () => {
-    const open = !box.classList.contains("open");
-    box.classList.toggle("open", open);
-    box.classList.toggle("shut", !open);
-    clearTimeout(t);
-    if (!open) t = setTimeout(() => box.classList.remove("shut"), 600); // landing done — hover peek again
-    label();
-  });
   new MutationObserver(label).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   label();
+
+  // hover peek: h — how much of it (0..1, eases toward the target), s — the open/close swing
+  let h = 0, target = 0, phase = 0, last = 0, raf = 0, anim = null, busy = false;
+  const idle = () => !busy && !anim && !box.classList.contains("open");
+  const tick = (now) => {
+    const dt = Math.min((now - (last || now)) / 1000, 0.05);
+    last = now;
+    h += (target - h) * Math.min(1, dt * 5);
+    phase += dt * Math.PI * 2 / 1.6;
+    if (target === 0 && h < 0.002) { h = 0; phase = 0; raf = 0; last = 0; lid.style.transform = ""; return; }
+    const s = (1 - Math.cos(phase)) / 2;
+    lid.style.transform = `translateY(${-(6 + 8 * s) * h}%) rotate(${-7 * s * h}deg)`;
+    raf = requestAnimationFrame(tick);
+  };
+  const hover = (on) => {
+    target = on && canHover && !reduce && idle() ? 1 : 0;
+    if (target && !raf) raf = requestAnimationFrame(tick);
+  };
+  box.addEventListener("pointerenter", () => hover(true));
+  box.addEventListener("pointerleave", () => hover(false));
+  box.addEventListener("focus", () => box.matches(":focus-visible") && hover(true));
+  box.addEventListener("blur", () => hover(false));
+
+  // lid moves: from the current pose (computed, mid-animation too) to the next one
+  const move = (frames, opts) => {
+    const cs = getComputedStyle(lid);
+    const from = { transform: cs.transform, opacity: cs.opacity };
+    anim?.cancel();
+    cancelAnimationFrame(raf); raf = 0; h = 0; phase = 0; last = 0; target = 0;
+    lid.style.transform = "";
+    const a = anim = lid.animate([from, ...frames], { fill: "forwards", ...opts, duration: reduce ? 1 : opts.duration });
+    a.finished.then(() => {
+      if (anim !== a || box.classList.contains("open")) return;
+      a.cancel(); anim = null; // closed: back to the plain layer, ready for the hover peek
+      if (box.matches(":hover")) hover(true);
+    }).catch(() => {});
+  };
+  const land = (fromAbove) => move(fromAbove
+    ? [{ transform: "translateY(-120%) rotate(-10deg)", opacity: 0, offset: 0.01 }, { opacity: 1, offset: 0.4 }, { transform: "none", opacity: 1 }]
+    : [{ transform: "none", opacity: 1 }], { duration: fromAbove ? 550 : 600, easing: "cubic-bezier(.3, 1.3, .5, 1)" });
+
+  box.addEventListener("click", () => {
+    if (busy) return;
+    const open = !box.classList.contains("open");
+    box.classList.toggle("open", open);
+    if (open) move([
+      { transform: "translateY(-30%) rotate(-12deg)", opacity: 1, offset: 0.25 },
+      { transform: "translate(120%, -260%) rotate(40deg) scale(.6)", opacity: 0 },
+    ], { duration: 800, easing: "cubic-bezier(.4, 0, .7, .2)" });
+    else land(!anim || anim.playState === "finished"); // gone — drops in from above; still flying — turns back
+    label();
+  });
+
+  // delivery: once per visit, when the box is on screen and the tab is visible
+  let seen = false;
+  try { seen = !!sessionStorage.getItem("unboxShown"); } catch {}
+  if (seen || reduce) return;
+  busy = true;
+  box.classList.add("empty");
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || document.hidden) return;
+    io.disconnect();
+    setTimeout(deliver, 700);
+  }, { threshold: 0.6 });
+  io.observe(box);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && box.classList.contains("empty")) { io.disconnect(); io.observe(box); }
+  });
+
+  function deliver() {
+    if (!box.classList.contains("empty")) return;
+    try { sessionStorage.setItem("unboxShown", "1"); } catch {}
+    box.classList.replace("empty", "deliver");
+    const cur = document.createElement("div");
+    cur.className = "guest-cursor";
+    cur.setAttribute("aria-hidden", "true");
+    cur.innerHTML = `<svg viewBox="0 0 20 22"><path d="M2 2l15 7.5-6.5 1.8L7.6 18z"/></svg><b>Anton Egorov</b>`;
+    box.append(cur);
+
+    // in the gift's own frame (its raised spot above the opening = 0,0); the cursor holds its lower-right part
+    const B = box.getBoundingClientRect(), gw = gift.offsetWidth, gh = gift.offsetHeight;
+    const hx = gift.offsetLeft + gw * 0.78, hy = gift.offsetTop + gh * 0.14;
+    const sx = -B.left - gw - 60, sy = -90, cx = sx * 0.35, cy = -190;
+    const at = (x, y) => {
+      gift.style.transform = `translate(${x}px, ${y}px) translateY(-48%) scale(1.08)`;
+      cur.style.transform = `translate(${x + hx}px, ${y + hy}px)`;
+    };
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    const bez = (a, b, c, t) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c;
+    let t0 = null;
+    const fly = (now) => {
+      t0 ??= now;
+      const t = Math.min((now - t0) / 2000, 1), e = ease(t);
+      const w = Math.sin(t * Math.PI * 3) * 6 * (1 - t);
+      at(bez(sx, cx, 0, e) + w, bez(sy, cy, 0, e) - w / 2);
+      if (t < 1) requestAnimationFrame(fly); else setTimeout(release, 250);
+    };
+    const release = () => {
+      box.classList.remove("deliver"); // the gift falls in (its CSS transition)
+      gift.style.transform = "";
+      setTimeout(() => { busy = false; land(true); label(); }, 420);
+      let l0 = null;
+      const leave = (now) => {
+        l0 ??= now;
+        const t = Math.min((now - l0) / 1200, 1), e = t * t;
+        cur.style.transform = `translate(${hx + sx * 0.8 * e}px, ${hy - 220 * e}px)`;
+        if (t < 1) requestAnimationFrame(leave); else cur.remove();
+      };
+      requestAnimationFrame(leave);
+    };
+    requestAnimationFrame(fly);
+  }
 }
 
 if (PAGE) {
