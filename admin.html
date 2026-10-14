@@ -50,6 +50,20 @@
     .item .mv { display: flex; gap: 2px; }
     .item .mv button { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; }
     .item .mv button:hover { color: var(--gold); }
+    /* gift picker (admin.js giftPicker): chosen gifts in order, the rest below */
+    .gpick { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+    .gp-sel, .gp-pool { display: flex; flex-wrap: wrap; gap: 6px; }
+    .gp-pool { max-height: 220px; overflow: auto; }
+    .gp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 3px 3px; border-radius: 999px;
+      border: 1px solid var(--line); background: none; color: var(--text); font: inherit; font-size: 12px; letter-spacing: 0; }
+    .gp-chip img { width: 26px; height: 26px; border-radius: 50%; object-fit: contain; background: rgb(255 255 255 / .06); }
+    .gp-sel .gp-chip { border-color: var(--gold); }
+    button.gp-chip { cursor: pointer; opacity: .75; }
+    button.gp-chip:hover { opacity: 1; border-color: var(--gold); }
+    .gp-mv { display: inline-flex; }
+    .gp-mv button { background: none; border: 0; color: var(--muted); font-size: 14px; cursor: pointer; padding: 0 3px; }
+    .gp-mv button:hover:not(:disabled) { color: var(--gold); }
+    .gp-mv button:disabled { opacity: .25; cursor: default; }
     .sw { position: relative; width: 36px; height: 20px; flex: none; }
     .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
     .sw span { position: absolute; inset: 0; border-radius: 999px; background: var(--ink-5); transition: background .2s; pointer-events: none; }
