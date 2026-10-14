@@ -424,5 +424,9 @@
     "hero:hero.cv": "#contact",
     "top:nav.work": "#work",
     "top:nav.contact": "#contact"
-  }
+  },
+  "navHidden": [
+    "nav.work",
+    "nav.contact"
+  ]
 }
