@@ -538,6 +538,16 @@ main [data-block] { scroll-margin-top: 72px; }
 }
 .cv-modal-x:hover { background: var(--ink-4); }
 
+/* touch screens: no hover, so the guest file's × is always shown */
+@media (hover: none) { .guest-x { opacity: 1; } }
+/* phones: the page fills the width, × sits inside its corner, a wide download button */
+@media (max-width: 640px) {
+  .cv-modal { padding: 12px; gap: 12px; }
+  .cv-page { height: min(calc(100dvh - 92px), calc((100vw - 24px) * 297 / 210)); }
+  .cv-modal-x { top: 8px; right: 8px; width: 36px; height: 36px; background: rgb(12 18 36 / .8); }
+  .cv-modal .btn { width: min(100%, 320px); justify-content: center; }
+}
+
 /* ---- stack chip tooltip (app.js: profile.stackInfo) ---- */
 .marquee-row span[data-tip] { cursor: pointer; }
 .marquee.hold .marquee-row { animation-play-state: paused; }
@@ -550,5 +560,6 @@ main [data-block] { scroll-margin-top: 72px; }
 .stack-tip.on { opacity: 1; }
 .stack-tip b { display: block; color: var(--hl); font-weight: 600; }
 
-/* texts from site.json: hide the HTML placeholders until the first render (no "Let's talk" flash) */
-html:not(.i18n-ready) main [data-i18n] { visibility: hidden; }
+/* texts from site.json: hide the HTML placeholders (Russian) until the first render — header and footer too,
+   so the English site never flashes Russian */
+html:not(.i18n-ready) [data-i18n] { visibility: hidden; }

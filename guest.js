@@ -9,10 +9,12 @@ function startGuest() {
   startGuest.on = true;
   const delay = Number(PROFILE.guestDelay ?? 20);
   if (!delay || !PROFILE.cv?.[lang]) return;
-  if (!matchMedia("(hover: hover) and (pointer: fine) and (min-width: 900px)").matches) return;
   try { if (sessionStorage.getItem("guestShown")) return; } catch {}
 
-  let mx = innerWidth * 0.6, my = innerHeight * 0.5;
+  // touch screens have no pointer to follow: the file lands in the bottom-right corner, off the text
+  const touch = !matchMedia("(hover: hover) and (pointer: fine)").matches;
+  let mx = innerWidth, my = innerHeight * (touch ? 0.85 : 0.5);
+  if (!touch) mx *= 0.6;
   addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
   const go = () => {
@@ -78,7 +80,7 @@ function startGuest() {
 
     // drop spot: ~80px from the visitor's pointer, toward the screen centre, kept on screen
     const W = innerWidth, H = innerHeight;
-    const tx = Math.min(Math.max(mx + (mx > W / 2 ? -110 : 60), 16), W - 80);
+    const tx = touch ? W - 80 : Math.min(Math.max(mx + (mx > W / 2 ? -110 : 60), 16), W - 80);
     const ty = Math.min(Math.max(my + (my > H / 2 ? -110 : 50), 16), H - 90);
     const place = (el, x, y) => { el.style.transform = `translate(${x}px, ${y}px)`; };
 
