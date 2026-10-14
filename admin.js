@@ -193,6 +193,8 @@
     data.projects.forEach(normalize);
     savedJSON = serialize();
     pending.clear(); replaced.clear();
+    restoredFrom = "";
+    if (history) renderHistory();
     sel = Math.min(sel, data.projects.length - 1);
 
     site = (await readJSON(SITE_FILE)) || await fetch(SITE_FILE, { cache: "no-cache" }).then((r) => r.json());
@@ -261,15 +263,18 @@
       }
       if (serialize() !== savedJSON) {
         setStatus("Сохраняю проекты…");
-        await putFile(DATA, utf8ToB64(serialize()), "Admin: update projects");
+        await putFile(DATA, utf8ToB64(serialize()), restoredFrom ? `Admin: restore ${restoredFrom.slice(0, 7)}` : "Admin: update projects");
         savedJSON = serialize();
       }
       pending.clear(); replaced.clear();
       if (siteDirty()) {
         setStatus("Сохраняю главную страницу…");
-        await putFile(SITE_FILE, utf8ToB64(serializeSite()), "Admin: update home page");
+        await putFile(SITE_FILE, utf8ToB64(serializeSite()), restoredFrom ? `Admin: restore ${restoredFrom.slice(0, 7)}` : "Admin: update home page");
         siteSaved = serializeSite();
       }
+      restoredFrom = "";
+      history = null; // the new version is on top now
+      if (!q("#historyMode").hidden) loadHistory();
       renderAll();
       setStatus("Опубликовано. Сайт обновится примерно через минуту.", "ok");
     } catch (e) {
@@ -1107,6 +1112,37 @@
     return "";
   }
 
+  // «Оформление»: block.style (app.js styleBlocks → data-s-*, rules at the end of style.css); "" = as designed
+  const STYLE_OPTS = [
+    ["bg", "Фон", [["", "Нет"], ["card", "Карточка"], ["band", "Полоса"], ["deep", "Глубокая полоса"], ["line", "Линия сверху"]]],
+    ["space", "Отступ сверху", [["0", "Нет"], ["s", "Меньше"], ["", "Обычный"], ["l", "Больше"]]],
+    ["align", "Выравнивание", [["", "Как задумано"], ["left", "Слева"], ["center", "По центру"]]],
+    ["w", "Ширина", [["narrow", "Узкая"], ["", "Обычная"], ["wide", "Широкая"]]],
+    ["h", "Заголовки", [["s", "Меньше"], ["", "Обычные"], ["l", "Крупнее"]]],
+    ["accent", "Акцентный цвет", [["", "Красный"], ["blue", "Синий"], ["teal", "Бирюзовый"], ["white", "Белый"]]],
+    ["anim", "Появление при прокрутке", [["", "С анимацией"], ["false", "Сразу"]]],
+  ];
+  let styleClip = null; // «Скопировать оформление» → «Вставить» on another block
+  function styleSection(obj) {
+    const st = obj.style || {};
+    const key = `${seTarget}/${seBlock}/style`;
+    const set = STYLE_OPTS.filter(([k]) => k in st).map(([k, , opts]) => opts.find(([v]) => v === String(st[k]))?.[1]).filter(Boolean);
+    return `<details class="rep-item" data-key="${h(key)}" ${seFold[key] ?? !!obj.style ? "open" : ""}>
+      <summary class="rep-head"><b>Оформление</b><span class="hint">${h(set.join(" · ") || "как задумано")}</span></summary>
+      ${STYLE_OPTS.map(([k, label, opts]) => `<div class="st-row"><span>${label}</span><div class="pv-tabs">${opts.map(([v, l]) =>
+        `<button class="chip" type="button" data-st="${k}" data-v="${v}" aria-selected="${String(st[k] ?? "") === v}">${l}</button>`).join("")}</div></div>`).join("")}
+      <div class="se-acts">
+        <button class="btn ghost small" type="button" data-stcopy ${obj.style ? "" : "disabled"}>Скопировать оформление</button>
+        ${styleClip ? `<button class="btn ghost small" type="button" data-stpaste>Вставить оформление</button>` : ""}
+        ${obj.style ? `<button class="btn ghost small" type="button" data-streset>Сбросить</button>` : ""}
+      </div></details>`;
+  }
+  function setStyle(obj, k, v) {
+    const st = { ...obj.style };
+    if (v === "") delete st[k]; else st[k] = k === "anim" ? false : v;
+    if (Object.keys(st).length) obj.style = st; else delete obj.style;
+  }
+
   function renderSePanel() {
     if (!site) return;
     const home = seTarget === "home";
@@ -1158,6 +1194,7 @@
         <label class="check"><input type="checkbox" data-bp="visible" data-type="bool" ${cb.visible === false ? "" : "checked"}> Показывать на сайте</label>
         ${home ? "" : `<label class="f">Ширина<select data-bp="w">
           <option value="">На всю ширину</option><option value="half" ${cb.w === "half" ? "selected" : ""}>Половина — два блока в ряд</option></select></label>`}
+        ${styleSection(cb)}
         ${T.noHead ? "" : `<label class="check"><input type="checkbox" data-head ${hasHead(cb) ? "checked" : ""}> Заголовок секции (надзаголовок, заголовок, текст)</label>
           ${hasHead(cb) ? bField(cb, "eyebrow", "Надзаголовок", "loc") + bField(cb, "title", "Заголовок", "loc") + bField(cb, "text", "Текст", "loc-area") : ""}`}
         ${T.fields.map(([k, l, t]) => bField(cb, k, l, t)).join("")}
@@ -1201,7 +1238,7 @@
     q("#sePanel").innerHTML = `${undo}
       <h2>${h(B.name)}</h2>
       ${blk ? `<label class="check"><input type="checkbox" data-blockvis ${blk.visible === false ? "" : "checked"}> Показывать блок на сайте</label>
-        <p class="hint">Встроенный блок: его можно скрыть, но не удалить. Ненужный текст в нём убирается ✕ — здесь или на странице («✕ текст» по наведению), место он больше не занимает.</p>` : ""}
+        <p class="hint">Встроенный блок: его можно скрыть, но не удалить. Ненужный текст в нём убирается ✕ — здесь или на странице («✕ текст» по наведению), место он больше не занимает.</p>${styleSection(blk)}` : ""}
       <h2 class="sec">Тексты</h2>
       ${textFields(B.keys, seBlock)}
       ${extra}${anchorList()}`;
@@ -1322,6 +1359,20 @@
       selectBlock(id);
       return;
     }
+    if (b.dataset.st || b.hasAttribute("data-stpaste") || b.hasAttribute("data-streset")) {
+      const obj = panelObj();
+      if (b.dataset.st) setStyle(obj, b.dataset.st, b.dataset.v);
+      else if (b.hasAttribute("data-streset")) delete obj.style;
+      else obj.style = structuredClone(styleClip);
+      renderSePanel(); refreshFrame(); updateStatus();
+      return;
+    }
+    if (b.hasAttribute("data-stcopy")) {
+      styleClip = structuredClone(panelObj().style);
+      renderSePanel();
+      setStatus("Оформление скопировано — откройте другой блок и нажмите «Вставить оформление»");
+      return;
+    }
     if (b.dataset.bact) { blockAction(seBlock, b.dataset.bact); return; }
     if (b.dataset.arradd) {
       const obj = panelObj();
@@ -1359,10 +1410,91 @@
     }
   });
 
+  /* ---------- History: published versions of the content ---------- */
+  // A version = the repo at a commit that touched projects.json or site.json (admin publishes, merged PRs).
+  // «Вернуть» loads both files as they were there into the draft; uploads deleted since then come back
+  // from the same commit (git blobs) as pending images, so «Опубликовать» re-uploads them.
+
+  let history = null;     // [{ sha, date, msg, files }] newest first
+  let restoredFrom = "";  // sha of the version loaded as the draft (for the publish message and the ✓ in the list)
+
+  async function loadHistory() {
+    if (LOCAL) { q("#hist").innerHTML = `<p class="hint">В локальном режиме истории нет — откройте админку на сайте.</p>`; return; }
+    q("#hist").innerHTML = `<p class="hint">Загружаю историю…</p>`;
+    try {
+      const lists = await Promise.all([DATA, SITE_FILE].map((f) => gh(`/commits?sha=${BRANCH}&path=${f}&per_page=50`)));
+      const by = new Map();
+      lists.forEach((list, i) => list.forEach((c) => {
+        const v = by.get(c.sha) || { sha: c.sha, date: new Date(c.commit.committer.date), msg: c.commit.message.split("\n")[0], files: [] };
+        v.files.push(i ? "главная" : "проекты");
+        by.set(c.sha, v);
+      }));
+      history = [...by.values()].sort((a, b) => b.date - a.date);
+      renderHistory();
+    } catch (e) {
+      q("#hist").innerHTML = `<p class="status err">Не удалось загрузить историю: ${h(e.message)}</p>`;
+    }
+  }
+
+  const ADMIN_MSG = { "Admin: update projects": "Админка: проекты", "Admin: update home page": "Админка: страницы", "Admin: restore": "Админка: возврат версии" };
+  function renderHistory() {
+    if (!history) return;
+    const fmt = (d) => d.toLocaleString("ru", { day: "numeric", month: "short", year: d.getFullYear() === new Date().getFullYear() ? undefined : "numeric", hour: "2-digit", minute: "2-digit" });
+    q("#hist").innerHTML = history.map((v, i) => {
+      const msg = Object.entries(ADMIN_MSG).find(([k]) => v.msg.startsWith(k))?.[1] || v.msg;
+      return `<div class="hist-item${v.sha === restoredFrom ? " on" : ""}">
+        <time datetime="${v.date.toISOString()}">${fmt(v.date)}</time>
+        <span class="m" title="${h(v.msg)}">${h(msg)}<small>${v.files.join(", ")}</small></span>
+        ${i === 0 && !restoredFrom ? `<span class="hint">сейчас на сайте</span>`
+          : v.sha === restoredFrom ? `<span class="hint">в черновике</span>`
+          : `<button class="btn ghost small" type="button" data-restore="${v.sha}">Вернуть</button>`}
+      </div>`;
+    }).join("") || `<p class="hint">Публикаций пока нет.</p>`;
+  }
+
+  async function restoreVersion(sha) {
+    if (isDirty() && !confirm("Неопубликованные изменения пропадут — вместо них загрузится эта версия. Продолжить?")) return;
+    const v = history.find((x) => x.sha === sha);
+    try {
+      setStatus("Загружаю версию…");
+      const read = async (f) => { const r = await gh(`/contents/${f}?ref=${sha}`, { allow404: true }); return r && JSON.parse(b64ToUtf8(r.content)); };
+      const [oldData, oldSite] = await Promise.all([read(DATA), read(SITE_FILE)]);
+      if (!oldData || !oldSite) throw new Error("в этой версии нет файлов контента");
+      // uploads the version uses that are gone now: take them from that commit
+      const now = new Set(((await gh(`/contents/${SHOTS.slice(0, -1)}?ref=${BRANCH}`, { allow404: true })) || []).map((f) => f.path));
+      const missing = [...imagesOf(oldData.projects, oldSite)].filter((p) => !now.has(p));
+      pending.clear(); replaced.clear();
+      for (const [i, p] of missing.entries()) {
+        setStatus(`Возвращаю картинки из истории… ${i + 1} из ${missing.length}`);
+        const f = await gh(`/contents/${encodeURI(p)}?ref=${sha}`, { allow404: true });
+        if (!f) continue;
+        const b64 = (await gh(`/git/blobs/${f.sha}`)).content.replace(/\s/g, "");
+        const ext = p.split(".").pop().toLowerCase();
+        pending.set(p, { b64, dataURL: `data:image/${ext === "jpg" ? "jpeg" : ext};base64,${b64}` });
+      }
+      data = oldData; data.projects.forEach(normalize);
+      site = oldSite; applySite(site);
+      sel = Math.min(sel, data.projects.length - 1);
+      if (seTarget !== "home" && !seProject()) { seTarget = "home"; seBlock = "hero"; }
+      restoredFrom = sha;
+      renderAll(); renderSite(); renderHistory();
+      setStatus(`Версия от ${v.date.toLocaleString("ru")} в черновике — посмотрите во «Страницах» и нажмите «Опубликовать»`, "dirty");
+    } catch (e) {
+      setStatus(`Не удалось вернуть версию: ${e.message}`, "err");
+    }
+  }
+
+  q("#hist").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-restore]");
+    if (b) restoreVersion(b.dataset.restore);
+  });
+
   function setMode(mode) {
     q("#modes").querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-selected", x.dataset.mode === mode));
     q("#projectsMode").hidden = mode !== "projects";
     q("#siteMode").hidden = mode !== "site";
+    q("#historyMode").hidden = mode !== "history";
+    if (mode === "history" && !history) loadHistory();
     q(".adm").classList.toggle("wide", mode === "site");
     if (mode === "site") { // also picks up unsaved project edits (featured projects, covers)
       renderSeBlocks(); renderSePanel(); loadFrame();
