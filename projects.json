@@ -1810,7 +1810,9 @@
       "cat": "hardware",
       "year": 2026,
       "cover": {
-        "shot": "assets/shots/stasik.jpg"
+        "shot": "assets/shots/stasik.jpg",
+        "fit": "cover",
+        "pos": "0% 50%"
       },
       "title": {
         "ru": "Stasik",
