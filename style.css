@@ -80,6 +80,7 @@ main [data-block] { scroll-margin-top: 72px; }
 .unbox-l { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .unbox-gift {
   position: absolute; left: 22%; top: 30%; width: 56%; height: auto; pointer-events: none;
+  aspect-ratio: 360 / 295; object-fit: contain; object-position: 50% 100%; /* любой подарок (высокий, широкий) — в одну рамку */
   transform: translateY(18%) scale(.82); transition: transform .5s cubic-bezier(.5, 0, .75, 0);
 }
 .unbox-lid { transform-origin: 50% 50%; }
