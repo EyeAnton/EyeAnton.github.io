@@ -17,18 +17,35 @@ PAGES = ["index.html", "projects.html", "contact.html", "project.html", "design-
 EL = re.compile(r'(<(?P<tag>[a-z][a-z0-9]*)\b[^>]*\bdata-i18n="(?P<key>[^"]+)"[^>]*>)(?P<text>[^<]*)(</(?P=tag)>)')
 
 
-def bake(text, strings):
+STYLE = re.compile(r'  <style id="baked-hidden">[^<]*</style>\r?\n')
+HEAD = re.compile(r'(\r?\n)</head>')
+
+
+def hidden_css(site):
+    """What site.json hides (texts, header tabs, built-in home blocks), hidden from the first frame: holds until
+    app.js renders (html.i18n-ready) — without it they flash before site.json loads. Same as hiddenCSS in admin.js."""
+    sel = [f'[data-block="{k.split(":")[0]}"] [data-i18n="{k.split(":")[1]}"]' for k in site.get("hiddenText", [])]
+    sel += [f'.top nav a[data-i18n="{k}"]' for k in site.get("navHidden", [])]
+    sel += [f'[data-block="{b["id"]}"]' for b in site.get("blocks", []) if not b.get("type") and b.get("visible") is False]
+    return f'html:not(.i18n-ready) :is({", ".join(sel)}) {{ display: none !important; }}' if sel else ""
+
+
+def bake(text, site):
+    strings = site["text"]["ru"]
+
     def put(m):
         v = strings.get(m["key"])
         if v is None:
             return m[0]
         v = "\n".join(line.rstrip() for line in v.split("\n")).strip()  # no stray spaces before line breaks
         return m[1] + html.escape(v, quote=False) + m[5]
-    return EL.sub(put, text)
+    text = STYLE.sub("", EL.sub(put, text), count=1)
+    css = hidden_css(site)
+    return HEAD.sub(lambda m: f'{m[1]}  <style id="baked-hidden">{css}</style>{m[1]}</head>', text, count=1)
 
 
 def main():
-    strings = json.loads((ROOT / "site.json").read_text(encoding="utf-8"))["text"]["ru"]
+    site = json.loads((ROOT / "site.json").read_text(encoding="utf-8"))
     changed = []
     for name in PAGES:
         p = ROOT / name
@@ -36,7 +53,7 @@ def main():
             continue
         with open(p, encoding="utf-8", newline="") as f:  # newline="": line endings stay as they are
             old = f.read()
-        new = bake(old, strings)
+        new = bake(old, site)
         if new != old:
             with open(p, "w", encoding="utf-8", newline="") as f:
                 f.write(new)

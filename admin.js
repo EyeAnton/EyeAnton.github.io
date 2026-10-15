@@ -295,20 +295,31 @@
   // the same as tools/bake.py (keep the two in step). Elements with markup inside are left alone.
   const PAGES = ["index.html", "projects.html", "contact.html", "project.html", "design-system.html"];
   const I18N_EL = /(<([a-z][a-z0-9]*)\b[^>]*\bdata-i18n="([^"]+)"[^>]*>)([^<]*)(<\/\2>)/g;
-  const bakeHTML = (src, strings) => src.replace(I18N_EL, (m, open, tag, key, text, close) => {
-    const v = strings[key];
+  // What site.json hides (texts, header tabs, built-in home blocks) is hidden from the first frame too: a <style> in
+  // <head> that holds until app.js renders (html.i18n-ready) — without it they flash before site.json loads.
+  const hiddenCSS = (s) => {
+    const sel = [
+      ...(s.hiddenText || []).map((k) => { const [b, key] = k.split(":"); return `[data-block="${b}"] [data-i18n="${key}"]`; }),
+      ...(s.navHidden || []).map((k) => `.top nav a[data-i18n="${k}"]`),
+      ...(s.blocks || []).filter((b) => !b.type && b.visible === false).map((b) => `[data-block="${b.id}"]`),
+    ];
+    return sel.length ? `html:not(.i18n-ready) :is(${sel.join(", ")}) { display: none !important; }` : "";
+  };
+  const bakeHTML = (src, s) => src.replace(I18N_EL, (m, open, tag, key, text, close) => {
+    const v = s.text.ru[key];
     if (v == null) return m;
     const clean = v.split("\n").map((l) => l.trimEnd()).join("\n").trim();
     return open + clean.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])) + close;
-  });
+  }).replace(/  <style id="baked-hidden">[^<]*<\/style>\r?\n/, "")
+    .replace(/(\r?\n)<\/head>/, (m, nl) => `${nl}  <style id="baked-hidden">${hiddenCSS(s)}</style>${nl}</head>`);
   async function bakePages() {
     for (const p of PAGES) {
       const f = await getFile(p);
       if (!f) continue;
       const old = b64ToUtf8(f.content);
-      const baked = bakeHTML(old, site.text.ru);
+      const baked = bakeHTML(old, site);
       if (baked === old) continue;
-      setStatus(`Обновляю тексты в ${p}…`);
+      setStatus(`Обновляю тексты и скрытое в ${p}…`);
       await putFile(p, utf8ToB64(baked), `Admin: texts in ${p} from site.json`);
     }
   }
