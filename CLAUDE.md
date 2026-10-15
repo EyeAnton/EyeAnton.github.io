@@ -27,6 +27,7 @@
 
 ## Тексты в HTML
 Источник текстов — только `site.json`. Текст внутри `[data-i18n]` в HTML — запасной (его видят GitHub, поисковики и превью ссылок); админка при «Опубликовать» (если менялись тексты) сама вписывает туда RU-тексты из site.json (`bakePages` в admin.js, коммиты «Admin: texts in …»). Claude, меняя тексты в site.json в PR, запускает `python3 tools/bake.py` — та же логика (держать две реализации одинаковыми). Тексты в HTML руками не править.
+Так же вписывается скрытое: `<style id="baked-hidden">` перед `</head>` прячет `hiddenText`, `navHidden` и выключенные встроенные блоки до первого render (`html:not(.i18n-ready)`) — иначе они мелькают, пока грузится site.json (`hiddenCSS` в admin.js = `hidden_css` в bake.py).
 
 ## Ручные инструменты (вместо работы Claude)
 - Превью ссылки: правка текста в `tools/og.html` → `powershell -File tools/og.ps1` → `assets/og.jpg`.
