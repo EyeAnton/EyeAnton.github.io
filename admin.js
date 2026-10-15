@@ -1135,7 +1135,7 @@
   function giftPicker(obj, path, label, src) {
     const base = giftsBase(obj), data = giftsFor(base);
     if (!data.ready) return `<div class="f gpick"><span>${h(label)}</span><p class="hint">Загружаю подарки…</p></div>`;
-    const pool = data.items.filter((g) => src !== "process" || data.process.has(g.key));
+    const pool = data.items.filter((g) => (src !== "process" || data.process.has(g.key)) && (src !== "anim" || g.preview_webm));
     const byKey = new Map(pool.map((g) => [g.key, g]));
     const sel = (getPath(obj, path) || []).filter((k) => byKey.has(k));
     const chip = (g, inner) => `<span class="gp-chip" title="${h(g.key)}"><img src="${h(base + g.still)}" alt="" loading="lazy">${h(g.name)}${inner}</span>`;
@@ -1144,7 +1144,7 @@
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="up" aria-label="Раньше" ${i ? "" : "disabled"}>↑</button>
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="down" aria-label="Позже" ${i < sel.length - 1 ? "" : "disabled"}>↓</button>
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="del" aria-label="Убрать">✕</button></span>`)).join("")
-        : `<p class="hint">Ничего не выбрано — ${src === "process" ? "показываются все" : "играют первые шесть"}.</p>`}</div>
+        : `<p class="hint">Ничего не выбрано — ${src === "process" ? "показываются все" : src === "anim" ? "каждый раз любой из анимированных" : "играют первые шесть"}.</p>`}</div>
       <p class="hint">Добавить — нажать на подарок:</p>
       <div class="gp-pool">${pool.filter((g) => !sel.includes(g.key)).map((g) =>
         `<button type="button" class="gp-chip" data-gp="${h(path)}" data-k="${h(g.key)}" data-act="add" title="${h(g.key)}"><img src="${h(base + g.still)}" alt="" loading="lazy">${h(g.name)}</button>`).join("")}</div>
@@ -1316,6 +1316,9 @@
     if (!B) { q("#sePanel").innerHTML = `${undo}<p class="hint">Выберите блок слева или на странице.</p>`; return; }
     const blk = site.blocks.find((b) => b.id === seBlock);
     const extra = {
+      hero: `<h2 class="sec">Подарок в коробке</h2>
+        <p class="hint">При каждом заходе в коробке случайный подарок из выбранных (не тот же, что в прошлый раз). В списке — только подарки с анимацией из каталога Virtual Gifts.</p>
+        ${giftPicker(blk, "gifts", "Какие подарки могут попасть в коробку", "anim")}`,
       stats: `<h2 class="sec">Данные</h2>${field("profile.since", "Год начала работы в 3D (для «N+ лет»)", "number")}
         <p class="hint">Число проектов и живых сайтов считается само по вкладке «Проекты».</p>`,
       areas: `<h2 class="sec">Навыки</h2>${repeater("profile.skills")}

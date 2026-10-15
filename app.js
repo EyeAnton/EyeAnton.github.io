@@ -538,6 +538,7 @@ function render() {
   });
   document.documentElement.classList.add("i18n-ready");
   applyLinks();
+  if (PAGE === "home") pickHeroGift();
   $("#lang").dataset.lang = lang; // ring around the active RUS / ENG
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
@@ -704,6 +705,25 @@ function setupStackTips() {
   document.addEventListener("click", hide);
   addEventListener("scroll", () => cur && hide(), { passive: true });
   addEventListener("keydown", (e) => { if (e.key === "Escape" && cur) hide(); });
+}
+
+// The gift in the hero box: a random one of site.blocks[hero].gifts (admin → «Первый экран»; empty — any gift with an
+// animation from /gift-catalog/gifts.json), never the same as on the previous visit. Picked again only when the list changes.
+let heroGiftList = null;
+function pickHeroGift() {
+  const img = $(".unbox-gift");
+  const list = SITE?.blocks?.find((b) => b.id === "hero")?.gifts || [];
+  if (!img || !SITE || heroGiftList === list.join()) return;
+  heroGiftList = list.join();
+  const keys = list.length ? Promise.resolve(list)
+    : fetch("/gift-catalog/gifts.json").then((r) => r.json()).then((d) => d.items.filter((g) => g.preview_webm).map((g) => g.key)).catch(() => []);
+  keys.then((ks) => {
+    if (!ks.length) return;
+    const last = store.get("heroGift"), pool = ks.length > 1 ? ks.filter((k) => k !== last) : ks;
+    const k = pool[Math.floor(Math.random() * pool.length)];
+    store.set("heroGift", k);
+    img.src = `/gift-catalog/assets/thumbs/${k}.webp`;
+  });
 }
 
 // Box above the hero title (layers in index.html, states in style.css). On every load it starts open and empty:
