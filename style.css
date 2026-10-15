@@ -340,7 +340,7 @@ main [data-block] { scroll-margin-top: 72px; }
 .show-media .cover { aspect-ratio: 16 / 11; }
 .show-media .cover::after { display: none; }
 .show-media:hover .cover img.shot { transform: scale(1.03); }
-.show-media .cover img.shot { object-fit:cover; }
+.show-media .cover img.shot { object-fit:contain; }
 .show-body { display: flex; flex-direction: column; gap: 14px; }
 .show-num {
   font: var(--fw-medium) clamp(56px, 7vw, 96px)/.9 var(--font); letter-spacing: var(--track-tight);
