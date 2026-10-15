@@ -250,11 +250,16 @@ body.locked { overflow: hidden; }
 .media > img.still { opacity: 0; transition: opacity .45s ease; }
 .media.loaded > img.still { opacity: 1; }
 .media.loaded > .sk { opacity: 0; }
-.media > .preview { opacity: 0; transition: opacity .2s; }
-.media > .preview.on { opacity: 1; }
-.media.previewing > img.still { opacity: 0; }
+/* hover preview: grows from the still's box to the card's full height (square video, sides cropped), the name fades out */
+.gc-card > .preview {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+  opacity: 0; transform: scale(.7); transition: opacity .3s ease, transform .5s var(--ease);
+}
+.gc-card > .preview.on { opacity: 1; transform: none; }
+.gc-card.previewing .media > img.still { opacity: 0; }
 
-.gc-name { display: block; margin-top: 10px; font-size: 14px; font-weight: var(--fw-medium); letter-spacing: -.01em; }
+.gc-name { display: block; margin-top: 10px; font-size: 14px; font-weight: var(--fw-medium); letter-spacing: -.01em; transition: opacity .3s ease; }
+.gc-card.previewing .gc-name { opacity: 0; }
 .gc-card .gc-kind { display: block; margin-top: 4px; font-size: 11px; color: var(--muted); }
 
 @media (max-width: 560px) {
@@ -318,58 +323,38 @@ body.locked { overflow: hidden; }
 
 .contact .eyebrow { margin-bottom: 16px; }
 
-/* ---------- overlay: "sent in a chat" ---------- */
+/* ---------- overlay: the page dims and blurs a little, the gift plays over it; a click anywhere closes ---------- */
 .overlay {
   position: fixed; inset: 0; z-index: 50;
   display: grid; place-items: center;
+  background: rgba(3, 6, 16, .66);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   opacity: 0; transition: opacity .35s ease;
   cursor: pointer;
 }
 .overlay[hidden] { display: none; }
 .overlay.open { opacity: 1; }
+/* the page behind stays still while blurred (a moving belt would be re-blurred every frame) */
+body.locked .cs-cloud-track { animation-play-state: paused; }
 
-.chat {
-  position: absolute; inset: 0;
-  background: radial-gradient(120% 70% at 50% 0%, var(--blue-900) 0%, var(--ink-1) 55%, var(--bg) 100%);
-}
-.chat::after { /* dim the chat so the gift owns the screen */
-  content: ""; position: absolute; inset: 0; background: rgba(4, 4, 4, .62);
-}
-.chat-col {
-  position: relative; height: 100%; max-width: 560px; margin: 0 auto;
-  display: flex; flex-direction: column;
-  border-left: 1px solid #ffffff0a; border-right: 1px solid #ffffff0a;
-}
-.chat-head {
-  display: flex; align-items: center; gap: 12px;
-  padding: max(14px, env(safe-area-inset-top)) 18px 14px; border-bottom: 1px solid #ffffff12;
-}
-.back { width: 10px; height: 10px; border-left: 2.5px solid var(--accent); border-bottom: 2.5px solid var(--accent); transform: rotate(45deg); margin: 0 4px; }
-.av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; color: var(--red-900); background: linear-gradient(135deg, var(--red-200), var(--red-400)); }
-.who b { display: block; font-size: 16px; font-weight: var(--fw-medium); }
-.who span { font-size: 12px; color: var(--success); }
-.msgs { flex: 1; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; justify-content: flex-end; overflow: hidden; }
-.day { align-self: center; font-size: 11px; color: var(--muted); letter-spacing: .06em; margin-bottom: auto; }
-.m { max-width: 72%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.35; }
-.m.in { background: var(--ink-3); align-self: flex-start; border-bottom-left-radius: 6px; }
-.m.out { background: var(--grad-fill); color: var(--white); align-self: flex-end; border-bottom-right-radius: 6px; }
-.m.sent { background: var(--ink-3); color: var(--muted); box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .45); }
-.m.sent b { color: var(--text); font-weight: var(--fw-medium); }
-.chat-input { display: flex; gap: 10px; align-items: center; padding: 10px 14px max(14px, env(safe-area-inset-bottom)); background: var(--ink-1); }
-.chat-input .f { flex: 1; height: 42px; border-radius: 21px; background: var(--ink-3); color: var(--gray-400); display: flex; align-items: center; padding: 0 16px; }
-.chat-input .s { width: 42px; height: 42px; border-radius: 50%; background: var(--grad-fill); }
-
-/* the gift fills the chat screen by its long side, like in the app; no title over it */
-.gc-center { position: absolute; inset: 0; display: flex; justify-content: center; pointer-events: none; }
 .stage {
-  position: relative; width: min(560px, 100%); height: 100%; overflow: hidden;
+  position: relative; width: min(92vw, 86vh, 680px); aspect-ratio: 1;
   display: grid; place-items: center; pointer-events: none;
 }
 .stage > video, .stage > img {
-  grid-area: 1 / 1; width: 100%; height: 100%; object-fit: cover;
-  opacity: 0; transition: opacity .3s ease;
+  grid-area: 1 / 1; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; transform: scale(.94); transition: opacity .3s ease, transform .6s var(--ease);
 }
-.stage > .on { opacity: 1; }
+.stage > .on { opacity: 1; transform: none; }
+
+/* a still of the hero strip on its way to the centre (gifts.js flyIn) */
+.gc-fly {
+  position: fixed; z-index: 55; object-fit: contain; pointer-events: none;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .6));
+  transition: opacity .35s ease;
+}
+.gc-fly.gone { opacity: 0; }
+.cs-cloud[data-gifts] img[data-k] { cursor: pointer; }
 .stage > img.static { width: 62%; height: 62%; object-fit: contain; transform: scale(.9); transition: opacity .3s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
 .stage > img.static.on { transform: scale(1.12); }
 
@@ -384,6 +369,7 @@ body.locked { overflow: hidden; }
 .gc-sound svg { width: 20px; height: 20px; }
 .gc-sound[aria-pressed="false"] { color: var(--muted); }
 
+/* a click anywhere closes, so the × is for the keyboard only: it shows when focused from the keyboard */
 .close {
   position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
   width: 42px; height: 42px; border-radius: 50%;
@@ -391,7 +377,9 @@ body.locked { overflow: hidden; }
   background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--grad-stroke) border-box;
   box-shadow: var(--glow-sm);
   color: var(--text); font: 300 24px/1 var(--font); cursor: pointer;
+  opacity: 0;
 }
+.close:focus-visible { opacity: 1; }
 
 .spinner {
   grid-area: 1 / 1; width: 44px; height: 44px; border-radius: 50%;
@@ -403,6 +391,6 @@ body.locked { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .gc-card, .gc-card:hover { transform: none; }
-  .stage > img.static, .stage > img.static.on { transform: none; }
+  .stage > img.static, .stage > img.static.on, .stage > .on, .gc-card > .preview { transform: none; }
   .spinner { animation: spin 2.4s linear infinite !important; }
 }

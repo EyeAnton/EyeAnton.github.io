@@ -55,17 +55,9 @@ window.Gifts = (() => {
         <stop offset="0.58" stop-color="#0e1830"/><stop offset="1" stop-color="#0e1830"/>
         ${reducedMotion.matches ? "" : `<animateTransform attributeName="gradientTransform" type="translate" from="-1 0" to="1 0" dur="1.6s" repeatCount="indefinite"/>`}
       </linearGradient></defs></svg>`);
-    // "sent in a chat" overlay of the catalog
+    // overlay of the catalog and the hero strip: the page dims and blurs, the gift plays over it; a click anywhere closes
     document.body.insertAdjacentHTML("beforeend", `<div class="overlay" id="gcOverlay" role="dialog" aria-modal="true" aria-label="Gift preview" hidden>
-      <div class="chat" aria-hidden="true"><div class="chat-col">
-        <div class="chat-head"><span class="back"></span><span class="av">M</span><span class="who"><b>Mia</b><span>online</span></span></div>
-        <div class="msgs"><div class="day">TODAY</div>
-          <div class="m in">Guess what… he proposed! 💍</div><div class="m out">No way!! Congratulations 🥹</div>
-          <div class="m in">The wedding is in June. You’re coming, right?</div><div class="m out">Wouldn’t miss it. Sending you something ✨</div>
-          <div class="m out sent">You sent <b id="gcSentName">a gift</b></div></div>
-        <div class="chat-input"><span class="f">Message…</span><span class="s"></span></div>
-      </div></div>
-      <div class="gc-center"><div class="stage" id="gcStage"><div class="spinner" id="gcSpinner" hidden></div></div></div>
+      <div class="stage" id="gcStage"><div class="spinner" id="gcSpinner" hidden></div></div>
       <button class="close" id="gcClose" aria-label="Close">×</button>
     </div>`);
     const $overlay = document.getElementById("gcOverlay");
@@ -324,11 +316,34 @@ window.Gifts = (() => {
 
   /* ---------------- catalog: every gift, tap to send ---------------- */
 
-  function catalog($catalog, data) {
+  function catalog($catalog, data, cfg) {
+    const byKey = new Map(data.items.map((g) => [g.key, g]));
+    let list = cfg.keys.map((k) => byKey.get(k)).filter(Boolean);
+    if (!list.length) list = data.items; // nothing picked in the admin: every gift
     const grid = el("div", "gc-grid");
-    for (const gift of data.items) grid.append(card(gift, data.silhouettes[gift.key]));
+    for (const gift of list) grid.append(card(gift, data.silhouettes[gift.key]));
     $catalog.replaceChildren(grid);
     $catalog.removeAttribute("aria-busy");
+  }
+
+  /* ---------------- hero strip (project.head.gifts): stills only; a click flies the gift to the centre and plays it ---------------- */
+
+  function strip($cloud, data) {
+    const byKey = new Map(data.items.map((g) => [g.key, g]));
+    const open = (img) => {
+      const gift = byKey.get(img?.dataset.k);
+      if (gift) openOverlay(gift, img, img);
+    };
+    $cloud.addEventListener("click", (e) => open(e.target.closest("img[data-k]")));
+    $cloud.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      open(e.target.closest("img[data-k]"));
+    });
+    for (const img of $cloud.querySelectorAll("img[data-k]")) {
+      const gift = byKey.get(img.dataset.k);
+      if (gift && img.getAttribute("role")) img.setAttribute("aria-label", gift.name);
+    }
   }
 
   function card(gift, sil) {
@@ -345,8 +360,8 @@ window.Gifts = (() => {
     const name = el("span", "gc-name");
     name.textContent = gift.name;
     btn.append(media, name);
-    if (gift.preview_webm) hoverPreview(btn, media, gift);
-    btn.addEventListener("click", () => openOverlay(gift, btn));
+    const stopPreview = gift.preview_webm ? hoverPreview(btn, gift) : () => {};
+    btn.addEventListener("click", () => { stopPreview(); openOverlay(gift, btn); });
     return btn;
   }
 
@@ -364,7 +379,8 @@ window.Gifts = (() => {
     return svg;
   }
 
-  function hoverPreview(btn, media, gift) {
+  // hover: the animation grows to the card's full height, the still and the name fade out; returns stop()
+  function hoverPreview(btn, gift) {
     let preview = null, audio = null;
     btn.addEventListener("mouseenter", () => {
       if (!canHover.matches || reducedMotion.matches || preview) return;
@@ -379,43 +395,48 @@ window.Gifts = (() => {
         preview.addEventListener("playing", () => show(preview), { once: true });
         preview.src = gift.preview_webm;
       }
-      media.append(preview);
+      btn.append(preview);
     });
-    btn.addEventListener("mouseleave", () => {
+    function stop() {
       if (!preview) return;
-      audio = sound.stop(audio);
-      if (preview.pause) preview.pause();
-      preview.remove();
+      const node = preview;
       preview = null;
-      media.classList.remove("previewing");
-    });
+      audio = sound.stop(audio);
+      btn.classList.remove("previewing");
+      node.classList.remove("on");
+      setTimeout(() => { if (node.pause) node.pause(); node.remove(); }, FADE_MS);
+    }
+    btn.addEventListener("mouseleave", stop);
     function show(node) {
       if (node !== preview) return;
-      node.classList.add("on");
+      requestAnimationFrame(() => node === preview && node.classList.add("on"));
       audio = sound.play(gift.sound);
-      media.classList.add("previewing");
+      btn.classList.add("previewing");
     }
+    return stop;
   }
 
   /* ---------------- overlay ---------------- */
 
+  const FLY_MS = 550;
   let session = 0; // bumps on every open/close so stale callbacks do nothing
-  let current = null; // { audio, timer, returnFocus }
+  let current = null; // { audio, timer, returnFocus, from, fly }
   const $ = (id) => document.getElementById(id);
 
-  function openOverlay(gift, returnFocus) {
+  // from: a still of the hero strip — it flies to the centre of the screen and the animation takes over from it
+  function openOverlay(gift, returnFocus, from) {
     const $overlay = $("gcOverlay"), $stage = $("gcStage"), $spinner = $("gcSpinner");
     const id = ++session;
     cleanupMedia();
-    current = { audio: null, timer: 0, returnFocus };
-    $("gcSentName").textContent = gift.name;
+    current = { audio: null, timer: 0, returnFocus, from: null, fly: null };
     $stage.replaceChildren($spinner);
     $overlay.hidden = false;
     document.body.classList.add("locked");
     requestAnimationFrame(() => $overlay.classList.add("open"));
     $("gcClose").focus({ preventScroll: true });
-    if (!gift.full_webm) return playStatic(gift, id);
-    $spinner.hidden = false;
+    if (from) flyIn(from);
+    const go = (fn) => (from ? (current.timer = setTimeout(() => id === session && fn(), FLY_MS)) : fn());
+    if (!gift.full_webm) return go(() => playStatic(gift, id));
     // start the sound inside the click so browsers allow it; muted until the animation is ready
     const audio = new Audio(gift.sound);
     audio.preload = "auto";
@@ -429,9 +450,36 @@ window.Gifts = (() => {
       sound.track(audio);
       audio.play().catch(() => {});
     };
-    if (!isWebKit) playVideo(gift.full_webm, id, startAudio, () => playStatic(gift, id));
-    else if (gift.full_mov_safari) playVideo(gift.full_mov_safari, id, startAudio, () => playWebP(gift, id, startAudio));
-    else playWebP(gift, id, startAudio);
+    go(() => {
+      $spinner.hidden = !!from; // the flown still is the loading state
+      if (!isWebKit) playVideo(gift.full_webm, id, startAudio, () => playStatic(gift, id));
+      else if (gift.full_mov_safari) playVideo(gift.full_mov_safari, id, startAudio, () => playWebP(gift, id, startAudio));
+      else playWebP(gift, id, startAudio);
+    });
+  }
+
+  // a copy of the strip still moves from its place in the belt to the centre, the original hides meanwhile
+  function flyIn(from) {
+    const r = from.getBoundingClientRect(), s = $("gcStage").getBoundingClientRect();
+    const size = s.width * 0.62;
+    const fly = el("img", "gc-fly");
+    fly.alt = "";
+    fly.src = from.currentSrc || from.src;
+    Object.assign(fly.style, { left: `${s.left + (s.width - size) / 2}px`, top: `${s.top + (s.height - size) / 2}px`, width: `${size}px`, height: `${size}px` });
+    document.body.append(fly);
+    if (!reducedMotion.matches && fly.animate) {
+      const dx = r.left + r.width / 2 - (s.left + s.width / 2), dy = r.top + r.height / 2 - (s.top + s.height / 2);
+      fly.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${r.width / size})` }, { transform: "none" }],
+        { duration: FLY_MS, easing: "cubic-bezier(.2, .8, .2, 1)" });
+    }
+    from.style.visibility = "hidden";
+    Object.assign(current, { from, fly });
+  }
+
+  // the animation (or the still of a symbol) appears; the flown still gives way to it
+  function reveal(node) {
+    node.classList.add("on");
+    current?.fly?.classList.add("gone");
   }
 
   function playVideo(src, id, startAudio, onFail) {
@@ -441,7 +489,7 @@ window.Gifts = (() => {
     video.addEventListener("playing", () => {
       if (id !== session) return;
       $("gcSpinner").hidden = true;
-      video.classList.add("on");
+      reveal(video);
       startAudio();
     }, { once: true });
     video.addEventListener("ended", () => id === session && closeOverlay());
@@ -469,7 +517,7 @@ window.Gifts = (() => {
         img.addEventListener("load", () => {
           if (id !== session) return;
           $("gcSpinner").hidden = true;
-          img.classList.add("on");
+          reveal(img);
           startAudio();
           // animated WebP loops forever, so close after one cycle ourselves
           const ms = duration || (current.audio.duration * 1000) || 4000;
@@ -491,7 +539,7 @@ window.Gifts = (() => {
     img.alt = "";
     img.addEventListener("load", () => {
       if (id !== session) return;
-      requestAnimationFrame(() => img.classList.add("on"));
+      requestAnimationFrame(() => reveal(img));
       current.timer = setTimeout(() => id === session && closeOverlay(), STATIC_SHOW_MS);
     }, { once: true });
     img.src = gift.still;
@@ -502,10 +550,15 @@ window.Gifts = (() => {
     const $overlay = $("gcOverlay");
     if (!$overlay || $overlay.hidden || !current) return;
     const id = ++session;
-    const { audio, returnFocus } = current;
+    const { audio, returnFocus, from, fly } = current;
     clearTimeout(current.timer);
     if (audio) fadeOut(audio);
     $overlay.classList.remove("open");
+    if (fly) {
+      fly.classList.add("gone");
+      setTimeout(() => fly.remove(), FADE_MS);
+    }
+    if (from) from.style.visibility = "";
     setTimeout(() => {
       if (id !== session) return; // reopened meanwhile
       $overlay.hidden = true;
@@ -578,7 +631,8 @@ window.Gifts = (() => {
         const kind = node.dataset.gifts;
         if (kind === "showcase") showcase(node, data, cfg, alive);
         else if (kind === "process") process(node, data, cfg, alive);
-        else if (kind === "catalog") catalog(node, data);
+        else if (kind === "catalog") catalog(node, data, cfg);
+        else if (kind === "strip") strip(node, data);
       }).catch((err) => { console.error(err); node.textContent = "Could not load the gifts."; });
     }
   }
