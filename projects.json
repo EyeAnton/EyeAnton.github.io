@@ -339,7 +339,13 @@
             "ru": "Каждый подарок проходит один и тот же путь в Figma: исходник, бриф, черновики на хромакее, ключевые кадры и готовая анимация. На каждом шаге — отбор.",
             "en": "Every gift takes the same path in Figma: source, brief, chroma-key drafts, key frames and the finished animation. Each step is a selection."
           },
-          "keys": ["sep__icecream_3d", "sep__sakura", "sep__love_book_3d", "sep__potion_bon_3d", "sep__picnic_bon_3d"],
+          "keys": [
+            "sep__icecream_3d",
+            "sep__sakura",
+            "sep__love_book_3d",
+            "sep__potion_bon_3d",
+            "sep__picnic_bon_3d"
+          ],
           "items": [
             {
               "t": {
@@ -749,7 +755,9 @@
       "cat": "ai",
       "year": 2025,
       "cover": {
-        "shot": "assets/shots/emotions-club.jpg"
+        "shot": "assets/shots/emotions-club.jpg",
+        "fit": "cover",
+        "zoom": 1.04
       },
       "title": {
         "ru": "Emotions Club",
