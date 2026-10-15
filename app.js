@@ -309,7 +309,7 @@ const BLOCK_HTML = {
       <ol class="gc-steps">${each(b, (it, i, p) => `<li class="gc-st">
         <div class="gc-st-h"><span class="gc-step">${num(i)}</span><div>${fld(b, `${p}.t`, "b", "Шаг")}${fld(b, `${p}.d`, "small", "Описание")}</div></div>
         <div class="gc-st-c">${i === 4 ? `<div class="gc-devices gc-mini">${giftPhone(b)}</div>` : ""}</div></li>`)}</ol></div>`,
-  "gifts-catalog": (b) => `<div class="gc-catalog" ${giftsData(b)} aria-busy="true"></div>`,
+  "gifts-catalog": (b) => `<div class="gc-catalog" ${giftsData(b)} data-keys="${esc((b.keys || []).join(","))}" aria-busy="true"></div>`,
 };
 
 // gift widgets read their data from the gift-catalog repo (block.base, "/gift-catalog/" by default)
@@ -465,14 +465,20 @@ function renderProject() {
   if (h.accent && title.includes(esc(h.accent))) title = title.replace(esc(h.accent), `<span class="t-grad">${esc(h.accent)}</span>`);
   const lead = fld(p, L(h.lead) || (EDITOR && !L(p.desc)) ? "head.lead" : "desc", "p", "Лид", false, "lead");
   const ctas = btns(p, "head.ctas") + linksHTML(p, true);
-  const cloud = (h.cloud || []).map((s) => `<img src="${esc(imgSrc(s))}" alt="">`).join("");
+  // head.gifts (keys from gifts.json of the gift-catalog repo): the belt shows their stills, a click plays the gift (gifts.js)
+  const giftKeys = h.gifts || [];
+  const cloudImg = giftKeys.length
+    ? (copy) => giftKeys.map((k) => `<img src="/gift-catalog/assets/thumbs/${esc(k)}.webp" alt="" data-k="${esc(k)}"${copy ? ` aria-hidden="true"` : ` role="button" tabindex="0"`}>`).join("")
+    : () => (h.cloud || []).map((s) => `<img src="${esc(imgSrc(s))}" alt="">`).join("");
+  const cloud = cloudImg(false);
   const zoom = +(h.zoom ?? 1.45) > 1 ? +(h.zoom ?? 1.45) : 0; // hover zoom of the cloud; 0 = off
   $("#projHead").innerHTML = `<div class="aurora" aria-hidden="true"></div>${crumb}
     ${fld(p, "head.eyebrow", "p", "Надзаголовок", false, "eyebrow")}
     <h1 data-f="title" data-ph="Название">${title}</h1>
     ${lead}
     ${ctas ? `<div class="hero-cta">${ctas}</div>` : ""}
-    ${cloud ? `<div class="cs-cloud${zoom ? " zoom" : ""}${h.cloudStyle === "cutout" ? " cutout" : ""}"${zoom ? ` style="--zoom:${zoom}"` : ""} aria-hidden="true"><div class="cs-cloud-track">${cloud + cloud}</div></div>`
+    ${cloud ? `<div class="cs-cloud${zoom ? " zoom" : ""}${h.cloudStyle === "cutout" ? " cutout" : ""}"${zoom ? ` style="--zoom:${zoom}"` : ""}${giftKeys.length
+      ? ` data-gifts="strip" data-base="/gift-catalog/"` : ` aria-hidden="true"`}><div class="cs-cloud-track">${cloud + cloudImg(true)}</div></div>`
       : `<div class="show-media cs-hero-cover">${coverHTML(p)}</div>`}`;
   $("#projBlocks").innerHTML = blocksHTML(p.page, false);
   $("#projContact").hidden = (p.page || []).some((b) => b.type === "next" && (EDITOR || b.visible !== false));

@@ -768,7 +768,9 @@
         ["picked", "Метка выбранного черновика", "loc"], ["note", "Подпись под брифом", "loc"], ["match", "Надпись в чате телефона", "loc"],
         ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
     "gifts-catalog": { name: "Подарки: каталог", hint: "Все подарки, нажать — придёт в чат", group: "Подарки",
-      blank: () => ({ ...head("Отправьте подарок", "Send a gift") }), fields: [["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
+      blank: () => ({ ...head("Отправьте подарок", "Send a gift"), keys: [] }),
+      fields: [["keys", "Какие подарки в каталоге (по порядку)", "gifts:all|показываются все"],
+        ["base", "Откуда данные (по умолчанию /gift-catalog/)", "text"]] },
     next: { name: "Следующий проект", hint: "Финальный призыв со ссылками", noHead: true,
       blank: () => ({ eyebrow: loc("Следующий проект", "Next project"), title: loc("Название", "Title"), text: loc(), items: [SUBS.links.blank()] }),
       fields: [["eyebrow", "Надзаголовок", "loc"], ["title", "Заголовок", "loc"], ["text", "Текст", "loc-area"], ["items", "Кнопки", "list:links"]] },
@@ -1143,7 +1145,7 @@
     }
     return giftsCache[base];
   }
-  function giftPicker(obj, path, label, src) {
+  function giftPicker(obj, path, label, src, empty) {
     const base = giftsBase(obj), data = giftsFor(base);
     if (!data.ready) return `<div class="f gpick"><span>${h(label)}</span><p class="hint">Загружаю подарки…</p></div>`;
     const pool = data.items.filter((g) => (src !== "process" || data.process.has(g.key)) && (src !== "anim" || g.preview_webm));
@@ -1155,7 +1157,7 @@
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="up" aria-label="Раньше" ${i ? "" : "disabled"}>↑</button>
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="down" aria-label="Позже" ${i < sel.length - 1 ? "" : "disabled"}>↓</button>
         <button type="button" data-gp="${h(path)}" data-k="${h(k)}" data-act="del" aria-label="Убрать">✕</button></span>`)).join("")
-        : `<p class="hint">Ничего не выбрано — ${src === "process" ? "показываются все" : src === "anim" ? "каждый раз любой из анимированных" : "играют первые шесть"}.</p>`}</div>
+        : `<p class="hint">Ничего не выбрано — ${empty || (src === "process" ? "показываются все" : src === "anim" ? "каждый раз любой из анимированных" : "играют первые шесть")}.</p>`}</div>
       <p class="hint">Добавить — нажать на подарок:</p>
       <div class="gp-pool">${pool.filter((g) => !sel.includes(g.key)).map((g) =>
         `<button type="button" class="gp-chip" data-gp="${h(path)}" data-k="${h(g.key)}" data-act="add" title="${h(g.key)}"><img src="${h(base + g.still)}" alt="" loading="lazy">${h(g.name)}</button>`).join("")}</div>
@@ -1190,7 +1192,10 @@
     if (type === "text") return `<label class="f">${h(label)}<input type="text" ${bp} value="${h(v)}"></label>`;
     if (type === "area") return `<label class="f">${h(label)}<textarea class="mono" ${bp}>${h(v)}</textarea></label>`;
     if (type === "csv") return `<label class="f">${h(label)}<input type="text" ${bp} data-type="csv" value="${h((v || []).join(", "))}"></label>`;
-    if (type.startsWith("gifts:")) return giftPicker(obj, path, label, type.slice(6));
+    if (type.startsWith("gifts:")) { // "gifts:all" or "gifts:all|текст, когда ничего не выбрано"
+      const [src, empty] = type.slice(6).split("|");
+      return giftPicker(obj, path, label, src, empty);
+    }
     if (type.startsWith("sel:")) return `<label class="f">${h(label)}<select ${bp}>${type.slice(4).split(",").map((o) => {
       const [val, l] = o.split("=");
       return `<option value="${h(val)}" ${val === (v ?? "") ? "selected" : ""}>${h(l)}</option>`;
@@ -1294,7 +1299,9 @@
         ${bField(p, "head.eyebrow", "Надзаголовок (например, Кейс · AI-пайплайн)", "loc")}
         ${bField(p, "head.lead", "Лид — текст под названием (пусто — описание с карточки)", "loc-area")}
         ${bField(p, "head.ctas", "Кнопки под лидом (#якорь — на блок этой страницы)", "list:links")}
-        ${bField(p, "head.cloud", "Бегущая лента картинок (пусто — обложка проекта)", "imgs")}
+        ${p.head?.gifts?.length || (p.page || []).some((b) => b.type?.startsWith("gifts-"))
+          ? giftPicker(p, "head.gifts", "Подарки в бегущей ленте (по клику — анимация поверх затемнения)", "all", "лента из картинок ниже") : ""}
+        ${p.head?.gifts?.length ? "" : bField(p, "head.cloud", "Бегущая лента картинок (пусто — обложка проекта)", "imgs")}
         ${bField(p, "head.cloudStyle", "Вид ленты", "sel:=обложки (квадратные плитки),cutout=вырезанные объекты (как подарки)")}
         ${bField(p, "head.zoom", "Ленту при наведении: остановить и увеличить картинку", "zoom")}
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть карточку проекта</button></div>
