@@ -224,7 +224,12 @@
     if (!c.home) delete c.home;
     if (!c.private) delete c.private;
     if (c.cover.sub && !c.cover.sub.ru && !c.cover.sub.en) delete c.cover.sub;
-    if (c.cover.pos === "") delete c.cover.pos;
+    // picture cover settings: drop the ones left at their defaults
+    if (!c.cover.fit) delete c.cover.fit;
+    if (!c.cover.pos || c.cover.pos === "50% 50%") delete c.cover.pos;
+    if (!+c.cover.zoom || +c.cover.zoom === 1) delete c.cover.zoom;
+    if (!c.cover.bg) delete c.cover.bg;
+    if (!+c.cover.pad) delete c.cover.pad;
     c.tags = c.tags.map((t) => t.trim()).filter(Boolean);
     if (c.page && !c.page.length) delete c.page;
     return c;
@@ -441,7 +446,8 @@
             ${shotSrc ? `<img src="${h(shotSrc)}" alt="">` : ""}
             <label class="btn ghost small" style="cursor:pointer">Загрузить картинку…<input type="file" id="shotFile" accept="image/*" hidden></label>
           </div>
-          <p class="sub" style="margin:0">Любой размер — уменьшится до ${MAX_W}px по ширине. PNG сохраняется с прозрачностью, остальное — в JPEG. На карточке картинка вписывается целиком.</p>` : ""}
+          <p class="sub" style="margin:0">Любой размер — уменьшится до ${MAX_W}px по ширине. PNG сохраняется с прозрачностью, остальное — в JPEG.</p>
+          ${coverFitHTML(p.cover)}` : ""}
         ${t === "glyph" ? `
           <div class="row">
             <label class="f">Надпись<input type="text" data-k="cover.glyph" value="${h(p.cover.glyph)}"></label>
@@ -462,9 +468,67 @@
         </div>
         <div id="pv"></div>
         <p class="sub" style="margin:0">Так карточка выглядит на сайте${p.visible ? "" : " (сейчас скрыта)"}.</p>
+        <div id="pvHome"></div>
       </div>
     </div>`;
     renderPreview();
+  }
+
+  /* ---------- Picture cover: fit, anchor, zoom, margin colour, padding (cover.* → coverStyle in app.js) ---------- */
+
+  const FIT_OPTS = [
+    ["", "По умолчанию (главная — целиком, каталог — заполнить)"],
+    ["contain", "Вписать целиком — с полями"],
+    ["cover", "Заполнить рамку — края обрежутся"],
+    ["fill", "Растянуть по рамке — пропорции ломаются"],
+    ["none", "Исходный размер — без масштаба"],
+    ["scale-down", "Уменьшить, если не влезает"],
+  ];
+  const coverPos = (c) => (/^(\d+)% (\d+)%$/.exec(c.pos || "") || [0, 50, 50]).slice(1, 3).map(Number);
+
+  function coverFitHTML(c) {
+    const [x, y] = coverPos(c);
+    const zoom = Math.round((+c.zoom || 1) * 100), pad = +c.pad || 0;
+    const cells = [0, 50, 100].flatMap((cy) => [0, 50, 100].map((cx) =>
+      `<button type="button" data-pos="${cx} ${cy}" aria-pressed="${cx === x && cy === y}" aria-label="${cx}% ${cy}%"></button>`)).join("");
+    return `
+      <div class="fit-box">
+        <label class="f">Как картинка ложится в рамку<select data-k="cover.fit">${FIT_OPTS.map(([v, t]) =>
+          `<option value="${v}" ${(c.fit || "") === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+        <div class="f">Точка привязки — какая часть остаётся при обрезке
+          <div class="pos-row">
+            <div class="pos-grid">${cells}</div>
+            <div class="pos-sliders">
+              <label>X <input type="range" id="posX" min="0" max="100" value="${x}"><output>${x}%</output></label>
+              <label>Y <input type="range" id="posY" min="0" max="100" value="${y}"><output>${y}%</output></label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <label class="f">Масштаб <output>${zoom}%</output><input type="range" id="coverZoom" min="100" max="150" value="${zoom}"></label>
+          <label class="f">Отступ (паспарту) <output>${pad} px</output><input type="range" id="coverPad" min="0" max="48" value="${pad}"></label>
+        </div>
+        <div class="row" style="align-items:end">
+          <label class="f">Цвет полей<input type="color" id="coverBg" value="${h(c.bg || "#142140")}" style="height:44px;padding:4px"></label>
+          <button class="btn ghost small" type="button" id="coverBgReset" ${c.bg ? "" : "disabled"}>Цвет как у карточки</button>
+        </div>
+        <button class="btn ghost small" type="button" id="coverReset">Сбросить настройки картинки</button>
+      </div>`;
+  }
+
+  function coverInput(el) { // ranges and colour: write cover.*, refresh the numbers next to them and the preview
+    const c = data.projects[sel].cover;
+    const out = el.parentElement.querySelector("output");
+    if (el.id === "posX" || el.id === "posY") {
+      const x = +q("#posX").value, y = +q("#posY").value;
+      c.pos = `${x}% ${y}%`;
+      out.textContent = `${el.value}%`;
+      q("#edit").querySelectorAll("[data-pos]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.pos === `${x} ${y}`));
+    }
+    if (el.id === "coverZoom") { c.zoom = +el.value / 100; out.textContent = `${el.value}%`; }
+    if (el.id === "coverPad") { c.pad = +el.value; out.textContent = `${el.value} px`; }
+    if (el.id === "coverBg") { c.bg = el.value; q("#coverBgReset").disabled = false; }
+    renderPreview(); updateStatus();
   }
 
   function setPath(obj, path, val) {
@@ -475,6 +539,7 @@
   }
 
   q("#edit").addEventListener("input", (e) => {
+    if (["posX", "posY", "coverZoom", "coverPad", "coverBg"].includes(e.target.id)) { coverInput(e.target); return; }
     const k = e.target.dataset.k;
     if (!k) return;
     const p = data.projects[sel];
@@ -516,6 +581,18 @@
 
   q("#edit").addEventListener("click", (e) => {
     if (e.target.dataset.pv) { pvLang = e.target.dataset.pv; renderEditor(); return; }
+    const cover = data.projects[sel]?.cover;
+    if (e.target.dataset.pos) { // 3×3 anchor grid → the X/Y sliders
+      const [x, y] = e.target.dataset.pos.split(" ");
+      q("#posX").value = x; q("#posY").value = y;
+      coverInput(q("#posX")); coverInput(q("#posY"));
+      return;
+    }
+    if (e.target.id === "coverBgReset") { delete cover.bg; renderEditor(); updateStatus(); return; }
+    if (e.target.id === "coverReset") {
+      for (const k of ["fit", "pos", "zoom", "bg", "pad"]) delete cover[k];
+      renderEditor(); updateStatus(); return;
+    }
     if (e.target.closest("[data-page-edit]")) { openPage(data.projects[sel].id); return; }
     if (e.target.id === "delBtn") {
       const p = data.projects[sel];
@@ -564,6 +641,9 @@
     lang = pvLang;
     c.featured = false;            // the preview column is narrow; show the regular card
     pv.innerHTML = cardHTML(c, 0);
+    const home = q("#pvHome"); // the same cover in the home "Selected work" frame (16:11, fits the whole picture by default)
+    if (home) home.innerHTML = c.home && c.cover.shot !== undefined
+      ? `<p class="sub" style="margin:12px 0 6px">На главной:</p><div class="show-media">${coverHTML(c)}</div>` : "";
   }
 
   function renderAll() { renderList(); renderEditor(); updateStatus(); }

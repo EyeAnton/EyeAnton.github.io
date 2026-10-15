@@ -81,6 +81,19 @@ function plural(n, one, few, many) {
 const catName = (id) => (CATEGORIES.find((c) => c.id === id) || { [lang]: id })[lang];
 const num = (i) => String(i + 1).padStart(2, "0");
 
+// picture cover settings from the admin (cover.fit / pos / zoom / bg / pad) → CSS variables on .cover;
+// unset = the page default (style.css: catalog fills the frame, home fits the whole picture)
+const COVER_FITS = ["contain", "cover", "fill", "none", "scale-down"];
+function coverStyle(c) {
+  const v = [];
+  if (COVER_FITS.includes(c.fit)) v.push(`--fit:${c.fit}`);
+  if (/^\d{1,3}% \d{1,3}%$/.test(c.pos || "")) v.push(`--pos:${c.pos}`);
+  if (+c.zoom > 0 && +c.zoom !== 1) v.push(`--z:${+c.zoom}`);
+  if (/^#[0-9a-f]{6}$/i.test(c.bg || "")) v.push(`--cbg:${c.bg}`);
+  if (+c.pad > 0) v.push(`--pad:${+c.pad}px`);
+  return v.length ? ` style="${v.join(";")}"` : "";
+}
+
 function coverHTML(p) {
   const c = p.cover;
   if (c.gifts) {
@@ -88,7 +101,7 @@ function coverHTML(p) {
       `<img src="assets/gifts/${k}.webp" alt="" loading="lazy">`).join("")}</div>`;
   }
   if (c.shot) {
-    return `<div class="cover"><img class="shot" src="${esc(c.shot)}" alt="${esc(p.title[lang])}" loading="lazy"></div>`;
+    return `<div class="cover"${coverStyle(c)}><img class="shot" src="${esc(c.shot)}" alt="${esc(p.title[lang])}" loading="lazy"></div>`;
   }
   return `<div class="cover type" style="--tint:${c.tint}">
     <span class="glyph">${esc(c.glyph || "")}</span>
