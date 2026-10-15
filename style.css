@@ -655,3 +655,18 @@ main > [data-block][data-s-w="wide"][data-s-bg="card"] { width: min(100% - 2 * v
 [data-block][data-s-accent="white"] .eyebrow { color: var(--white); }
 /* a band keeps its content off both edges (a block without a heading would otherwise sit flush on its top) */
 main [data-block]:is([data-s-bg="band"], [data-s-bg="deep"]):not([data-s-space]) { padding-top: clamp(48px, 7vw, 96px); }
+
+/* ---- back to top (setupToTop in app.js): shows after one screen of scroll ---- */
+.to-top {
+  position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 80;
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0; cursor: pointer;
+  border: 1px solid var(--line-strong); border-radius: 50%;
+  background: rgb(10 18 38 / .8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--white);
+  opacity: 0; visibility: hidden; translate: 0 12px;
+  transition: opacity .25s, translate .25s, visibility .25s, border-color .2s, background .2s, box-shadow .2s;
+}
+.to-top.on { opacity: 1; visibility: visible; translate: 0 0; }
+.to-top:hover, .to-top:focus-visible { border-color: var(--accent); background: var(--accent); box-shadow: var(--glow-sm); outline: none; }
+.to-top svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 600px) { .to-top { width: 40px; height: 40px; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); } }
+@media (prefers-reduced-motion: reduce) { .to-top { transition: none; } }

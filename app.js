@@ -844,8 +844,33 @@ function setupUnbox() {
   }
 }
 
+// "back to top": appears after scrolling down one screen, smooth scroll up (instant with reduced motion)
+function setupToTop() {
+  const btn = document.createElement("button");
+  btn.className = "to-top";
+  btn.type = "button";
+  btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  const label = () => { btn.ariaLabel = btn.title = lang === "ru" ? "Наверх" : "Back to top"; };
+  label();
+  btn.addEventListener("click", () => {
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scrollTo({ top: 0, behavior: still ? "auto" : "smooth" });
+  });
+  document.body.append(btn);
+  const update = () => btn.classList.toggle("on", scrollY > innerHeight * 0.8);
+  addEventListener("scroll", update, { passive: true });
+  update();
+  return label;
+}
+
 if (PAGE) {
   document.documentElement.classList.add("js");
+  // a reload starts at the top: no restored scroll, no jump to a #якорь left in the address by a header tab
+  if (performance.getEntriesByType?.("navigation")[0]?.type === "reload") {
+    history.scrollRestoration = "manual";
+    if (location.hash.length > 1 && !location.hash.startsWith("#cat=")) history.replaceState(null, "", location.pathname + location.search);
+    scrollTo({ top: 0, behavior: "instant" });
+  }
   $("#year").textContent = new Date().getFullYear();
   setupStackTips();
   setupUnbox();
@@ -853,10 +878,12 @@ if (PAGE) {
   if (EDITOR) {
     bootEditor();
   } else {
+    const toTopLabel = setupToTop();
     $("#lang").addEventListener("click", () => {
       lang = lang === "ru" ? "en" : "ru";
       store.set("lang", lang);
       render();
+      toTopLabel();
     });
     if (PAGE === "projects") {
       $("#filters").addEventListener("click", (e) => {
