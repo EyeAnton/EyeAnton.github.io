@@ -2,7 +2,18 @@
   "blocks": [
     {
       "id": "hero",
-      "visible": true
+      "visible": true,
+      "gifts": [
+        "sep__star_cute_face_3d",
+        "wed__wedding_church",
+        "sep__sakura",
+        "sep__pumpkin_3d",
+        "sep__potion_bon_3d",
+        "sep__paris_ticket",
+        "wed__wedding_jacket",
+        "sep__kiss_mail_3d",
+        "sep__game_3d"
+      ]
     },
     {
       "id": "stats",
