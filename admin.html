@@ -80,6 +80,18 @@
     /* thumbnails: the whole picture, transparency on a checkerboard */
     .shot-box img, .img-row img { object-fit: contain; background: repeating-conic-gradient(#2a2a2a 0 25%, #1a1a1a 0 50%) 0 0 / 12px 12px; }
     .shot-box img { width: 160px; aspect-ratio: 16/10; border-radius: 8px; border: 1px solid var(--line); }
+    .fit-box { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+    .fit-box output { color: var(--text); }
+    .fit-box div.f { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+    .pos-row { display: flex; gap: 16px; align-items: center; }
+    .pos-grid { display: grid; grid-template-columns: repeat(3, 22px); gap: 4px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; }
+    .pos-grid button { width: 22px; height: 22px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; cursor: pointer; }
+    .pos-grid button:hover { border-color: var(--text); }
+    .pos-grid button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+    .pos-sliders { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .pos-sliders label { display: flex; align-items: center; gap: 8px; }
+    .pos-sliders input, .fit-box input[type=range] { flex: 1; accent-color: var(--accent); }
+    .pos-sliders output { width: 3.5em; text-align: right; }
 
     .bar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;

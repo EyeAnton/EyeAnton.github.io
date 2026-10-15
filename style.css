@@ -149,8 +149,13 @@ main [data-block] { scroll-margin-top: 72px; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
 .cover { position: relative; aspect-ratio: 16 / 10; background: var(--card-2); overflow: hidden; }
-.cover img.shot { width: 100%; height: 100%; object-fit: cover; /* whole picture always fits; PNG keeps transparency */ transition: transform .8s var(--ease); }
-.card:hover .cover img.shot { transform: scale(1.04); }
+/* picture cover: fit / anchor / zoom / margin colour / padding come from the admin (cover.* → --fit --pos --z --cbg --pad, coverStyle in app.js) */
+.cover:has(> img.shot) { background: var(--cbg, var(--card-2)); padding: var(--pad, 0); }
+.cover img.shot {
+  width: 100%; height: 100%; object-fit: var(--fit, cover); object-position: var(--pos, 50% 50%);
+  transform: scale(var(--z, 1)); transition: transform .8s var(--ease);
+}
+.card:hover .cover img.shot { transform: scale(calc(var(--z, 1) * 1.04)); }
 .cover::after {
   content: ""; position: absolute; inset: auto 0 0; height: 40%; pointer-events: none;
   background: linear-gradient(180deg, transparent, var(--card));
@@ -339,8 +344,8 @@ main [data-block] { scroll-margin-top: 72px; }
 }
 .show-media .cover { aspect-ratio: 16 / 11; }
 .show-media .cover::after { display: none; }
-.show-media:hover .cover img.shot { transform: scale(1.03); }
-.show-media .cover img.shot { object-fit:contain; }
+.show-media:hover .cover img.shot { transform: scale(calc(var(--z, 1) * 1.03)); }
+.show-media .cover img.shot { object-fit: var(--fit, contain); } /* home: whole picture unless the project says otherwise */
 .show-body { display: flex; flex-direction: column; gap: 14px; }
 .show-num {
   font: var(--fw-medium) clamp(56px, 7vw, 96px)/.9 var(--font); letter-spacing: var(--track-tight);
