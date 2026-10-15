@@ -417,7 +417,9 @@
     "areas:areas.eyebrow",
     "showcase:show.eyebrow",
     "exp:exp.eyebrow",
-    "areas:areas.text"
+    "areas:areas.text",
+    "hero:hero.where",
+    "hero:hero.lead"
   ],
   "links": {
     "hero:hero.cta": "#work",
