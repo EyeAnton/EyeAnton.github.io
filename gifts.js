@@ -93,7 +93,13 @@ window.Gifts = (() => {
             paint();
             for (const a of live) { a.muted = muted(); if (on) a.play().catch(() => {}); }
           });
-          document.body.append(btn);
+          // in the header, next to RUS / ENG (one right-hand group, so the header grid keeps 3 columns)
+          const $lang = document.getElementById("lang");
+          if ($lang) {
+            const end = el("div", "top-end");
+            $lang.replaceWith(end);
+            end.append(btn, $lang);
+          } else document.body.append(btn);
         }
         if (btn) btn.hidden = !show;
         paint();
@@ -332,7 +338,7 @@ window.Gifts = (() => {
     const byKey = new Map(data.items.map((g) => [g.key, g]));
     const open = (img) => {
       const gift = byKey.get(img?.dataset.k);
-      if (gift) openOverlay(gift, img, img);
+      if (gift) openOverlay(gift, img, img, true);
     };
     $cloud.addEventListener("click", (e) => open(e.target.closest("img[data-k]")));
     $cloud.addEventListener("keydown", (e) => {
@@ -424,12 +430,14 @@ window.Gifts = (() => {
   const $ = (id) => document.getElementById(id);
 
   // from: a still of the hero strip — it flies to the centre of the screen and the animation takes over from it
-  function openOverlay(gift, returnFocus, from) {
+  // wide: the animation fills the screen width (hero strip)
+  function openOverlay(gift, returnFocus, from, wide = false) {
     const $overlay = $("gcOverlay"), $stage = $("gcStage"), $spinner = $("gcSpinner");
     const id = ++session;
     cleanupMedia();
     current = { audio: null, timer: 0, returnFocus, from: null, fly: null };
     $stage.replaceChildren($spinner);
+    $overlay.classList.toggle("wide", wide);
     $overlay.hidden = false;
     document.body.classList.add("locked");
     requestAnimationFrame(() => $overlay.classList.add("open"));
@@ -461,7 +469,7 @@ window.Gifts = (() => {
   // a copy of the strip still moves from its place in the belt to the centre, the original hides meanwhile
   function flyIn(from) {
     const r = from.getBoundingClientRect(), s = $("gcStage").getBoundingClientRect();
-    const size = s.width * 0.62;
+    const size = Math.min(s.width, innerHeight) * 0.62;
     const fly = el("img", "gc-fly");
     fly.alt = "";
     fly.src = from.currentSrc || from.src;
