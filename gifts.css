@@ -346,6 +346,9 @@ body.locked .cs-cloud-track { animation-play-state: paused; }
   opacity: 0; transform: scale(.94); transition: opacity .3s ease, transform .6s var(--ease);
 }
 .stage > .on { opacity: 1; transform: none; }
+/* hero strip: the animation stretched to the full screen width */
+.overlay.wide { overflow: hidden; }
+.overlay.wide .stage { width: 100vw; }
 
 /* a still of the hero strip on its way to the centre (gifts.js flyIn) */
 .gc-fly {
@@ -358,14 +361,15 @@ body.locked .cs-cloud-track { animation-play-state: paused; }
 .stage > img.static { width: 62%; height: 62%; object-fit: contain; transform: scale(.9); transition: opacity .3s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
 .stage > img.static.on { transform: scale(1.12); }
 
-/* sound toggle for every gift animation, above the overlay too */
+/* sound toggle for every gift animation, in the header next to RUS / ENG */
+.top-end { display: flex; align-items: center; gap: 8px; justify-self: end; }
 .gc-sound {
-  position: fixed; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 60;
-  display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 50%;
   border: var(--stroke) solid transparent;
   background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--grad-stroke) border-box;
-  box-shadow: var(--glow-sm); color: var(--text); cursor: pointer;
+  color: var(--text); cursor: pointer;
 }
+.gc-sound[hidden] { display: none; }
 .gc-sound svg { width: 20px; height: 20px; }
 .gc-sound[aria-pressed="false"] { color: var(--muted); }
 
