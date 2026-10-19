@@ -313,9 +313,10 @@ window.Gifts = (() => {
   /* ---------------- catalog: every gift, tap to send ---------------- */
 
   function catalog($catalog, data, cfg) {
-    const byKey = new Map(data.items.map((g) => [g.key, g]));
+    const animated = data.items.filter((g) => g.full_webm); // static gifts are not shown for now
+    const byKey = new Map(animated.map((g) => [g.key, g]));
     let list = cfg.keys.map((k) => byKey.get(k)).filter(Boolean);
-    if (!list.length) list = data.items; // nothing picked in the admin: every gift
+    if (!list.length) list = animated; // nothing picked in the admin: every animated gift
     const grid = el("div", "gc-grid");
     for (const gift of list) grid.append(card(gift, data.silhouettes[gift.key]));
     $catalog.replaceChildren(grid);
@@ -339,7 +340,8 @@ window.Gifts = (() => {
     // each still gets a slot with its skeleton silhouette (as in the catalog); the still fades in once loaded
     for (const img of $cloud.querySelectorAll("img[data-k]")) {
       const gift = byKey.get(img.dataset.k);
-      if (gift && img.getAttribute("role")) img.setAttribute("aria-label", gift.name);
+      if (!gift?.full_webm) { img.remove(); continue; } // static gifts are not shown for now
+      if (img.getAttribute("role")) img.setAttribute("aria-label", gift.name);
       const slot = el("span", "gc-slot");
       img.replaceWith(slot);
       const sil = data.silhouettes[img.dataset.k];
