@@ -15,10 +15,6 @@ window.Gifts = (() => {
   const isWebKit = /AppleWebKit/.test(ua) && !/(Chrome|Chromium|Edg)\//.test(ua);
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const canHover = matchMedia("(hover: hover) and (pointer: fine)");
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-  };
   const el = (tag, className) => { const n = document.createElement(tag); if (className) n.className = className; return n; };
 
   let gen = 0;        // bumps on every mount: widgets of an older render stop
@@ -65,54 +61,48 @@ window.Gifts = (() => {
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
   }
 
-  /* ---------------- sound: one toggle for every gift animation on the page ---------------- */
+  /* ---------------- sound of the mockups: off by default, a toggle next to each mockup ---------------- */
 
-  // Gift sounds always run (muted when the toggle is off), so switching on mid-animation stays in sync.
+  // Mockup sounds always run (muted while the toggle is off), so switching on mid-animation stays in sync.
+  // A gift opened full screen by a click always has sound and switches the mockups off.
   const SPEAKER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/>';
   const sound = (() => {
-    let on = store.get("gcSound") !== "off";
+    let on = false;
     const live = new Set();
-    let btn = null;
+    const btns = new Set();
     const muted = () => editor || !on;
-    const paint = () => {
-      if (!btn) return;
-      btn.innerHTML = SPEAKER + (on
-        ? '<path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
-        : '<path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>');
-      btn.setAttribute("aria-pressed", String(on));
-      btn.setAttribute("aria-label", lang === "ru" ? (on ? "Выключить звук" : "Включить звук") : (on ? "Mute" : "Unmute"));
+    const paint = (only) => {
+      for (const b of only ? [only] : btns) {
+        if (!only && !b.isConnected) { btns.delete(b); continue; } // a mockup of an older render
+        b.innerHTML = SPEAKER + (on
+          ? '<path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+          : '<path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>');
+        b.setAttribute("aria-pressed", String(on));
+        b.setAttribute("aria-label", lang === "ru" ? (on ? "Выключить звук" : "Включить звук") : (on ? "Mute" : "Unmute"));
+      }
+    };
+    const set = (v) => {
+      on = v;
+      paint();
+      for (const a of live) { a.muted = muted(); if (on) a.play().catch(() => {}); }
     };
     const api = {
-      button(show) { // only on pages with gift widgets, never in the editor
-        if (show && !btn && !editor) {
-          btn = el("button", "gc-sound");
-          btn.type = "button";
-          btn.addEventListener("click", () => {
-            on = !on;
-            store.set("gcSound", on ? "on" : "off");
-            paint();
-            for (const a of live) { a.muted = muted(); if (on) a.play().catch(() => {}); }
-          });
-          // in the header, next to RUS / ENG (one right-hand group, so the header grid keeps 3 columns)
-          const $lang = document.getElementById("lang");
-          if ($lang) {
-            const end = el("div", "top-end");
-            $lang.replaceWith(end);
-            end.append(btn, $lang);
-          } else document.body.append(btn);
-        }
-        if (btn) btn.hidden = !show;
-        paint();
+      button() { // the toggle that sits next to a mockup's gift chips; none in the editor
+        if (editor) return [];
+        const b = el("button", "gc-sound");
+        b.type = "button";
+        b.addEventListener("click", () => set(!on));
+        btns.add(b);
+        paint(b);
+        return [b];
       },
-      track(a) {
+      off() { if (on) set(false); },
+      play(src) {
+        if (!src) return null;
+        const a = new Audio(src);
         a.muted = muted();
         live.add(a);
         a.addEventListener("ended", () => live.delete(a), { once: true });
-        return a;
-      },
-      play(src) {
-        if (!src) return null;
-        const a = api.track(new Audio(src));
         a.play().catch(() => {});
         return a;
       },
@@ -147,7 +137,7 @@ window.Gifts = (() => {
       b.addEventListener("click", () => { index = i; start(); });
       return b;
     });
-    $pick?.replaceChildren(...chips);
+    $pick?.replaceChildren(...chips, ...sound.button());
 
     const later = (fn, ms) => timers.push(setTimeout(() => (alive() ? fn() : reset()), ms));
     const wait = (ms) => new Promise((res) => later(res, ms));
@@ -239,7 +229,7 @@ window.Gifts = (() => {
       });
       return b;
     });
-    $tabs?.replaceChildren(...tabs);
+    $tabs?.replaceChildren(...tabs, ...sound.button());
     const img = (src, cls) => { const n = el("img", cls); n.src = src; n.alt = ""; n.loading = "lazy"; n.decoding = "async"; return n; };
     const mini = steps[4] ? miniPhone(steps[4].querySelector(".gc-mini"), alive) : null;
     function show() {
@@ -346,9 +336,17 @@ window.Gifts = (() => {
       e.preventDefault();
       open(e.target.closest("img[data-k]"));
     });
+    // each still gets a slot with its skeleton silhouette (as in the catalog); the still fades in once loaded
     for (const img of $cloud.querySelectorAll("img[data-k]")) {
       const gift = byKey.get(img.dataset.k);
       if (gift && img.getAttribute("role")) img.setAttribute("aria-label", gift.name);
+      const slot = el("span", "gc-slot");
+      img.replaceWith(slot);
+      const sil = data.silhouettes[img.dataset.k];
+      if (sil) slot.append(skeleton(sil));
+      slot.append(img);
+      const done = () => slot.classList.add("loaded");
+      if (img.complete && img.naturalWidth) done(); else img.addEventListener("load", done, { once: true });
     }
   }
 
@@ -445,6 +443,7 @@ window.Gifts = (() => {
     if (from) flyIn(from);
     const go = (fn) => (from ? (current.timer = setTimeout(() => id === session && fn(), FLY_MS)) : fn());
     if (!gift.full_webm) return go(() => playStatic(gift, id));
+    sound.off(); // the opened gift is heard alone
     // start the sound inside the click so browsers allow it; muted until the animation is ready
     const audio = new Audio(gift.sound);
     audio.preload = "auto";
@@ -455,7 +454,7 @@ window.Gifts = (() => {
       if (id !== session) return;
       audio.currentTime = 0;
       audio.volume = 1;
-      sound.track(audio);
+      audio.muted = editor;
       audio.play().catch(() => {});
     };
     go(() => {
@@ -625,7 +624,6 @@ window.Gifts = (() => {
     editor = !!opts.editor;
     sound.stopAll();
     const nodes = [...root.querySelectorAll("[data-gifts]")];
-    sound.button(nodes.length > 0);
     if (!nodes.length) return;
     once();
     for (const node of nodes) {
