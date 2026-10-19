@@ -20,6 +20,8 @@
   letter-spacing: var(--track-tight);
 }
 .cs-hero .aurora { opacity: .7; }
+/* until app.js renders the project, the contact block and the footer would sit at the top and then slide down */
+body:has(#projHead:empty) :is(#projContact, .foot) { visibility: hidden; }
 
 /* one row of covers drifting right to left; the track holds the set twice and moves by one set */
 .cs-cloud {

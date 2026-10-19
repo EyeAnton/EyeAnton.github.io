@@ -348,7 +348,9 @@ body.locked .cs-cloud-track { animation-play-state: paused; }
 .stage > .on { opacity: 1; transform: none; }
 /* hero strip: the animation stretched to the full screen width */
 .overlay.wide { overflow: hidden; }
-.overlay.wide .stage { width: 100vw; }
+/* the stage is exactly the screen and the square animation covers it, so the gift sits in the screen's centre */
+.overlay.wide .stage { width: 100vw; height: 100vh; height: 100dvh; aspect-ratio: auto; }
+.overlay.wide .stage > video, .overlay.wide .stage > img:not(.static) { position: absolute; inset: 0; object-fit: cover; }
 
 /* a still of the hero strip on its way to the centre (gifts.js flyIn) */
 .gc-fly {
