@@ -109,7 +109,7 @@
         {
           "id": "vg03",
           "type": "gifts-showcase",
-          "visible": true,
+          "visible": false,
           "anchor": "showcase",
           "title": {
             "ru": "Весь экран — подарку",
@@ -249,11 +249,11 @@
             "en": "Every gift takes the same path in Figma: source, brief, chroma-key drafts, key frames and the finished animation. Each step is a selection."
           },
           "keys": [
-            "sep__icecream_3d",
-            "sep__sakura",
-            "sep__love_book_3d",
             "sep__potion_bon_3d",
-            "sep__picnic_bon_3d"
+            "sep__icecream_3d",
+            "sep__picnic_bon_3d",
+            "sep__love_book_3d",
+            "sep__sakura"
           ],
           "items": [
             {
