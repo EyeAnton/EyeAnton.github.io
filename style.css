@@ -677,3 +677,12 @@ main [data-block]:is([data-s-bg="band"], [data-s-bg="deep"]):not([data-s-space])
 .to-top svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 600px) { .to-top { width: 40px; height: 40px; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); } }
 @media (prefers-reduced-motion: reduce) { .to-top { transition: none; } }
+
+/* =================== no selection, no focus rings from a click or a tap =================== */
+/* text and pictures don't get selected or dragged; the editor and form fields stay selectable */
+html:not(.editing) body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+input, textarea, select, [contenteditable="true"] { -webkit-user-select: text; user-select: text; }
+img, video, svg { -webkit-user-drag: none; }
+/* a ring only for keyboard focus (:focus-visible), never after a mouse click */
+:focus:not(:focus-visible) { outline: none; }
+img:focus, video:focus, [role="button"]:focus, .gc-card:focus, .chip:focus { outline: none; }

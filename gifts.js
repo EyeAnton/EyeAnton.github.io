@@ -313,7 +313,7 @@ window.Gifts = (() => {
   /* ---------------- catalog: every gift, tap to send ---------------- */
 
   function catalog($catalog, data, cfg) {
-    const animated = data.items.filter((g) => g.full_webm); // static gifts are not shown for now
+    const animated = data.items.filter((g) => g.full_hd_webm); // only gifts with the full-size animation are shown for now
     const byKey = new Map(animated.map((g) => [g.key, g]));
     let list = cfg.keys.map((k) => byKey.get(k)).filter(Boolean);
     if (!list.length) list = animated; // nothing picked in the admin: every animated gift
@@ -340,7 +340,7 @@ window.Gifts = (() => {
     // each still gets a slot with its skeleton silhouette (as in the catalog); the still fades in once loaded
     for (const img of $cloud.querySelectorAll("img[data-k]")) {
       const gift = byKey.get(img.dataset.k);
-      if (!gift?.full_webm) { img.remove(); continue; } // static gifts are not shown for now
+      if (!gift?.full_hd_webm) { img.remove(); continue; } // only gifts with the full-size animation
       if (img.getAttribute("role")) img.setAttribute("aria-label", gift.name);
       const slot = el("span", "gc-slot");
       img.replaceWith(slot);
