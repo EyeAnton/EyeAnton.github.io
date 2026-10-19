@@ -32,7 +32,7 @@ window.Gifts = (() => {
           const abs = (p) => (p ? base + p : p);
           const items = gifts.items.map((g) => ({
             ...g, still: abs(g.still), preview_webm: abs(g.preview_webm), preview_webp_safari: abs(g.preview_webp_safari),
-            full_webm: abs(g.full_webm), full_mov_safari: abs(g.full_mov_safari), sound: abs(g.sound),
+            full_webm: abs(g.full_webm), full_hd_webm: abs(g.full_hd_webm), full_mov_safari: abs(g.full_mov_safari), sound: abs(g.sound),
           }));
           return { items, silhouettes, process: process.items || [] };
         }));
@@ -461,7 +461,9 @@ window.Gifts = (() => {
     };
     go(() => {
       $spinner.hidden = !!from; // the flown still is the loading state
-      if (!isWebKit) playVideo(gift.full_webm, id, startAudio, () => playStatic(gift, id));
+      // full screen: the original size (1540px) when there is one, the 640px file if it fails
+      const small = () => playVideo(gift.full_webm, id, startAudio, () => playStatic(gift, id));
+      if (!isWebKit) gift.full_hd_webm ? playVideo(gift.full_hd_webm, id, startAudio, small) : small();
       else if (gift.full_mov_safari) playVideo(gift.full_mov_safari, id, startAudio, () => playWebP(gift, id, startAudio));
       else playWebP(gift, id, startAudio);
     });
