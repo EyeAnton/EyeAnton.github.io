@@ -413,7 +413,7 @@
         {
           "id": "vg09",
           "type": "specs",
-          "visible": true,
+          "visible": false,
           "anchor": "delivery",
           "title": {
             "ru": "Прозрачный фон в любом браузере",
@@ -461,10 +461,6 @@
           "eyebrow": {
             "ru": "Прозрачность на всех платформах",
             "en": "Transparency on every platform"
-          },
-          "title": {
-            "ru": "Одна анимация — два кодека",
-            "en": "One animation, two codecs"
           },
           "text": {
             "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают по-разному, и проверить это можно только на реальных устройствах.",
@@ -552,7 +548,7 @@
                 "en": "56 gifts"
               },
               "d": {
-                "ru": "праздники, свадьба, романтика и символы — в одном визуальном языке",
+                "ru": "сладости, свадьба, романтика и символы, \nвсе наборы в одном визуальном языке",
                 "en": "holidays, weddings, romance and symbols — in one visual language"
               }
             },
@@ -562,7 +558,7 @@
                 "en": "A repeatable process"
               },
               "d": {
-                "ru": "новый подарок проходит тот же пайплайн — от сториборда до готовых файлов",
+                "ru": "новый подарок проходит тот же пайплайн — \nот сториборда до готовых файлов",
                 "en": "a new gift goes through the same pipeline, from storyboard to finished files"
               }
             },
@@ -572,7 +568,7 @@
                 "en": "Zero manual packaging"
               },
               "d": {
-                "ru": "разработчики получают манифест и медиа под каждую платформу",
+                "ru": "разработчики получают медиа под каждую платформу",
                 "en": "developers get a manifest and media for every platform"
               }
             },
@@ -582,7 +578,7 @@
                 "en": "Works everywhere"
               },
               "d": {
-                "ru": "прозрачная анимация со звуком в Chrome, Firefox, Safari и на iPhone",
+                "ru": "прозрачная анимация со звуком \nв Chrome, Firefox, Safari и на iPhone",
                 "en": "transparent animation with sound in Chrome, Firefox, Safari and on iPhone"
               }
             }
