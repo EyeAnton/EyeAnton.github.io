@@ -431,7 +431,8 @@ window.Gifts = (() => {
 
   // from: a still of the hero strip — it flies to the centre of the screen and the animation takes over from it
   // wide: the animation fills the screen width (hero strip)
-  function openOverlay(gift, returnFocus, from, wide = false) {
+  // audio: a sound already started (muted) inside the click, when the overlay opens later (play())
+  function openOverlay(gift, returnFocus, from, wide = false, preset = null) {
     const $overlay = $("gcOverlay"), $stage = $("gcStage"), $spinner = $("gcSpinner");
     const id = ++session;
     cleanupMedia();
@@ -447,10 +448,7 @@ window.Gifts = (() => {
     if (!gift.full_webm) return go(() => playStatic(gift, id));
     sound.off(); // the opened gift is heard alone
     // start the sound inside the click so browsers allow it; muted until the animation is ready
-    const audio = new Audio(gift.sound);
-    audio.preload = "auto";
-    audio.muted = true;
-    audio.play().catch(() => {});
+    const audio = preset || primeAudio(gift);
     current.audio = audio;
     const startAudio = () => {
       if (id !== session) return;
@@ -467,6 +465,14 @@ window.Gifts = (() => {
       else if (gift.full_mov_safari) playVideo(gift.full_mov_safari, id, startAudio, () => playWebP(gift, id, startAudio));
       else playWebP(gift, id, startAudio);
     });
+  }
+
+  function primeAudio(gift) {
+    const audio = new Audio(gift.sound);
+    audio.preload = "auto";
+    audio.muted = true;
+    audio.play().catch(() => {});
+    return audio;
   }
 
   // a copy of the strip still moves from its place in the belt to the centre, the original hides meanwhile
@@ -561,8 +567,9 @@ window.Gifts = (() => {
     const $overlay = $("gcOverlay");
     if (!$overlay || $overlay.hidden || !current) return;
     const id = ++session;
-    const { audio, returnFocus, from, fly } = current;
+    const { audio, returnFocus, from, fly, onClose } = current;
     clearTimeout(current.timer);
+    onClose?.(); // the hero box gathers itself while the overlay fades
     if (audio) fadeOut(audio);
     $overlay.classList.remove("open");
     if (fly) {
@@ -647,5 +654,26 @@ window.Gifts = (() => {
     }
   }
 
-  return { mount };
+  /* ---------------- one gift by its key, outside the case page (the hero box on the home page) ---------------- */
+
+  const BASE = "/gift-catalog/";
+  let warm = null; // gifts.json loaded ahead, so a click can start the sound right away
+  const warmUp = () => load(BASE).then((d) => (warm = d));
+
+  // Opens the overlay after `delay` ms, as a click in the catalog does. Call it inside the click: the sound starts
+  // there (muted), or browsers would block it. onClose — when the overlay starts closing.
+  function play(key, { delay = 0, returnFocus, onClose } = {}) {
+    once();
+    const find = (d) => d.items.find((g) => g.key === key);
+    const early = warm && find(warm);
+    const audio = early?.full_webm && early.sound ? primeAudio(early) : null;
+    setTimeout(() => warmUp().then((d) => {
+      const gift = find(d);
+      if (!gift) { audio?.pause(); return onClose?.(); }
+      openOverlay(gift, returnFocus, null, false, audio);
+      current.onClose = onClose;
+    }), delay);
+  }
+
+  return { mount, play, warmUp };
 })();
