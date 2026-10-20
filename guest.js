@@ -18,9 +18,11 @@ function startGuest() {
   addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
   const go = () => {
-    if (document.hidden) { // wait until the tab is visible again
+    if (window.giftPlaying) { // the hero gift is playing (app.js setupUnbox): come after it
+      addEventListener("giftdone", () => setTimeout(go, 800), { once: true });
+    } else if (document.hidden) { // wait until the tab is visible again
       document.addEventListener("visibilitychange", function once() {
-        if (!document.hidden) { document.removeEventListener("visibilitychange", once); setTimeout(run, 1500); }
+        if (!document.hidden) { document.removeEventListener("visibilitychange", once); setTimeout(go, 1500); }
       });
     } else run();
   };

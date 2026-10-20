@@ -6,6 +6,11 @@ html { scrollbar-gutter: stable; } /* the scrollbar's room stays when body.locke
 body.locked { overflow: hidden; }
 .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
+/* ONE scale rule for every gift animation (mockup screens, catalog hover preview, the overlay from the catalog,
+   the strip and the hero box): the square animation fills its frame by the frame's long side, centred, edges
+   cropped. Give the video/img this class; don't add per-place sizing rules. */
+.gift-anim { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+
 /* ---------- showcase: laptop + phone mockups ---------- */
 .gc-devices {
   position: relative; max-width: 1120px; margin: 0 auto; padding: 0 19% 4% 0;
@@ -94,8 +99,6 @@ body.locked { overflow: hidden; }
 .gc-screen > :not(.gc-fx) { transition: filter .5s ease; }
 .gc-devices.playing .gc-screen > :not(.gc-fx) { filter: blur(1.5px) brightness(.38); }
 .gc-fx video {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; /* fill by the screen's long side */
   opacity: 0; transform: scale(.94); will-change: opacity, transform;
   transition: opacity .35s ease, transform .6s var(--ease);
 }
@@ -187,6 +190,7 @@ body.locked { overflow: hidden; }
 }
 .gc-brief-note { margin: 10px 0 0; font-size: 12px; color: var(--gray-400); }
 /* step 05: the showcase phone on its own, looping the selected gift */
+.gc-result { display: flex; align-items: flex-end; gap: 16px; } /* the sound toggle right of the phone */
 .gc-devices.gc-mini { max-width: none; margin: 0; padding: 0; width: clamp(180px, 20vw, 250px); }
 .gc-devices.gc-mini::before { inset: 20% -30% -10%; }
 .gc-mini .gc-phone { position: relative; right: auto; bottom: auto; width: 100%; }
@@ -253,7 +257,7 @@ body.locked { overflow: hidden; }
 .media.loaded > .sk { opacity: 0; }
 /* hover preview: grows from the still's box to the card's full height (square video, sides cropped), the name fades out */
 .gc-card > .preview {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+  pointer-events: none;
   opacity: 0; transform: scale(.7); transition: opacity .3s ease, transform .5s var(--ease);
 }
 .gc-card > .preview.on { opacity: 1; transform: none; }
@@ -335,23 +339,18 @@ body.locked { overflow: hidden; }
 }
 .overlay[hidden] { display: none; }
 .overlay.open { opacity: 1; }
-/* the page behind stays still while blurred (a moving belt would be re-blurred every frame) */
-body.locked .cs-cloud-track { animation-play-state: paused; }
 
+/* the stage is exactly the screen: the animation covers it (.gift-anim), so the gift sits in the screen's centre */
+.overlay { overflow: hidden; }
 .stage {
-  position: relative; width: min(92vw, 86vh, 680px); aspect-ratio: 1;
+  position: relative; width: 100vw; height: 100vh; height: 100dvh;
   display: grid; place-items: center; pointer-events: none;
 }
 .stage > video, .stage > img {
-  grid-area: 1 / 1; width: 100%; height: 100%; object-fit: contain;
+  grid-area: 1 / 1;
   opacity: 0; transform: scale(.94); transition: opacity .3s ease, transform .6s var(--ease);
 }
 .stage > .on { opacity: 1; transform: none; }
-/* hero strip and hero box: the animation covers the full screen by its long side */
-.overlay.wide { overflow: hidden; }
-/* the stage is exactly the screen and the square animation covers it, so the gift sits in the screen's centre */
-.overlay.wide .stage { width: 100vw; height: 100vh; height: 100dvh; aspect-ratio: auto; }
-.overlay.wide .stage > video, .overlay.wide .stage > img:not(.static) { position: absolute; inset: 0; object-fit: cover; }
 
 /* a still of the hero strip on its way to the centre (gifts.js flyIn) */
 .gc-fly {
@@ -361,6 +360,9 @@ body.locked .cs-cloud-track { animation-play-state: paused; }
 }
 .gc-fly.gone { opacity: 0; }
 .cs-cloud[data-gifts] img[data-k] { cursor: pointer; }
+/* the gift strip is driven by gifts.js belt(): a horizontal swipe drags it, a vertical one scrolls the page */
+.cs-cloud[data-gifts] { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+.cs-cloud[data-gifts].dragging, .cs-cloud[data-gifts].dragging img[data-k] { cursor: grabbing; }
 /* hero strip skeleton: the gift's silhouette shimmers in the still's place until the still loads (gifts.js strip) */
 .cs-cloud .gc-slot { flex: none; position: relative; width: var(--size); height: var(--size); }
 .cs-cloud .gc-slot > .sk { position: absolute; inset: 8%; width: 84%; height: 84%; transition: opacity .45s ease; pointer-events: none; }

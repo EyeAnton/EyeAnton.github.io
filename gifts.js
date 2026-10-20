@@ -229,9 +229,10 @@ window.Gifts = (() => {
       });
       return b;
     });
-    $tabs?.replaceChildren(...tabs, ...sound.button());
+    $tabs?.replaceChildren(...tabs);
     const img = (src, cls) => { const n = el("img", cls); n.src = src; n.alt = ""; n.loading = "lazy"; n.decoding = "async"; return n; };
     const mini = steps[4] ? miniPhone(steps[4].querySelector(".gc-mini"), alive) : null;
+    if (mini) { steps[4].classList.add("gc-result"); steps[4].append(...sound.button()); } // the sound toggle: right of the result phone
     function show() {
       const p = list[current];
       const base = `${cfg.base}assets/process/${p.key}/`;
@@ -329,8 +330,9 @@ window.Gifts = (() => {
     const byKey = new Map(data.items.map((g) => [g.key, g]));
     const open = (img) => {
       const gift = byKey.get(img?.dataset.k);
-      if (gift) openOverlay(gift, img, img, true);
+      if (gift) openOverlay(gift, img, img);
     };
+    belt($cloud);
     $cloud.addEventListener("click", (e) => open(e.target.closest("img[data-k]")));
     // hover tilt: the point under the cursor sinks, the still pivots around its centre (case.css .cs-cloud.zoom)
     const TILT = 10; // deg at the edge
@@ -364,6 +366,70 @@ window.Gifts = (() => {
       const done = () => slot.classList.add("loaded");
       if (img.complete && img.naturalWidth) done(); else img.addEventListener("load", done, { once: true });
     }
+  }
+
+  // the strip drifts on its own and stops only while a finger or the mouse drags it (no pause on hover, tap or
+  // page scroll); a swipe flings it, then it eases back to the drift. Replaces the CSS drift of .cs-cloud-track.
+  function belt($cloud) {
+    const track = $cloud.querySelector(".cs-cloud-track");
+    if (!track) return;
+    const secs = parseFloat(getComputedStyle(track).animationDuration) || 140; // one set per this many seconds
+    track.style.animation = "none";
+    let x = 0, v = 0, set = 0, last = 0, drag = null, swallow = false, seen = true;
+    const measure = () => { set = (track.scrollWidth + (parseFloat(getComputedStyle(track).columnGap) || 0)) / 2; };
+    const speed = () => (reducedMotion.matches ? 0 : set / secs);
+    const tick = (now) => {
+      const dt = Math.min((now - (last || now)) / 1000, 0.05);
+      last = now;
+      if (!drag?.moved) {
+        v += (-speed() - v) * Math.min(1, dt * 1.6);
+        x += v * dt;
+      }
+      if (set) { x %= set; if (x > 0) x -= set; }
+      if (seen) track.style.transform = `translateX(${x}px)`;
+      requestAnimationFrame(tick);
+    };
+    measure();
+    addEventListener("resize", measure);
+    new ResizeObserver(measure).observe(track);
+    new IntersectionObserver(([e]) => { seen = e.isIntersecting; }).observe($cloud);
+    requestAnimationFrame(tick);
+
+    $cloud.addEventListener("dragstart", (e) => e.preventDefault()); // no ghost image when dragging with the mouse
+    $cloud.addEventListener("pointerdown", (e) => {
+      if (e.button) return;
+      drag = { id: e.pointerId, x0: e.clientX, x: e.clientX, t: e.timeStamp, from: 0, moved: false };
+    });
+    $cloud.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 6) return; // a tap opens the gift, only a real drag holds the belt
+        drag.moved = true;
+        drag.from = x - dx;
+        $cloud.setPointerCapture(e.pointerId);
+        $cloud.classList.add("dragging");
+      }
+      const dt = Math.max(e.timeStamp - drag.t, 1);
+      v = v * 0.3 + 0.7 * ((e.clientX - drag.x) / dt) * 1000;
+      drag.x = e.clientX;
+      drag.t = e.timeStamp;
+      x = drag.from + dx;
+    });
+    const end = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (drag.moved) {
+        swallow = true; // the click that follows a drag doesn't open a gift
+        setTimeout(() => { swallow = false; });
+        if (e.timeStamp - drag.t > 120) v = 0; // held still before letting go: no fling
+        v = Math.max(-4000, Math.min(4000, v));
+        $cloud.classList.remove("dragging");
+      }
+      drag = null;
+    };
+    $cloud.addEventListener("pointerup", end);
+    $cloud.addEventListener("pointercancel", end); // a vertical swipe scrolls the page instead
+    $cloud.addEventListener("click", (e) => { if (swallow) { e.stopPropagation(); e.preventDefault(); } }, true);
   }
 
   function card(gift, sil) {
@@ -405,12 +471,12 @@ window.Gifts = (() => {
     btn.addEventListener("mouseenter", () => {
       if (!canHover.matches || reducedMotion.matches || preview) return;
       if (isWebKit) {
-        preview = el("img", "preview");
+        preview = el("img", "preview gift-anim");
         preview.alt = "";
         preview.addEventListener("load", () => show(preview), { once: true });
         preview.src = gift.preview_webp_safari;
       } else {
-        preview = el("video", "preview");
+        preview = el("video", "preview gift-anim");
         Object.assign(preview, { muted: true, loop: true, playsInline: true, autoplay: true });
         preview.addEventListener("playing", () => show(preview), { once: true });
         preview.src = gift.preview_webm;
@@ -444,15 +510,13 @@ window.Gifts = (() => {
   const $ = (id) => document.getElementById(id);
 
   // from: a still of the hero strip — it flies to the centre of the screen and the animation takes over from it
-  // wide: the animation covers the whole screen by its long side (hero strip, hero box)
   // audio: a sound already started (muted) inside the click, when the overlay opens later (play())
-  function openOverlay(gift, returnFocus, from, wide = false, preset = null) {
+  function openOverlay(gift, returnFocus, from, preset = null) {
     const $overlay = $("gcOverlay"), $stage = $("gcStage"), $spinner = $("gcSpinner");
     const id = ++session;
     cleanupMedia();
     current = { audio: null, timer: 0, returnFocus, from: null, fly: null };
     $stage.replaceChildren($spinner);
-    $overlay.classList.toggle("wide", wide);
     $overlay.hidden = false;
     document.body.classList.add("locked");
     requestAnimationFrame(() => $overlay.classList.add("open"));
@@ -514,7 +578,7 @@ window.Gifts = (() => {
   }
 
   function playVideo(src, id, startAudio, onFail) {
-    const video = el("video");
+    const video = el("video", "gift-anim");
     Object.assign(video, { muted: true, playsInline: true, preload: "auto" });
     video.setAttribute("playsinline", "");
     video.addEventListener("playing", () => {
@@ -543,7 +607,7 @@ window.Gifts = (() => {
       .then((buf) => {
         if (id !== session) return;
         const duration = webpDuration(buf);
-        const img = el("img");
+        const img = el("img", "gift-anim");
         img.alt = "";
         img.addEventListener("load", () => {
           if (id !== session) return;
@@ -684,7 +748,7 @@ window.Gifts = (() => {
     setTimeout(() => warmUp().then((d) => {
       const gift = find(d);
       if (!gift) { audio?.pause(); return onClose?.(); }
-      openOverlay(gift, returnFocus, null, true, audio); // full screen, by the long side
+      openOverlay(gift, returnFocus, null, audio);
       current.onClose = onClose;
     }), delay);
   }
