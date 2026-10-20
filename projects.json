@@ -1502,6 +1502,30 @@
     {
       "visible": false,
       "home": true,
+      "id": "sticker-creator",
+      "cat": "ai",
+      "year": 2026,
+      "title": {
+        "ru": "Sticker Creator",
+        "en": "Sticker Creator"
+      },
+      "desc": {
+        "ru": "Стикерпак из одного фото: модерация, рестайл портрета, эмоции с автоматической проверкой качества. Генерация на RunningHub через защищённый прокси.",
+        "en": "A sticker pack from a single photo: moderation, portrait restyling, emotions with automatic quality checks. Generation on RunningHub behind a protected proxy."
+      },
+      "tags": [
+        "AI",
+        "RunningHub",
+        "Cloudflare Workers",
+        "Pipeline"
+      ],
+      "links": {
+        "page": "https://eyeanton.github.io/sticker-creator/"
+      }
+    },
+    {
+      "visible": false,
+      "home": true,
       "id": "echoes-of-peru",
       "cat": "ai",
       "year": 2025,
