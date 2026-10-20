@@ -310,7 +310,7 @@ const BLOCK_HTML = {
             <div class="gc-input"><span>Message…</span><i></i></div>
           </div>
         </div>
-        <div class="gc-fx"><video class="gc-fx-v" muted playsinline preload="auto"></video></div>
+        <div class="gc-fx"><video class="gc-fx-v gift-anim" muted playsinline preload="auto"></video></div>
       </div></div><div class="gc-base"></div></div>
       ${giftPhone(b)}
     </div><div class="gc-pick" role="tablist" aria-label="Gift"></div>`,
@@ -334,7 +334,7 @@ const giftPhone = (b) => `<div class="gc-phone" aria-hidden="true"><div class="g
   <div class="gc-thread-h"><i class="gc-back"></i><span class="gc-av a1">M</span><span><b>Mia, 27</b><small>online</small></span><i class="gc-like">♥</i></div>
   <div class="gc-msgs">${giftChat(b)}</div>
   <div class="gc-input"><span>Message…</span><i></i></div>
-  <div class="gc-fx"><video class="gc-fx-v" muted playsinline preload="auto"></video></div></div></div>`;
+  <div class="gc-fx"><video class="gc-fx-v gift-anim" muted playsinline preload="auto"></video></div></div></div>`;
 // lanes block: icon names "win", "android", "apple"
 const PLATFORM_ICONS = `<svg class="defs" aria-hidden="true" focusable="false">
   <symbol id="i-win" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.6 10.4 4.5v7.1H3zM11.4 4.4 21 3v8.6h-9.6zM3 12.6h7.4v7L3 18.4zM11.4 12.6H21V21l-9.6-1.4z"/></symbol>
@@ -815,7 +815,12 @@ function setupUnbox() {
     if (!key || !window.Gifts) return;
     busy = true;
     hover(false);
+    // guest.js: the CV doesn't arrive while the gift plays (window.giftPlaying, "giftdone"); one already on screen
+    // turns into the background — blurred and dimmed under the gift (body.gift-bg, style.css)
+    window.giftPlaying = true;
+    document.body.classList.add("gift-bg");
     const restore = () => { // the overlay closes: the box rises back, the gift is inside again, the lid lands
+      document.body.classList.remove("gift-bg");
       box.classList.remove("open");
       anims.get(gift)?.cancel();
       anims.delete(gift);
@@ -823,7 +828,11 @@ function setupUnbox() {
         { duration: 600, easing: "cubic-bezier(.22, .61, .36, 1)" }));
       gift.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 1 : 400, delay: reduce ? 0 : 200, fill: "backwards" });
       landLid(reduce ? 0 : 300);
-      setTimeout(() => { busy = false; }, reduce ? 0 : 1100);
+      setTimeout(() => {
+        busy = false;
+        window.giftPlaying = false;
+        dispatchEvent(new Event("giftdone"));
+      }, reduce ? 0 : 1100);
     };
     Gifts.play(key, { delay: reduce ? 0 : RISE + HANG + FADE, returnFocus: box, onClose: restore });
     if (reduce) return;
@@ -832,11 +841,13 @@ function setupUnbox() {
       { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
       { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
     ], { duration: 1400, easing: ease });
-    // the gift is out and hangs: the box bottom sinks and fades, gone before the overlay comes
-    setTimeout(() => [back, front].forEach((el) => play(el, [{ transform: "translateY(70%)", opacity: 0 }],
-      { duration: 1100, easing: "cubic-bezier(.45, 0, .55, 1)" })), RISE - 100);
-    setTimeout(() => play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
-      { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" }), RISE + HANG);
+    // the gift grows and fades, and at the same time the box bottom sinks and fades
+    setTimeout(() => {
+      play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
+        { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" });
+      [back, front].forEach((el) => play(el, [{ transform: "translateY(70%)", opacity: 0 }],
+        { duration: FADE, easing: "cubic-bezier(.3, 0, .6, 1)" }));
+    }, RISE + HANG);
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
