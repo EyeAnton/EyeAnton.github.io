@@ -2,6 +2,7 @@
    split, rail, list2, lanes) and the "sent in a chat" overlay. Moved from the gift-catalog repo (gc-*);
    the hero, facts and stats are the shared case template (case.css). Loaded by project.html. */
 
+html { scrollbar-gutter: stable; } /* the scrollbar's room stays when body.locked hides it, so centred text doesn't jump */
 body.locked { overflow: hidden; }
 .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
