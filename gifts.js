@@ -444,7 +444,7 @@ window.Gifts = (() => {
   const $ = (id) => document.getElementById(id);
 
   // from: a still of the hero strip — it flies to the centre of the screen and the animation takes over from it
-  // wide: the animation fills the screen width (hero strip)
+  // wide: the animation covers the whole screen by its long side (hero strip, hero box)
   // audio: a sound already started (muted) inside the click, when the overlay opens later (play())
   function openOverlay(gift, returnFocus, from, wide = false, preset = null) {
     const $overlay = $("gcOverlay"), $stage = $("gcStage"), $spinner = $("gcSpinner");
@@ -684,7 +684,7 @@ window.Gifts = (() => {
     setTimeout(() => warmUp().then((d) => {
       const gift = find(d);
       if (!gift) { audio?.pause(); return onClose?.(); }
-      openOverlay(gift, returnFocus, null, false, audio);
+      openOverlay(gift, returnFocus, null, true, audio); // full screen, by the long side
       current.onClose = onClose;
     }), delay);
   }

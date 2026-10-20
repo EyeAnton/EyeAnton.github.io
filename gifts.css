@@ -347,7 +347,7 @@ body.locked .cs-cloud-track { animation-play-state: paused; }
   opacity: 0; transform: scale(.94); transition: opacity .3s ease, transform .6s var(--ease);
 }
 .stage > .on { opacity: 1; transform: none; }
-/* hero strip: the animation stretched to the full screen width */
+/* hero strip and hero box: the animation covers the full screen by its long side */
 .overlay.wide { overflow: hidden; }
 /* the stage is exactly the screen and the square animation covers it, so the gift sits in the screen's centre */
 .overlay.wide .stage { width: 100vw; height: 100vh; height: 100dvh; aspect-ratio: auto; }

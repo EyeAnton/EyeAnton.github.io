@@ -832,13 +832,11 @@ function setupUnbox() {
       { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
       { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
     ], { duration: 1400, easing: ease });
-    setTimeout(() => {
-      play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
-        { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" });
-      // the gift is out: the box bottom sinks and fades
-      [back, front].forEach((el) => play(el, [{ transform: "translateY(45%)", opacity: 0 }],
-        { duration: FADE + 200, easing: "cubic-bezier(.5, 0, .75, 0)" }));
-    }, RISE + HANG);
+    // the gift is out and hangs: the box bottom sinks and fades, gone before the overlay comes
+    setTimeout(() => [back, front].forEach((el) => play(el, [{ transform: "translateY(70%)", opacity: 0 }],
+      { duration: 1100, easing: "cubic-bezier(.45, 0, .55, 1)" })), RISE - 100);
+    setTimeout(() => play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
+      { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" }), RISE + HANG);
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
