@@ -67,7 +67,8 @@ main [data-block] { scroll-margin-top: 72px; }
 /* Коробка с подарком над текстом: слои дно → подарок → передние стенки → крышка (все в одной рамке 180×180).
    При каждой загрузке коробка открыта и пуста (.empty): курсор «Anton Egorov» приносит подарок (.deliver), роняет его
    внутрь (.lidless), крышка опускается сверху. Наведение — крышка парит вверх-вправо; клик — распаковка: крышка улетает
-   вправо, коробка уходит вниз, подарок чуть поднимается и растёт; повторный клик — коробка собирается обратно.
+   вправо, подарок выходит из коробки, висит полсекунды, растёт и тает — и открывается его анимация в оверлее (gifts.js
+   Gifts.play, как в каталоге Virtual Gifts); оверлей закрылся — подарок опускается обратно, крышка садится.
    Крышку двигает setupUnbox() в app.js (Web Animations, без скачков из любой фазы). */
 .unbox {
   position: relative; z-index: 0; width: clamp(120px, 14vw, 160px); aspect-ratio: 1; margin: -24px 0 18px;
@@ -337,6 +338,7 @@ main [data-block] { scroll-margin-top: 72px; }
 
 /* =================== showcase (selected work) =================== */
 .showcase { display: flex; flex-direction: column; gap: clamp(40px, 7vw, 96px); }
+[data-href] { cursor: pointer; }
 .show { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
 .show:nth-child(even) .show-media { order: 2; }
 .show-media {

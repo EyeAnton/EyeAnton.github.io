@@ -130,11 +130,22 @@ function linksHTML(p, onOwnPage) {
   ].filter(Boolean).join("");
 }
 
+// the whole card leads to the case page, not only its button (setupCardLinks)
+const hrefAttr = (p) => (pageURL(p) && !EDITOR ? ` data-href="${esc(pageURL(p))}"` : "");
+function setupCardLinks() {
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest("[data-href]");
+    if (!card || e.target.closest("a, button, input, [data-tip]") || getSelection().toString()) return;
+    if (e.ctrlKey || e.metaKey || e.button === 1) open(card.dataset.href, "_blank");
+    else location.href = card.dataset.href;
+  });
+}
+
 const tagsHTML = (tags) => `<div class="tags">${tags.map((x) => `<span class="tag">${esc(x)}</span>`).join("")}</div>`;
 
 function cardHTML(p, i) {
   const links = linksHTML(p);
-  return `<article class="card${p.featured ? " featured" : ""}" style="animation-delay:${i * 40}ms">
+  return `<article class="card${p.featured ? " featured" : ""}"${hrefAttr(p)} style="animation-delay:${i * 40}ms">
     ${coverHTML(p)}
     <div class="body">
       <div class="meta"><span>${catName(p.cat)} · ${p.year}</span>${badgeHTML(p)}</div>
@@ -402,7 +413,7 @@ function renderHome() {
   if (!picks.length) picks = PROJECTS.slice(0, 4);
   $("#showcase").innerHTML = picks.map((p, i) => {
     const links = linksHTML(p);
-    return `<article class="show reveal">
+    return `<article class="show reveal"${hrefAttr(p)}>
       <div class="show-media">${coverHTML(p)}</div>
       <div class="show-body">
         <span class="show-num">${num(i)}</span>
@@ -735,8 +746,9 @@ function pickHeroGift() {
 // Box above the hero title (layers in index.html, states in style.css). On every load it starts open and empty:
 // the "Anton Egorov" cursor (as in guest.js) brings the gift, drops it in, the lid comes down from above.
 // Hover — the lid floats up and to the right (amplitude eases in/out, no jump at start or end).
-// Click — unpacking: the lid flies off up-right and fades, the box slides down and fades, the gift rises a little
-// and grows; click again — the box comes back up, the gift sinks in, the lid lands. Every move starts where it is.
+// Click — the lid flies off up-right, the gift rises out of the box, hangs half a second, grows and fades out, and then
+// its animation opens in the overlay of gifts.js (as in the Virtual Gifts catalog); the overlay closes — the gift
+// sinks back in, the lid lands. Every move starts where it is.
 function setupUnbox() {
   const box = $(".unbox");
   if (!box) return;
@@ -745,9 +757,7 @@ function setupUnbox() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const canHover = matchMedia("(hover: hover)").matches;
   const label = () => {
-    const ru = document.documentElement.lang !== "en", open = box.classList.contains("open");
-    box.setAttribute("aria-label", open ? (ru ? "Закрыть подарок" : "Close the gift") : (ru ? "Открыть подарок" : "Open the gift"));
-    box.setAttribute("aria-pressed", open);
+    box.setAttribute("aria-label", document.documentElement.lang !== "en" ? "Открыть подарок" : "Open the gift");
   };
   new MutationObserver(label).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   label();
@@ -797,27 +807,31 @@ function setupUnbox() {
     { duration: 800, delay, easing: "cubic-bezier(.22, .61, .36, 1)", from: { transform: "translateY(-60%)", opacity: 0 } }));
 
   const ease = "cubic-bezier(.4, 0, .35, 1)";
+  const RISE = 1000, HANG = 500, FADE = 600; // the gift comes out, hangs, grows and fades — then the overlay
+  if (window.Gifts) Gifts.warmUp();
   box.addEventListener("click", () => {
     if (busy) return;
-    const open = !box.classList.contains("open");
-    if (open) {
-      box.classList.add("open"); // the gift rises and grows (CSS transition)
-      play(lid, [
-        { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
-        { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
-      ], { duration: 1900, easing: ease });
-      for (const el of [back, front]) play(el, [
-        { transform: "translateY(67%)", opacity: 1, offset: 0.55 },
-        { transform: "translateY(128%)", opacity: 0 },
-      ], { duration: 1900, easing: ease });
-    } else {
-      const lidGone = anims.get(lid)?.playState === "finished";
-      box.classList.remove("open"); // the gift sinks back (CSS transition)
-      for (const el of [back, front]) play(el, [{ transform: "none", opacity: 1 }], { duration: 700, easing: "cubic-bezier(.22, .61, .36, 1)" });
-      if (lidGone) landLid(300); // flown away — comes down from above once the box is back
-      else settle(play(lid, [{ transform: "none", opacity: 1 }], { duration: 700, easing: "cubic-bezier(.22, .61, .36, 1)" }));
-    }
-    label();
+    const key = (gift.getAttribute("src").match(/thumbs\/([^/]+)\.webp/) || [])[1];
+    if (!key || !window.Gifts) return;
+    busy = true;
+    hover(false);
+    const back = () => { // the overlay closes: the gift is inside again, the lid lands
+      box.classList.remove("open");
+      anims.get(gift)?.cancel();
+      anims.delete(gift);
+      gift.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 1 : 400, delay: reduce ? 0 : 200, fill: "backwards" });
+      landLid(reduce ? 0 : 300);
+      setTimeout(() => { busy = false; }, reduce ? 0 : 1100);
+    };
+    Gifts.play(key, { delay: reduce ? 0 : RISE + HANG + FADE, returnFocus: box, onClose: back });
+    if (reduce) return;
+    box.classList.add("open"); // the gift rises out of the box (CSS transition)
+    play(lid, [
+      { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
+      { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
+    ], { duration: 1400, easing: ease });
+    setTimeout(() => play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
+      { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" }), RISE + HANG);
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
@@ -913,6 +927,7 @@ if (PAGE) {
   $("#year").textContent = new Date().getFullYear();
   setupStackTips();
   setupUnbox();
+  setupCardLinks();
 
   if (EDITOR) {
     bootEditor();
