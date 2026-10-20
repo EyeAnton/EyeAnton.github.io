@@ -88,15 +88,11 @@
         ],
         "gifts": [
           "sep__glass_heart_3d",
-          "wed__wedding_rings",
           "sep__crown_ai_3d",
           "wed__wedding_cake",
           "sep__yacht_3d",
-          "sep__panda_with_heart_ai_3d",
           "sep__merry_go_round",
           "wed__wedding_kiss",
-          "sep__roses2_bon_3d",
-          "sep__bear_3d",
           "sep__paris_ticket",
           "sep__treasure_ai_3d",
           "sep__diamond_3d",
@@ -151,7 +147,7 @@
             "en": "A gift is an emotion that lands in a chat"
           },
           "text": {
-            "ru": "Соцприложению с большим объёмом контента нужен постоянный поток подарков: к праздникам, свадьбам, признаниям и просто так. \nКаждый подарок живёт в трёх местах сразу.",
+            "ru": "Дейтинг-приложению нужен выбор подарков к широкому выбору контексте: к праздникам, свадьбам, признаниям и просто так. \nКаждый подарок живёт в трёх местах сразу.",
             "en": "A social app with a lot of content needs a steady flow of gifts: for holidays, weddings, confessions and just because. Every gift lives in three places at once."
           },
           "items": [
