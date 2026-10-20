@@ -815,23 +815,30 @@ function setupUnbox() {
     if (!key || !window.Gifts) return;
     busy = true;
     hover(false);
-    const back = () => { // the overlay closes: the gift is inside again, the lid lands
+    const restore = () => { // the overlay closes: the box rises back, the gift is inside again, the lid lands
       box.classList.remove("open");
       anims.get(gift)?.cancel();
       anims.delete(gift);
+      [back, front].forEach((el) => play(el, [{ transform: "none", opacity: 1 }],
+        { duration: 600, easing: "cubic-bezier(.22, .61, .36, 1)" }));
       gift.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduce ? 1 : 400, delay: reduce ? 0 : 200, fill: "backwards" });
       landLid(reduce ? 0 : 300);
       setTimeout(() => { busy = false; }, reduce ? 0 : 1100);
     };
-    Gifts.play(key, { delay: reduce ? 0 : RISE + HANG + FADE, returnFocus: box, onClose: back });
+    Gifts.play(key, { delay: reduce ? 0 : RISE + HANG + FADE, returnFocus: box, onClose: restore });
     if (reduce) return;
     box.classList.add("open"); // the gift rises out of the box (CSS transition)
     play(lid, [
       { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
       { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
     ], { duration: 1400, easing: ease });
-    setTimeout(() => play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
-      { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" }), RISE + HANG);
+    setTimeout(() => {
+      play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
+        { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" });
+      // the gift is out: the box bottom sinks and fades
+      [back, front].forEach((el) => play(el, [{ transform: "translateY(45%)", opacity: 0 }],
+        { duration: FADE + 200, easing: "cubic-bezier(.5, 0, .75, 0)" }));
+    }, RISE + HANG);
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
