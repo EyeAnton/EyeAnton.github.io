@@ -332,6 +332,20 @@ window.Gifts = (() => {
       if (gift) openOverlay(gift, img, img, true);
     };
     $cloud.addEventListener("click", (e) => open(e.target.closest("img[data-k]")));
+    // hover tilt: the point under the cursor sinks, the still pivots around its centre (case.css .cs-cloud.zoom)
+    const TILT = 10; // deg at the edge
+    $cloud.addEventListener("pointermove", (e) => {
+      const img = e.target.closest?.("img[data-k]");
+      if (!img || e.pointerType !== "mouse") return;
+      const r = img.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+      img.style.setProperty("--rx", `${(-ny * 2 * TILT).toFixed(2)}deg`);
+      img.style.setProperty("--ry", `${(nx * 2 * TILT).toFixed(2)}deg`);
+    });
+    $cloud.addEventListener("pointerout", (e) => {
+      const img = e.target.closest?.("img[data-k]");
+      if (img) { img.style.removeProperty("--rx"); img.style.removeProperty("--ry"); }
+    });
     $cloud.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();

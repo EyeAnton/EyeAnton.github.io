@@ -49,7 +49,8 @@ body:has(#projHead:empty) :is(#projContact, .foot) { visibility: hidden; }
 .cs-cloud.zoom .cs-cloud-track { padding: calc(var(--zoom-room) + 10px) 0 calc(var(--zoom-room) + 24px); }
 .cs-cloud.zoom .cs-cloud-track:hover { animation-play-state: paused; }
 .cs-cloud.zoom img { position: relative; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
-.cs-cloud.zoom img:hover { transform: scale(var(--zoom)); z-index: 1; }
+/* + a light tilt, as if the cursor presses the picture down around its centre (--rx/--ry from gifts.js) */
+.cs-cloud.zoom img:hover { transform: perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--zoom)); z-index: 1; }
 @keyframes cs-drift { to { transform: translateX(calc(-50% - var(--gap) / 2)); } }
 @media (prefers-reduced-motion: reduce) { .cs-cloud-track { animation: none; } }
 
