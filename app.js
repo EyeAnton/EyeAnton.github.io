@@ -837,17 +837,15 @@ function setupUnbox() {
     Gifts.play(key, { delay: reduce ? 0 : RISE + HANG + FADE, returnFocus: box, onClose: restore });
     if (reduce) return;
     box.classList.add("open"); // the gift rises out of the box (CSS transition)
+    // the box bottom sinks and fades right away, so it never covers the rising gift
+    [back, front].forEach((el) => play(el, [{ transform: "translateY(40%)", opacity: 0 }],
+      { duration: 400, easing: "cubic-bezier(.3, 0, .6, 1)" }));
     play(lid, [
       { transform: "translate(39%, -79%) rotate(24deg)", opacity: 1, offset: 0.55 },
       { transform: "translate(71%, -144%) rotate(44deg)", opacity: 0 },
     ], { duration: 1400, easing: ease });
-    // the gift grows and fades, and at the same time the box bottom sinks and fades
-    setTimeout(() => {
-      play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
-        { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" });
-      [back, front].forEach((el) => play(el, [{ transform: "translateY(70%)", opacity: 0 }],
-        { duration: FADE, easing: "cubic-bezier(.3, 0, .6, 1)" }));
-    }, RISE + HANG);
+    setTimeout(() => play(gift, [{ transform: "translateY(-8%) scale(3.4)", opacity: 0 }],
+      { duration: FADE, easing: "cubic-bezier(.5, 0, .9, .6)" }), RISE + HANG);
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
