@@ -206,11 +206,11 @@
           "visible": true,
           "anchor": "process",
           "title": {
-            "ru": "Один подарок — пять шагов",
+            "ru": "Один подарок - пять шагов",
             "en": "One gift, five steps"
           },
           "text": {
-            "ru": "Каждый подарок проходит один и тот же путь в Figma: исходник, бриф, черновики на хромакее, ключевые кадры и готовая анимация. На каждом шаге — отбор.",
+            "ru": "Каждая анимация - результат ручного отбора, \nа не просто генеративный шум.",
             "en": "Every gift takes the same path in Figma: source, brief, chroma-key drafts, key frames and the finished animation. Each step is a selection."
           },
           "keys": [
@@ -428,7 +428,7 @@
             "en": "Transparency on every platform"
           },
           "text": {
-            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают по-разному, и проверить это можно только на реальных устройствах.",
+            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают \nпо-разному. Для работы на всех устройтсвах нужны отдельные форматы.",
             "en": "The least obvious part of delivery: browsers handle transparent video differently, and the only way to check is on real devices."
           },
           "items": [
@@ -500,7 +500,7 @@
         {
           "id": "vg11",
           "type": "list2",
-          "visible": true,
+          "visible": false,
           "anchor": "result",
           "title": {
             "ru": "Коллекция, которую можно выкладывать",
@@ -553,12 +553,8 @@
           "id": "vg12",
           "type": "next",
           "visible": true,
-          "title": {
-            "ru": "Sticker Bot",
-            "en": "Sticker Bot"
-          },
           "text": {
-            "ru": "Telegram-бот, который превращает фото в стикеры и стилизованные портреты через AI-пайплайны.",
+            "ru": "",
             "en": "A Telegram bot that turns photos into stickers and stylised portraits through AI pipelines."
           },
           "items": [
