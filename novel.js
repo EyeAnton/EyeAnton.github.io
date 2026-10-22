@@ -1,18 +1,18 @@
 /* Visual novel player — the "novel" block of a project page (Emotions Club).
    Plays assets/novels/<id>/novel.json of the emotions-club repo (tools/build_novel.py there): one screen per line,
    as in the app — a phone screen with the background, the characters of the scene (the one who speaks is lit),
-   the line in a bubble with the name, options as buttons. Next to the phone — the record of the story JSON
-   the current screen was made from. Click / Space / Enter / → — next, ← — back, 1–3 — pick an option.
+   the line in a bubble with the name, options as buttons; sound effects are synthesized (WebAudio, no files).
+   Click / Space / Enter / → — next, ← — back, 1–3 — pick an option.
    app.js calls Novel.mount after every render; the state of each novel survives re-renders (language switch).
    Styles: novel.css (nv-*). */
 (() => {
   const UI = {
     ru: { play: "Играть", back: "Назад", restart: "Сначала", decides: "выбирает", end: "Конец", again: "Сыграть ещё",
       choice: "К последнему выбору", hint: "Клик, пробел или → — дальше · ← — назад", load: "Не удалось загрузить новеллу",
-      json: "Экран из JSON", scene: "Сцена" },
+      sound: "Звук" },
     en: { play: "Play", back: "Back", restart: "Restart", decides: "decides", end: "The End", again: "Play again",
       choice: "Back to the last choice", hint: "Click, Space or → to continue · ← back", load: "Could not load the novel",
-      json: "The screen in the JSON", scene: "Scene" },
+      sound: "Sound" },
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CPS = 60; // typewriter speed, characters per second
@@ -45,20 +45,106 @@
     return st;
   }
 
-  // the screen as it is written in the story JSON (the source format of the agent)
-  function jsonHTML(nv, id) {
-    const s = nv.screens[id];
-    const str = (v) => `<s>"${esc(v)}"</s>`;
-    const row = (k, v, last) => `  <k>"${k}"</k>: ${v}${last ? "" : ","}\n`;
-    const rows = [["id", str(id)], ["type", str(s.t)], ["image", str(s.bg || "")]];
-    if (s.t === "scene") rows.push(["title", str(s.title)]);
-    if (s.who) rows.push(["actor", `{ <k>"${s.who.startsWith("npc") ? "npcId" : "playerId"}"</k>: ${str(s.who)} }`]);
-    if (s.by) rows.push(["availableFor", str(s.by)]);
-    if (s.t !== "cutscene") rows.push(["content", str(s.text)]);
-    if (s.opts) rows.push(["options", "[\n" + s.opts.map((o, i) => `    { <k>"text"</k>: ${str(o.text)} }${i < s.opts.length - 1 ? "," : ""}`).join("\n") + "\n  ]"]);
-    if (s.next) rows.push(["next", str(s.next)]);
-    return "{\n" + rows.map(([k, v], i) => row(k, v, i === rows.length - 1)).join("") + "}";
-  }
+  // ---- sound effects: synthesized on the fly, nothing to download. The context starts on the first click
+  // (browsers allow audio only after a gesture); on/off is remembered (localStorage nvSound) ----
+  const Sfx = (() => {
+    let ctx = null, out = null, noise = null, amb = null, wanted = false;
+    let on = true;
+    try { on = localStorage.getItem("nvSound") !== "0"; } catch (e) {}
+    const wake = () => {
+      if (ctx) return ctx.state === "suspended" && ctx.resume();
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = new AC();
+      out = ctx.createGain();
+      out.gain.value = on ? 1 : 0;
+      out.connect(ctx.destination);
+      noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const d = noise.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    };
+    // one note: wave, frequency (or [from, to]), length, volume, delay
+    function tone(type, f, len, vol, at = 0) {
+      if (!ctx || !on) return;
+      const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type;
+      const [f0, f1] = Array.isArray(f) ? f : [f, f];
+      o.frequency.setValueAtTime(f0, t);
+      if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + len);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.02, len / 4));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      o.connect(g).connect(out);
+      o.start(t);
+      o.stop(t + len + 0.05);
+    }
+    // filtered noise sweeping from f0 to f1 — the air of a whoosh
+    function hiss(f0, f1, len, vol, at = 0) {
+      if (!ctx || !on) return;
+      const t = ctx.currentTime + at, src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+      src.buffer = noise;
+      bp.type = "bandpass";
+      bp.Q.value = 1.2;
+      bp.frequency.setValueAtTime(f0, t);
+      bp.frequency.exponentialRampToValueAtTime(f1, t + len);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + len * 0.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      src.connect(bp).connect(g).connect(out);
+      src.start(t);
+      src.stop(t + len + 0.05);
+    }
+    // a low uneasy room tone for the thriller: two detuned saws under a slowly breathing low-pass
+    function ambient(play) {
+      wanted = play;
+      if (!ctx) return;
+      if (play && on && !amb) {
+        const g = ctx.createGain(), lp = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), depth = ctx.createGain();
+        lp.type = "lowpass";
+        lp.frequency.value = 160;
+        lfo.frequency.value = 0.07;
+        depth.gain.value = 70;
+        lfo.connect(depth).connect(lp.frequency);
+        const oscs = [55, 55.4, 82.6].map((f) => {
+          const o = ctx.createOscillator();
+          o.type = "sawtooth";
+          o.frequency.value = f;
+          o.connect(lp);
+          o.start();
+          return o;
+        });
+        lfo.start();
+        lp.connect(g).connect(out);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 2.5);
+        amb = { g, stop: () => [...oscs, lfo].forEach((o) => o.stop()) };
+      } else if ((!play || !on) && amb) {
+        const a = amb;
+        amb = null;
+        a.g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.4);
+        setTimeout(a.stop, 1500);
+      }
+    }
+    return {
+      get on() { return on; },
+      wake,
+      ambient,
+      toggle() {
+        on = !on;
+        try { localStorage.setItem("nvSound", on ? "1" : "0"); } catch (e) {}
+        wake();
+        if (out) out.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.05);
+        ambient(wanted);
+      },
+      tap: () => tone("sine", [900, 620], 0.07, 0.05),
+      blip: () => tone("triangle", 480 + Math.random() * 140, 0.035, 0.012),
+      whoosh: () => hiss(250, 2600, 0.55, 0.22),
+      scene: () => { tone("sine", [90, 38], 1.4, 0.35); hiss(120, 900, 1.1, 0.12); },
+      chime: () => { tone("triangle", 659, 0.5, 0.06, 0.05); tone("triangle", 988, 0.7, 0.05, 0.16); },
+      pick: () => { tone("sine", [520, 1040], 0.12, 0.08); tone("triangle", 1319, 0.5, 0.035, 0.08); },
+      end: () => [220, 261.6, 329.6, 440].forEach((f, i) => tone("triangle", f, 2.6, 0.05, i * 0.12)),
+    };
+  })();
 
   function build(el, nv, src) {
     const t = UI[el.dataset.lang] || UI.en;
@@ -72,6 +158,7 @@
         <div class="nv-top"><div class="nv-bar"><i></i></div>
           <button data-act="back" aria-label="${t.back}" title="${t.back}">←</button>
           <span class="nv-title">${esc(nv.title)}</span>
+          <button data-act="sound" aria-label="${t.sound}" title="${t.sound}" aria-pressed="${Sfx.on}">${Sfx.on ? "♪" : "×"}</button>
           <button data-act="restart" aria-label="${t.restart}" title="${t.restart}">↺</button></div>
         <div class="nv-scene" hidden><span></span><b></b></div>
         <div class="nv-box" aria-live="polite"><b class="nv-name"></b><p class="nv-text"></p></div>
@@ -83,11 +170,7 @@
         <div class="nv-end" hidden><h3>${t.end}</h3>
           <button class="nv-btn" data-act="restart">${t.again}</button><button class="nv-btn ghost" data-act="choice">${t.choice}</button></div>
       </div>
-      <div class="nv-side">
-        <p class="nv-label">${t.json}</p>
-        <pre class="nv-json"></pre>
-        <p class="nv-hint">${t.hint}</p>
-      </div>`;
+      <p class="nv-hint">${t.hint}</p>`;
     const q = (s) => el.querySelector(s);
     const phone = q(".nv-phone");
     const bgs = [...el.querySelectorAll(".nv-bg img")];
@@ -115,8 +198,10 @@
     // a stage direction "(mutters) Finally." → a small tag before the line
     const lineHTML = (s) => esc(s).replace(/^\(([^)]*)\)\s*/, (m, d) => `<i class="nv-dir">${d}</i>`);
 
+    let blip = 0;
     function type(html) {
       text.innerHTML = html;
+      blip = 0;
       const full = text.textContent.length;
       box.classList.remove("typing");
       if (reduce || !full) return;
@@ -128,7 +213,9 @@
       const t0 = performance.now();
       const tick = () => {
         let left = Math.round(((performance.now() - t0) / 1000) * CPS);
+        const shown = left;
         for (const [n, d] of nodes) { n.data = d.slice(0, Math.max(0, left)); left -= d.length; }
+        if (box.dataset.t === "dialog" && shown - blip >= 3) { blip = shown; Sfx.blip(); }
         if (left >= 0) finish();
       };
       tick();
@@ -143,8 +230,15 @@
       return true;
     }
 
-    function show() {
+    function show(sound) {
       const s = nv.screens[st.id];
+      if (sound) {
+        const prev = sound === true ? null : sound;
+        if (s.t === "scene") Sfx.scene();
+        else if (s.t === "cutscene" || (prev && prev.bg !== s.bg)) Sfx.whoosh();
+        else Sfx.tap();
+        if (s.t === "choice") Sfx.chime();
+      }
       clearInterval(typing);
       typing = null;
       phone.classList.remove("start", "ended");
@@ -172,16 +266,16 @@
         opts.lastElementChild.innerHTML = s.opts.map((o, i) =>
           `<button data-to="${esc(o.to)}"><span>${i + 1}</span>${esc(o.text)}</button>`).join("");
       } else if (!box.hidden) type(lineHTML(s.text));
-      q(".nv-json").innerHTML = jsonHTML(nv, st.id);
     }
 
     function go(id) {
       const s = nv.screens[id];
       if (!s) return;
       if (st.id) st.hist.push({ id: st.id, stage: st.stage });
-      st.stage = nextStage(nv, st.stage, nv.screens[st.id]?.bg, s);
+      const prev = nv.screens[st.id];
+      st.stage = nextStage(nv, st.stage, prev?.bg, s);
       st.id = id;
-      show();
+      show(prev || true);
     }
     function restore(h) {
       st.id = h.id;
@@ -194,6 +288,7 @@
       if (s.t === "choice") return;
       if (s.next) return go(s.next);
       phone.classList.add("ended"); // after the final screen
+      Sfx.end();
       q(".nv-end").hidden = false;
     }
     function back() {
@@ -216,14 +311,20 @@
       st.hist.length = i;
       restore(h);
     }
-    const play = () => (st.id ? show() : go(nv.start));
+    const play = () => (Sfx.ambient(true), st.id ? show() : go(nv.start));
     const idle = () => phone.classList.contains("start") || phone.classList.contains("ended");
 
     phone.addEventListener("click", (e) => {
       if (EDITING()) return;
       const b = e.target.closest("button");
-      if (b?.dataset.to) return go(b.dataset.to);
+      Sfx.wake();
+      if (b?.dataset.to) return Sfx.pick(), go(b.dataset.to);
       const act = b?.dataset.act;
+      if (act === "sound") {
+        Sfx.toggle();
+        b.textContent = Sfx.on ? "♪" : "×";
+        return b.setAttribute("aria-pressed", Sfx.on);
+      }
       if (act === "play") return play();
       if (act === "back") return back();
       if (act === "restart") return restart();
@@ -234,11 +335,12 @@
       if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return; // a focused button clicks itself
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       const k = e.key;
+      Sfx.wake();
       if (k === " " || k === "Enter" || k === "ArrowRight") {
         if (phone.classList.contains("start")) play();
         else if (!idle()) next();
       } else if (k === "ArrowLeft") back();
-      else if (/^[1-9]$/.test(k) && nv.screens[st.id]?.t === "choice") nv.screens[st.id].opts[+k - 1] && go(nv.screens[st.id].opts[+k - 1].to);
+      else if (/^[1-9]$/.test(k) && nv.screens[st.id]?.t === "choice") nv.screens[st.id].opts[+k - 1] && (Sfx.pick(), go(nv.screens[st.id].opts[+k - 1].to));
       else return;
       e.preventDefault();
     });
@@ -249,12 +351,12 @@
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); warm(); } }, { rootMargin: "400px" });
       io.observe(el);
+      new IntersectionObserver((es) => Sfx.ambient(es[es.length - 1].isIntersecting && !phone.classList.contains("start")), { threshold: 0.3 }).observe(phone);
     } else warm();
 
     if (st.id) return show();
     phone.classList.add("start");
     setBg(nv.screens[nv.start]?.bg);
-    q(".nv-json").innerHTML = jsonHTML(nv, nv.start);
   }
 
   // in the admin's page editor a click selects the block — the player does not react

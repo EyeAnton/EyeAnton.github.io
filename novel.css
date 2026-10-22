@@ -1,21 +1,20 @@
-/* Visual novel player — the "novel" block (novel.js). The phone is drawn in the colours of the Emotions Club app
-   (violet bubbles of its promo); the JSON panel next to it uses the code panels of the case (.cs-code). */
+/* Visual novel player — the "novel" block (novel.js): a square screen in the middle of the section, drawn in the
+   colours of the Emotions Club app (violet bubbles of its promo). */
 .nv {
   --nv-violet: #3a2766; --nv-lilac: #a98bff; --nv-ink: rgba(14, 10, 26, .82);
-  display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 40px; align-items: center;
-  margin-top: 24px;
+  width: min(100%, 640px); margin: 24px auto 0;
 }
 .nv-err { color: var(--fg-2, #a9b4cc); text-align: center; }
 
 /* ---- the phone ---- */
 .nv-phone {
-  position: relative; overflow: hidden; aspect-ratio: 9 / 16; width: 100%;
-  border-radius: 36px; background: #120d1c; cursor: pointer; user-select: none; -webkit-user-select: none;
-  box-shadow: 0 0 0 8px #0b0912, 0 0 0 9px var(--ink-5, #2c3f6c), 0 30px 80px rgba(0, 0, 0, .55);
+  position: relative; overflow: hidden; aspect-ratio: 1; width: 100%;
+  border-radius: var(--radius-lg, 28px); background: #120d1c; cursor: pointer; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 0 0 1px var(--ink-4, #1e2d52), 0 30px 80px rgba(0, 0, 0, .55);
   font-family: Montserrat, system-ui, sans-serif; color: #fff; outline: none;
   -webkit-tap-highlight-color: transparent;
 }
-.nv-phone:focus-visible { box-shadow: 0 0 0 8px #0b0912, 0 0 0 11px var(--nv-lilac), 0 30px 80px rgba(0, 0, 0, .55); }
+.nv-phone:focus-visible { box-shadow: 0 0 0 3px var(--nv-lilac), 0 30px 80px rgba(0, 0, 0, .55); }
 .nv-phone button { font: inherit; color: inherit; cursor: pointer; }
 
 .nv-bg, .nv-bg img, .nv-shade { position: absolute; inset: 0; }
@@ -24,16 +23,16 @@
 
 /* the cast: waist-up, the speaker in front and lit; the right one is mirrored and faces the left one */
 .nv-ch {
-  position: absolute; bottom: 14%; width: 92%; aspect-ratio: 1; pointer-events: none;
+  position: absolute; bottom: -4%; width: 88%; aspect-ratio: 1; pointer-events: none;
   opacity: 0; transition: opacity .35s ease, transform .45s cubic-bezier(.2, .8, .2, 1), filter .35s ease;
 }
 .nv-ch img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 0; }
-.nv-ch.left { left: -22%; transform: translateX(-12%); }
-.nv-ch.right { right: -22%; transform: translateX(12%); }
+.nv-ch.left { left: -17%; transform: translateX(-12%); }
+.nv-ch.right { right: -17%; transform: translateX(12%); }
 .nv-ch.right img { transform: scaleX(-1); }
 .nv-ch.on { opacity: 1; transform: none; filter: brightness(.55) saturate(.8); }
 .nv-ch.on.talk { filter: none; z-index: 1; }
-.nv-phone.solo .nv-ch.on { left: 4%; right: auto; }
+.nv-phone.solo .nv-ch.on { left: 6%; right: auto; }
 .nv-phone[data-t="narrative"] .nv-ch.on, .nv-phone[data-t="choice"] .nv-ch.on { filter: brightness(.7) saturate(.85); }
 
 .nv-shade { background: linear-gradient(to bottom, rgba(10, 6, 20, .55), transparent 16%, transparent 52%, rgba(10, 6, 20, .9) 86%); pointer-events: none; }
@@ -41,17 +40,17 @@
 .nv-phone[data-t="cutscene"] .nv-shade { background: linear-gradient(to bottom, rgba(10, 6, 20, .55), transparent 16%); }
 
 /* top: progress, back, title, restart */
-.nv-top { position: absolute; inset: 0 0 auto; z-index: 3; display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 6px; padding: 22px 14px 0; }
+.nv-top { position: absolute; inset: 0 0 auto; z-index: 3; display: grid; grid-template-columns: 36px 1fr 36px 36px; align-items: center; gap: 6px; padding: 22px 14px 0; }
 .nv-bar { position: absolute; left: 22px; right: 22px; top: 12px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .18); overflow: hidden; }
 .nv-bar i { display: block; height: 100%; width: 0; background: var(--nv-lilac); transition: width .4s ease; }
 .nv-top button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(14, 10, 26, .45); font-size: 17px; backdrop-filter: blur(6px); }
 .nv-top button:hover { background: rgba(169, 139, 255, .35); }
-.nv-title { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+.nv-title { padding-left: 42px; text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
 .nv-phone.start .nv-top { visibility: hidden; }
 
 /* the line */
 .nv-box {
-  position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 22px; min-height: 15%;
+  position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 18px; max-width: 560px; margin-inline: auto; min-height: 17%;
   padding: 18px 18px 16px; border-radius: 22px; background: var(--nv-ink);
   border: 2px solid rgba(169, 139, 255, .25); backdrop-filter: blur(8px);
 }
@@ -75,7 +74,7 @@
 .nv-scene b { font-size: 26px; font-weight: 600; line-height: 1.2; }
 
 /* the choice */
-.nv-opts { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 22px; display: grid; gap: 10px; cursor: default; }
+.nv-opts { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 18px; max-width: 520px; margin-inline: auto; display: grid; gap: 10px; cursor: default; }
 .nv-q { margin: 0 0 4px; text-align: center; font-size: 17px; font-weight: 600; text-shadow: 0 2px 12px rgba(0, 0, 0, .6); }
 .nv-q small { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #d9ccff; }
 .nv-opts div { display: grid; gap: 10px; }
@@ -89,7 +88,7 @@
 
 /* start and end */
 .nv-start, .nv-end { position: absolute; z-index: 4; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 28px; text-align: center; cursor: default; }
-.nv-start { background: linear-gradient(to bottom, transparent 40%, rgba(10, 6, 20, .9)), var(--cover) center / cover no-repeat; align-content: end; padding-bottom: 48px; }
+.nv-start { background: linear-gradient(to bottom, transparent 40%, rgba(10, 6, 20, .9)), var(--cover) center / cover no-repeat; align-content: end; padding-bottom: 40px; }
 .nv-start > div { display: grid; justify-items: center; gap: 12px; }
 .nv-start h3, .nv-end h3 { margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -.01em; }
 .nv-genre { padding: 4px 12px; border-radius: 999px; background: rgba(169, 139, 255, .25); color: #d9ccff; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
@@ -98,28 +97,19 @@
 .nv-btn:hover { filter: brightness(1.1); }
 .nv-start[hidden], .nv-end[hidden], .nv-scene[hidden], .nv-opts[hidden], .nv-box[hidden], .nv-name[hidden] { display: none; }
 
-/* ---- the JSON next to the phone ---- */
-.nv-side { min-width: 0; }
-.nv-label { margin: 0 0 12px; font-size: 12px; color: var(--accent); letter-spacing: var(--track-caps); text-transform: uppercase; }
-.nv-json {
-  margin: 0; padding: 22px 24px; min-height: 260px; border-radius: var(--radius-lg, 28px);
-  background: var(--card, #0e1830); border: 1px solid var(--ink-4, #1e2d52);
-  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--gray-300, #a9b4cc);
-  white-space: pre-wrap; word-break: break-word;
-}
-.nv-json k { color: var(--gray-100, #e4e9f4); }
-.nv-json s { text-decoration: none; color: var(--red-300, #ff8476); }
-.nv-hint { margin: 14px 0 0; font-size: 13px; color: var(--gray-400, #8592ae); }
+.nv-hint { margin: 14px 0 0; text-align: center; font-size: 13px; color: var(--gray-400, #8592ae); }
 
-@media (max-width: 860px) {
-  .nv { grid-template-columns: 1fr; justify-items: center; gap: 28px; }
-  .nv-phone { max-width: 400px; }
-  .nv-side { width: 100%; max-width: 560px; }
-  .nv-json { min-height: 0; font-size: 12px; }
-}
-@media (max-width: 420px) {
-  .nv-phone { border-radius: 28px; }
-  .nv-text { font-size: 14px; }
+@media (max-width: 520px) {
+  .nv-phone { border-radius: var(--radius, 20px); }
+  .nv-box { left: 10px; right: 10px; bottom: 10px; padding: 14px 14px 12px; border-radius: 18px; min-height: 0; }
+  .nv-text { font-size: 13px; line-height: 1.45; }
+  .nv-opts { left: 10px; right: 10px; bottom: 10px; gap: 6px; }
+  .nv-opts div { gap: 6px; }
+  .nv-opts button { padding: 8px 12px; font-size: 12.5px; border-radius: 14px; }
+  .nv-q { font-size: 15px; }
+  .nv-top { padding: 18px 10px 0; }
+  .nv-start h3, .nv-end h3 { font-size: 26px; }
+  .nv-hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .nv-bg img, .nv-ch, .nv-box::after { transition: none; animation: none; }

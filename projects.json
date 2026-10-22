@@ -963,8 +963,8 @@
             "en": "Room 313 — the whole story, every branch"
           },
           "text": {
-            "ru": "Тот же JSON, что получил ComfyUI-флоу, — теперь как игра. Справа — запись сценария, из которой собран текущий экран.",
-            "en": "The same JSON the ComfyUI flow received — now as a game. On the right is the record of the script the current screen is built from."
+            "ru": "Шесть сцен, пять развилок и один финал. Фоны, персонажи и текст — из того же JSON, по которому работал ComfyUI-флоу. Со звуком.",
+            "en": "Six scenes, five branching points and one ending. Backgrounds, characters and text come from the same JSON the ComfyUI flow worked from. Sound on."
           },
           "src": "/emotions-club/assets/novels/room_313/novel.json"
         },
