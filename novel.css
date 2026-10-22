@@ -1,0 +1,126 @@
+/* Visual novel player — the "novel" block (novel.js). The phone is drawn in the colours of the Emotions Club app
+   (violet bubbles of its promo); the JSON panel next to it uses the code panels of the case (.cs-code). */
+.nv {
+  --nv-violet: #3a2766; --nv-lilac: #a98bff; --nv-ink: rgba(14, 10, 26, .82);
+  display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 40px; align-items: center;
+  margin-top: 24px;
+}
+.nv-err { color: var(--fg-2, #a9b4cc); text-align: center; }
+
+/* ---- the phone ---- */
+.nv-phone {
+  position: relative; overflow: hidden; aspect-ratio: 9 / 16; width: 100%;
+  border-radius: 36px; background: #120d1c; cursor: pointer; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 0 0 8px #0b0912, 0 0 0 9px var(--ink-5, #2c3f6c), 0 30px 80px rgba(0, 0, 0, .55);
+  font-family: Montserrat, system-ui, sans-serif; color: #fff; outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.nv-phone:focus-visible { box-shadow: 0 0 0 8px #0b0912, 0 0 0 11px var(--nv-lilac), 0 30px 80px rgba(0, 0, 0, .55); }
+.nv-phone button { font: inherit; color: inherit; cursor: pointer; }
+
+.nv-bg, .nv-bg img, .nv-shade { position: absolute; inset: 0; }
+.nv-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease; }
+.nv-bg img.on { opacity: 1; }
+
+/* the cast: waist-up, the speaker in front and lit; the right one is mirrored and faces the left one */
+.nv-ch {
+  position: absolute; bottom: 14%; width: 92%; aspect-ratio: 1; pointer-events: none;
+  opacity: 0; transition: opacity .35s ease, transform .45s cubic-bezier(.2, .8, .2, 1), filter .35s ease;
+}
+.nv-ch img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 0; }
+.nv-ch.left { left: -22%; transform: translateX(-12%); }
+.nv-ch.right { right: -22%; transform: translateX(12%); }
+.nv-ch.right img { transform: scaleX(-1); }
+.nv-ch.on { opacity: 1; transform: none; filter: brightness(.55) saturate(.8); }
+.nv-ch.on.talk { filter: none; z-index: 1; }
+.nv-phone.solo .nv-ch.on { left: 4%; right: auto; }
+.nv-phone[data-t="narrative"] .nv-ch.on, .nv-phone[data-t="choice"] .nv-ch.on { filter: brightness(.7) saturate(.85); }
+
+.nv-shade { background: linear-gradient(to bottom, rgba(10, 6, 20, .55), transparent 16%, transparent 52%, rgba(10, 6, 20, .9) 86%); pointer-events: none; }
+.nv-phone[data-t="scene"] .nv-shade, .nv-phone.start .nv-shade, .nv-phone.ended .nv-shade { background: rgba(10, 6, 20, .6); }
+.nv-phone[data-t="cutscene"] .nv-shade { background: linear-gradient(to bottom, rgba(10, 6, 20, .55), transparent 16%); }
+
+/* top: progress, back, title, restart */
+.nv-top { position: absolute; inset: 0 0 auto; z-index: 3; display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 6px; padding: 22px 14px 0; }
+.nv-bar { position: absolute; left: 22px; right: 22px; top: 12px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+.nv-bar i { display: block; height: 100%; width: 0; background: var(--nv-lilac); transition: width .4s ease; }
+.nv-top button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(14, 10, 26, .45); font-size: 17px; backdrop-filter: blur(6px); }
+.nv-top button:hover { background: rgba(169, 139, 255, .35); }
+.nv-title { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+.nv-phone.start .nv-top { visibility: hidden; }
+
+/* the line */
+.nv-box {
+  position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 22px; min-height: 15%;
+  padding: 18px 18px 16px; border-radius: 22px; background: var(--nv-ink);
+  border: 2px solid rgba(169, 139, 255, .25); backdrop-filter: blur(8px);
+}
+.nv-box[data-t="dialog"] { background: var(--nv-violet); border-color: var(--nv-lilac); }
+.nv-name {
+  position: absolute; top: -15px; left: 16px; padding: 5px 14px; border-radius: 999px;
+  background: var(--nv-lilac); color: #1b1033; font-size: 13px; font-weight: 600; letter-spacing: .02em;
+}
+.nv-box.right .nv-name { left: auto; right: 16px; }
+.nv-text { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 500; }
+.nv-box[data-t="narrative"] .nv-text { font-weight: 400; color: #e9e4f7; }
+.nv-box[data-t="final"] .nv-text { font-size: 17px; font-weight: 600; text-align: center; }
+.nv-dir { display: inline-block; margin-right: 8px; padding: 1px 8px; border-radius: 6px; background: rgba(169, 139, 255, .22); color: #d9ccff; font-size: 12px; font-style: italic; vertical-align: 1px; }
+.nv-box::after { content: "›"; position: absolute; right: 14px; bottom: 6px; font-size: 20px; opacity: .55; animation: nv-nudge 1.2s ease-in-out infinite; }
+.nv-box.typing::after { visibility: hidden; }
+@keyframes nv-nudge { 50% { transform: translateX(3px); } }
+
+/* scene title */
+.nv-scene { position: absolute; z-index: 2; inset: 0; display: grid; place-content: center; gap: 10px; padding: 24px; text-align: center; }
+.nv-scene span { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--nv-lilac); }
+.nv-scene b { font-size: 26px; font-weight: 600; line-height: 1.2; }
+
+/* the choice */
+.nv-opts { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 22px; display: grid; gap: 10px; cursor: default; }
+.nv-q { margin: 0 0 4px; text-align: center; font-size: 17px; font-weight: 600; text-shadow: 0 2px 12px rgba(0, 0, 0, .6); }
+.nv-q small { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #d9ccff; }
+.nv-opts div { display: grid; gap: 10px; }
+.nv-opts button {
+  display: flex; align-items: center; gap: 12px; padding: 13px 16px; text-align: left;
+  border-radius: 18px; border: 2px solid var(--nv-lilac); background: var(--nv-violet);
+  font-size: 14px; font-weight: 500; line-height: 1.35; transition: background .2s ease, transform .2s ease;
+}
+.nv-opts button span { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--nv-lilac); color: #1b1033; font-size: 12px; font-weight: 600; }
+.nv-opts button:hover, .nv-opts button:focus-visible { background: #4e3592; transform: translateY(-1px); outline: none; }
+
+/* start and end */
+.nv-start, .nv-end { position: absolute; z-index: 4; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 28px; text-align: center; cursor: default; }
+.nv-start { background: linear-gradient(to bottom, transparent 40%, rgba(10, 6, 20, .9)), var(--cover) center / cover no-repeat; align-content: end; padding-bottom: 48px; }
+.nv-start > div { display: grid; justify-items: center; gap: 12px; }
+.nv-start h3, .nv-end h3 { margin: 0; font-size: 34px; font-weight: 600; letter-spacing: -.01em; }
+.nv-genre { padding: 4px 12px; border-radius: 999px; background: rgba(169, 139, 255, .25); color: #d9ccff; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.nv-btn { min-width: 180px; padding: 13px 26px; border-radius: 999px; border: 2px solid var(--nv-lilac); background: var(--nv-lilac); color: #1b1033 !important; font-weight: 600 !important; }
+.nv-btn.ghost { background: transparent; color: #fff !important; }
+.nv-btn:hover { filter: brightness(1.1); }
+.nv-start[hidden], .nv-end[hidden], .nv-scene[hidden], .nv-opts[hidden], .nv-box[hidden], .nv-name[hidden] { display: none; }
+
+/* ---- the JSON next to the phone ---- */
+.nv-side { min-width: 0; }
+.nv-label { margin: 0 0 12px; font-size: 12px; color: var(--accent); letter-spacing: var(--track-caps); text-transform: uppercase; }
+.nv-json {
+  margin: 0; padding: 22px 24px; min-height: 260px; border-radius: var(--radius-lg, 28px);
+  background: var(--card, #0e1830); border: 1px solid var(--ink-4, #1e2d52);
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--gray-300, #a9b4cc);
+  white-space: pre-wrap; word-break: break-word;
+}
+.nv-json k { color: var(--gray-100, #e4e9f4); }
+.nv-json s { text-decoration: none; color: var(--red-300, #ff8476); }
+.nv-hint { margin: 14px 0 0; font-size: 13px; color: var(--gray-400, #8592ae); }
+
+@media (max-width: 860px) {
+  .nv { grid-template-columns: 1fr; justify-items: center; gap: 28px; }
+  .nv-phone { max-width: 400px; }
+  .nv-side { width: 100%; max-width: 560px; }
+  .nv-json { min-height: 0; font-size: 12px; }
+}
+@media (max-width: 420px) {
+  .nv-phone { border-radius: 28px; }
+  .nv-text { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nv-bg img, .nv-ch, .nv-box::after { transition: none; animation: none; }
+}

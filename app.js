@@ -265,6 +265,8 @@ const BLOCK_HTML = {
   video: (b) => videoHTML(b.src) + fld(b, "caption", "p", "Подпись", false, "pb-cap"),
   quote: (b) => `<blockquote class="pb-quote reveal">${fld(b, "quote", "p", "Цитата")}${fld(b, "who", "cite", "Автор")}</blockquote>`,
   links: (b) => `<div class="pb-links reveal">${btns(b)}</div>`,
+  // playable visual novel (novel.js / novel.css): src — novel.json made by build_novel.py of the emotions-club repo
+  novel: (b) => (b.src ? `<div class="nv reveal" data-src="${esc(imgSrc(b.src))}"></div>` : empty("Укажите путь к novel.json")),
 
   // ---- the Virtual Gifts case (styles: gifts.css, gc-*; the three interactive ones are run by gifts.js) ----
   points: (b) => `<div class="gc-cols">${each(b, (it, i, p) => `<article class="gc-point surface reveal" style="--d:${i * 80}ms">
@@ -571,6 +573,7 @@ function render() {
   watchReveal();
   watchVideos();
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
+  window.Novel?.mount(document, { lang, editor: !!EDITOR }); // novel players (project.html loads novel.js)
   if (EDITOR) decorateForEditor();
 }
 

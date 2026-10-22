@@ -950,6 +950,25 @@
           ]
         },
         {
+          "id": "ec15",
+          "type": "novel",
+          "visible": true,
+          "anchor": "play",
+          "eyebrow": {
+            "ru": "Сыграйте сами",
+            "en": "Play it yourself"
+          },
+          "title": {
+            "ru": "Room 313 — целиком, со всеми ветками",
+            "en": "Room 313 — the whole story, every branch"
+          },
+          "text": {
+            "ru": "Тот же JSON, что получил ComfyUI-флоу, — теперь как игра. Справа — запись сценария, из которой собран текущий экран.",
+            "en": "The same JSON the ComfyUI flow received — now as a game. On the right is the record of the script the current screen is built from."
+          },
+          "src": "/emotions-club/assets/novels/room_313/novel.json"
+        },
+        {
           "id": "ec07",
           "type": "cast",
           "visible": true,
