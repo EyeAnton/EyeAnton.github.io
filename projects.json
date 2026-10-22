@@ -51,7 +51,7 @@
       },
       "desc": {
         "ru": "Коллекция анимированных виртуальных подарков для дейтинга: от идеи до полноэкранной анимации со звуком.\n",
-        "en": "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work. 56 gifts, alpha-channel animation and sound."
+        "en": "A collection of animated virtual gifts for a dating app: from the idea to a full-screen animation with sound."
       },
       "tags": [
         "AI 3D",
@@ -148,7 +148,7 @@
           },
           "text": {
             "ru": "Дейтинг-приложению нужен выбор подарков к широкому выбору контекста: праздник, признание в любви и просто так. ",
-            "en": "A social app with a lot of content needs a steady flow of gifts: for holidays, weddings, confessions and just because. Every gift lives in three places at once."
+            "en": "A dating app needs a choice of gifts for a wide range of contexts: holidays, confessions of love and just because."
           },
           "items": []
         },
@@ -211,7 +211,7 @@
           },
           "text": {
             "ru": "Каждая анимация - результат ручного отбора, \nа не просто генеративный шум.",
-            "en": "Every gift takes the same path in Figma: source, brief, chroma-key drafts, key frames and the finished animation. Each step is a selection."
+            "en": "Every animation is the result of hand selection,\nnot just generative noise."
           },
           "keys": [
             "sep__potion_bon_3d",
@@ -234,7 +234,7 @@
             {
               "t": {
                 "ru": "Идея анимации",
-                "en": "Idea"
+                "en": "Animation idea"
               },
               "d": {
                 "ru": "Короткий бриф: что происходит в кадре",
@@ -244,7 +244,7 @@
             {
               "t": {
                 "ru": "Раскадровка",
-                "en": "Drafts"
+                "en": "Storyboard"
               },
               "d": {
                 "ru": "Варианты кадров на хромакее, в работу идут лучшие",
@@ -254,7 +254,7 @@
             {
               "t": {
                 "ru": "Генерация в kling",
-                "en": "Key frames"
+                "en": "Generation in Kling"
               },
               "d": {
                 "ru": "Начало, фазы и финал — опора для генерации видео",
@@ -278,7 +278,7 @@
           },
           "note": {
             "ru": "Бриф из рабочего файла Figma",
-            "en": "Brief from the working Figma file (translated)"
+            "en": "Brief from the working Figma file"
           },
           "match": {
             "ru": "Вы понравились друг другу · сегодня",
@@ -429,7 +429,7 @@
           },
           "text": {
             "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают \nпо-разному. Для работы на всех устройтсвах нужны отдельные форматы.",
-            "en": "The least obvious part of delivery: browsers handle transparent video differently, and the only way to check is on real devices."
+            "en": "The least obvious part of delivery: browsers handle transparent video\ndifferently. Working on every device takes separate formats."
           },
           "items": [
             {
@@ -514,7 +514,7 @@
               },
               "d": {
                 "ru": "сладости, свадьба, романтика и символы, \nвсе наборы в одном визуальном языке",
-                "en": "holidays, weddings, romance and symbols — in one visual language"
+                "en": "sweets, weddings, romance and symbols,\nevery set in one visual language"
               }
             },
             {
@@ -524,7 +524,7 @@
               },
               "d": {
                 "ru": "новый подарок проходит тот же пайплайн — \nот сториборда до готовых файлов",
-                "en": "a new gift goes through the same pipeline, from storyboard to finished files"
+                "en": "a new gift goes through the same pipeline —\nfrom storyboard to finished files"
               }
             },
             {
@@ -534,7 +534,7 @@
               },
               "d": {
                 "ru": "разработчики получают медиа под каждую платформу",
-                "en": "developers get a manifest and media for every platform"
+                "en": "developers get media for every platform"
               }
             },
             {
@@ -544,7 +544,7 @@
               },
               "d": {
                 "ru": "прозрачная анимация со звуком \nв Chrome, Firefox, Safari и на iPhone",
-                "en": "transparent animation with sound in Chrome, Firefox, Safari and on iPhone"
+                "en": "transparent animation with sound\nin Chrome, Firefox, Safari and on iPhone"
               }
             }
           ]
@@ -555,7 +555,7 @@
           "visible": true,
           "text": {
             "ru": "",
-            "en": "A Telegram bot that turns photos into stickers and stylised portraits through AI pipelines."
+            "en": ""
           },
           "items": [
             {
