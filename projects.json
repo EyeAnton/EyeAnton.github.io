@@ -147,41 +147,10 @@
             "en": "A gift is an emotion that lands in a chat"
           },
           "text": {
-            "ru": "Дейтинг-приложению нужен выбор подарков к широкому выбору контексте: к праздникам, свадьбам, признаниям и просто так. \nКаждый подарок живёт в трёх местах сразу.",
+            "ru": "Дейтинг-приложению нужен выбор подарков к широкому выбору контекста: праздник, признание в любви и просто так. ",
             "en": "A social app with a lot of content needs a steady flow of gifts: for holidays, weddings, confessions and just because. Every gift lives in three places at once."
           },
-          "items": [
-            {
-              "t": {
-                "ru": "Маленький в сетке",
-                "en": "Tiny in the grid"
-              },
-              "d": {
-                "ru": "В витрине подарок — иконка размером с палец. Силуэт должен читаться сразу, без подписи.",
-                "en": "In the store a gift is a fingertip-sized icon. The silhouette has to read instantly, without a label."
-              }
-            },
-            {
-              "t": {
-                "ru": "Большой поверх чата",
-                "en": "Big over the chat"
-              },
-              "d": {
-                "ru": "Когда подарок отправлен, он проигрывается на весь экран над перепиской — с прозрачным фоном и звуком.",
-                "en": "Once sent, it plays full screen over the conversation — with a transparent background and sound."
-              }
-            },
-            {
-              "t": {
-                "ru": "Готовый для разработки",
-                "en": "Ready for developers"
-              },
-              "d": {
-                "ru": "Мобильные приложения, веб и Figma получают один пакет: файлы под каждую платформу, без ручной доводки.",
-                "en": "Mobile apps, web and Figma get one package: files for every platform, no manual finishing."
-              }
-            }
-          ]
+          "items": []
         },
         {
           "id": "vg05",
@@ -1521,6 +1490,10 @@
       ],
       "links": {
         "page": "https://eyeanton.github.io/sticker-creator/"
+      },
+      "cover": {
+        "glyph": "New",
+        "tint": "#3a2c1e"
       }
     },
     {
