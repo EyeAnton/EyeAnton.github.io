@@ -615,10 +615,10 @@
         "ctas": [
           {
             "label": {
-              "ru": "Смотреть новеллу ↓",
-              "en": "See a novel ↓"
+              "ru": "Сыграть в новеллу ▶",
+              "en": "Play the novel ▶"
             },
-            "href": "#story"
+            "href": "#play"
           },
           {
             "label": {
@@ -646,6 +646,12 @@
         ]
       },
       "page": [
+        {
+          "id": "ec15",
+          "type": "novel",
+          "visible": true,
+          "src": "/emotions-club/assets/novels/room_313/novel.json"
+        },
         {
           "id": "ec02",
           "type": "stats",
