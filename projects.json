@@ -615,10 +615,10 @@
         "ctas": [
           {
             "label": {
-              "ru": "Смотреть новеллу ↓",
-              "en": "See a novel ↓"
+              "ru": "Сыграть в новеллу ▶",
+              "en": "Play the novel ▶"
             },
-            "href": "#story"
+            "href": "#play"
           },
           {
             "label": {
@@ -646,6 +646,12 @@
         ]
       },
       "page": [
+        {
+          "id": "ec15",
+          "type": "novel",
+          "visible": true,
+          "src": "/emotions-club/assets/novels/room_313/novel.json"
+        },
         {
           "id": "ec02",
           "type": "stats",
@@ -948,25 +954,6 @@
               "c": "scene_06_b.webp"
             }
           ]
-        },
-        {
-          "id": "ec15",
-          "type": "novel",
-          "visible": true,
-          "anchor": "play",
-          "eyebrow": {
-            "ru": "Сыграйте сами",
-            "en": "Play it yourself"
-          },
-          "title": {
-            "ru": "Room 313 — целиком, со всеми ветками",
-            "en": "Room 313 — the whole story, every branch"
-          },
-          "text": {
-            "ru": "Шесть сцен, пять развилок и один финал. Фоны, персонажи и текст — из того же JSON, по которому работал ComfyUI-флоу. Со звуком.",
-            "en": "Six scenes, five branching points and one ending. Backgrounds, characters and text come from the same JSON the ComfyUI flow worked from. Sound on."
-          },
-          "src": "/emotions-club/assets/novels/room_313/novel.json"
         },
         {
           "id": "ec07",

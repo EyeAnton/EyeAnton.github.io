@@ -3,16 +3,19 @@
    as in the app — a phone screen with the background, the characters of the scene (the one who speaks is lit),
    the line in a bubble with the name, options as buttons; sound effects are synthesized (WebAudio, no files).
    Click / Space / Enter / → — next, ← — back, 1–3 — pick an option.
-   app.js calls Novel.mount after every render; the state of each novel survives re-renders (language switch).
+   It lives in a floating window (see "the floating window" below). app.js calls Novel.mount after every render;
+   the state of the game survives re-renders (language switch).
    Styles: novel.css (nv-*). */
 (() => {
   const UI = {
     ru: { play: "Играть", back: "Назад", restart: "Сначала", decides: "выбирает", end: "Конец", again: "Сыграть ещё",
       choice: "К последнему выбору", hint: "Клик, пробел или → — дальше · ← — назад", load: "Не удалось загрузить новеллу",
-      sound: "Звук" },
+      sound: "Звук", fold: "Свернуть", cta: "PLAY", close: "Скрыть",
+      card: "Новелла: на странице — окошко «Играть» в правом нижнем углу, открывается поверх страницы", openGame: "Открыть игру" },
     en: { play: "Play", back: "Back", restart: "Restart", decides: "decides", end: "The End", again: "Play again",
       choice: "Back to the last choice", hint: "Click, Space or → to continue · ← back", load: "Could not load the novel",
-      sound: "Sound" },
+      sound: "Sound", fold: "Minimize", cta: "PLAY", close: "Hide",
+      card: "Novel: a PLAY window in the bottom-right corner of the page, opens over it", openGame: "Open the game" },
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CPS = 60; // typewriter speed, characters per second
@@ -146,11 +149,12 @@
     };
   })();
 
-  function build(el, nv, src) {
-    const t = UI[el.dataset.lang] || UI.en;
+  // the player inside the floating window; ui = { open, fold, isOpen } of the window
+  function build(host, nv, src, lang, ui) {
+    const t = UI[lang] || UI.en;
     const base = src.replace(/[^/]*$/, "");
     const url = (f) => (f ? base + f : "");
-    el.innerHTML = `
+    host.innerHTML = `
       <div class="nv-phone" tabindex="0" role="region" aria-label="${esc(nv.title)}">
         <div class="nv-bg"><img alt=""><img alt=""></div>
         <div class="nv-ch left"><img alt=""></div><div class="nv-ch right"><img alt=""></div>
@@ -159,7 +163,8 @@
           <button data-act="back" aria-label="${t.back}" title="${t.back}">←</button>
           <span class="nv-title">${esc(nv.title)}</span>
           <button data-act="sound" aria-label="${t.sound}" title="${t.sound}" aria-pressed="${Sfx.on}">${Sfx.on ? "♪" : "×"}</button>
-          <button data-act="restart" aria-label="${t.restart}" title="${t.restart}">↺</button></div>
+          <button data-act="restart" aria-label="${t.restart}" title="${t.restart}">↺</button>
+          <button data-act="fold" aria-label="${t.fold}" title="${t.fold}">↘</button></div>
         <div class="nv-scene" hidden><span></span><b></b></div>
         <div class="nv-box" aria-live="polite"><b class="nv-name"></b><p class="nv-text"></p></div>
         <div class="nv-opts" hidden><p class="nv-q"></p><div></div></div>
@@ -169,11 +174,10 @@
         </div>
         <div class="nv-end" hidden><h3>${t.end}</h3>
           <button class="nv-btn" data-act="restart">${t.again}</button><button class="nv-btn ghost" data-act="choice">${t.choice}</button></div>
-      </div>
-      <p class="nv-hint">${t.hint}</p>`;
-    const q = (s) => el.querySelector(s);
+      </div>`;
+    const q = (s) => host.querySelector(s);
     const phone = q(".nv-phone");
-    const bgs = [...el.querySelectorAll(".nv-bg img")];
+    const bgs = [...host.querySelectorAll(".nv-bg img")];
     const box = q(".nv-box"), name = q(".nv-name"), text = q(".nv-text"), opts = q(".nv-opts");
     const st = states.get(src) || { id: null, hist: [], stage: { ...EMPTY } };
     states.set(src, st);
@@ -311,11 +315,16 @@
       st.hist.length = i;
       restore(h);
     }
-    const play = () => (Sfx.ambient(true), st.id ? show() : go(nv.start));
+    const started = () => !!st.id;
+    const play = () => {
+      if (!ui.isOpen()) ui.open();
+      Sfx.ambient(true);
+      st.id ? show() : go(nv.start);
+    };
     const idle = () => phone.classList.contains("start") || phone.classList.contains("ended");
 
     phone.addEventListener("click", (e) => {
-      if (EDITING()) return;
+      if (!ui.isOpen()) return; // folded: the window itself opens on a click
       const b = e.target.closest("button");
       Sfx.wake();
       if (b?.dataset.to) return Sfx.pick(), go(b.dataset.to);
@@ -325,6 +334,7 @@
         b.textContent = Sfx.on ? "♪" : "×";
         return b.setAttribute("aria-pressed", Sfx.on);
       }
+      if (act === "fold") return e.stopPropagation(), ui.fold(); // or the window reopens on the same click
       if (act === "play") return play();
       if (act === "back") return back();
       if (act === "restart") return restart();
@@ -333,7 +343,7 @@
     });
     phone.addEventListener("keydown", (e) => {
       if (e.target.closest("button") && (e.key === " " || e.key === "Enter")) return; // a focused button clicks itself
-      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || !ui.isOpen()) return;
       const k = e.key;
       Sfx.wake();
       if (k === " " || k === "Enter" || k === "ArrowRight") {
@@ -345,35 +355,128 @@
       e.preventDefault();
     });
 
-    // the backgrounds and the cast are ≈1 MB — warm them up once the player is near the screen
-    const warm = () => [...new Set([...Object.values(nv.screens).map((s) => s.bg), ...Object.values(nv.chars).map((c) => c.img)])]
-      .filter(Boolean).forEach((f) => { new Image().src = url(f); });
-    if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); warm(); } }, { rootMargin: "400px" });
-      io.observe(el);
-      new IntersectionObserver((es) => Sfx.ambient(es[es.length - 1].isIntersecting && !phone.classList.contains("start")), { threshold: 0.3 }).observe(phone);
-    } else warm();
-
-    if (st.id) return show();
-    phone.classList.add("start");
-    setBg(nv.screens[nv.start]?.bg);
+    if (st.id) show();
+    else {
+      phone.classList.add("start");
+      setBg(nv.screens[nv.start]?.bg);
+    }
+    return { play, started, phone };
   }
 
-  // in the admin's page editor a click selects the block — the player does not react
-  const EDITING = () => document.documentElement.classList.contains("nv-editing");
+  // ---- the floating window: a teaser square in the bottom-right corner → opens over the page → folds back
+  // there and keeps showing the screen of the game. One window per page (the first "novel" block); the block
+  // itself is invisible on the site — in the admin it is a card that sets which novel plays ----
+  let dock = null; // { src, lang, el, back, player, nv }
+  const MINI = () => (innerWidth < 600 ? 112 : 168);
+  const GAP = () => (innerWidth < 600 ? 14 : 20);
+  let hidden = false;
+  try { hidden = sessionStorage.getItem("nvHidden") === "1"; } catch (e) {}
+
+  // the open window is laid out in the middle; folded, the same element is moved and scaled into the corner
+  function place() {
+    if (!dock) return;
+    const vw = document.documentElement.clientWidth, vh = innerHeight, g = GAP(), m = MINI();
+    const B = Math.round(Math.min(720, vw - 24, vh * 0.88)), L = (vw - B) / 2, T = (vh - B) / 2, k = m / B;
+    const s = dock.el.style;
+    s.width = s.height = `${B}px`;
+    s.left = `${L}px`;
+    s.top = `${T}px`;
+    s.setProperty("--k", k);
+    s.setProperty("--fold", `translate(${vw - g - m - L}px, ${vh - g - m - T}px) scale(${k})`);
+  }
+  const isOpen = () => dock?.el.classList.contains("open");
+  function open() {
+    if (!dock || isOpen()) return;
+    Sfx.wake();
+    dock.el.classList.remove("away");
+    dock.el.classList.add("open");
+    dock.back.classList.add("on");
+    document.documentElement.classList.add("nv-lock");
+    warm();
+    if (dock.player.started()) Sfx.ambient(true);
+    setTimeout(() => dock?.player.phone.focus({ preventScroll: true }), 50);
+  }
+  function fold() {
+    if (!isOpen()) return;
+    dock.el.classList.remove("open");
+    dock.back.classList.remove("on");
+    document.documentElement.classList.remove("nv-lock");
+    Sfx.ambient(false);
+  }
+  function dismiss() {
+    fold();
+    dock.el.classList.add("away");
+    try { sessionStorage.setItem("nvHidden", "1"); } catch (e) {}
+  }
+  // the backgrounds and the cast are ≈1 MB — loaded once the window is touched or opened
+  function warm() {
+    if (!dock || dock.warm) return;
+    dock.warm = true;
+    const { nv, src } = dock, base = src.replace(/[^/]*$/, "");
+    [...new Set([...Object.values(nv.screens).map((s) => s.bg), ...Object.values(nv.chars).map((c) => c.img)])]
+      .filter(Boolean).forEach((f) => { new Image().src = base + f; });
+  }
+
+  function makeDock(nv, src, lang) {
+    const t = UI[lang] || UI.en;
+    const el = document.createElement("div");
+    el.className = "nv-dock away";
+    el.innerHTML = `<div class="nv-host"></div>
+      <button class="nv-cta" type="button" aria-label="${t.cta}"><i class="play">▶ ${t.cta}</i><i class="more">⤢</i></button>
+      <button class="nv-x" type="button" aria-label="${t.close}" title="${t.close}">×</button>`;
+    const back = document.createElement("div");
+    back.className = "nv-backdrop";
+    document.body.append(back, el);
+    dock = { src, lang, el, back, nv };
+    dock.player = build(el.firstElementChild, nv, src, lang, { open, fold, isOpen });
+    el.classList.toggle("playing", dock.player.started());
+    // folded: a click anywhere on the square opens the game (PLAY starts it right away)
+    el.addEventListener("click", (e) => {
+      if (isOpen()) return el.classList.toggle("playing", dock.player.started());
+      if (e.target.closest(".nv-x")) return dismiss();
+      if (dock.player.started()) open();
+      else dock.player.play();
+      el.classList.add("playing");
+    });
+    el.addEventListener("pointerenter", warm, { once: true });
+    back.addEventListener("click", fold);
+    place();
+    if (!hidden) setTimeout(() => el.classList.remove("away"), 1200);
+  }
+
+  addEventListener("resize", place);
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && isOpen()) fold(); });
+  // links to #play (the button in the head of the case) open the game
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href="#play"]');
+    if (!a || !dock) return;
+    e.preventDefault();
+    dock.player.play();
+    dock.el.classList.add("playing");
+  });
 
   function mount(root = document, { lang = "en", editor = false } = {}) {
-    document.documentElement.classList.toggle("nv-editing", !!editor);
-    root.querySelectorAll(".nv[data-src]").forEach((el) => {
-      if (el.dataset.ready === lang) return;
-      el.dataset.ready = el.dataset.lang = lang;
-      const src = el.dataset.src;
-      load(src).then((nv) => build(el, nv, src), () => {
-        el.innerHTML = `<p class="nv-err">${(UI[lang] || UI.en).load}</p>`;
-        el.dataset.ready = "";
-      });
-    });
+    const el = root.querySelector(".nv[data-src]");
+    if (!el) { // the block is gone (deleted in the editor, another page)
+      if (dock) { fold(); dock.el.remove(); dock.back.remove(); dock = null; }
+      return;
+    }
+    const src = el.dataset.src;
+    if (editor) {
+      el.innerHTML = `<div class="nv-card"><b>${esc((UI.ru).card)}</b><span>${esc(src)}</span>
+        <button class="btn" type="button">${UI.ru.openGame}</button></div>`;
+      el.querySelector("button").onclick = () => dock && (dock.el.classList.remove("away"), dock.player.play());
+    }
+    if (dock && dock.src === src && dock.lang === lang) return;
+    load(src).then((nv) => {
+      if (dock && dock.src === src && dock.lang === lang) return;
+      const wasOpen = isOpen(), away = dock?.el.classList.contains("away");
+      if (dock) { dock.el.remove(); dock.back.remove(); document.documentElement.classList.remove("nv-lock"); dock = null; }
+      makeDock(nv, src, lang);
+      if (wasOpen) open();
+      else if (away === false) dock.el.classList.remove("away");
+    }, () => console.warn("novel: could not load", src));
   }
 
-  window.Novel = { mount };
+  window.Novel = { mount, open: () => dock?.player.play() };
 })();
