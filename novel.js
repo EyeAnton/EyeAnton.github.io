@@ -11,11 +11,15 @@
     ru: { play: "Играть", back: "Назад", restart: "Сначала", decides: "выбирает", end: "Конец", again: "Сыграть ещё",
       choice: "К последнему выбору", hint: "Клик, пробел или → — дальше · ← — назад", load: "Не удалось загрузить новеллу",
       sound: "Звук", fold: "Свернуть", cta: "PLAY", close: "Скрыть",
-      card: "Новелла: на странице — окошко «Играть» в правом нижнем углу, открывается поверх страницы", openGame: "Открыть игру" },
+      card: "Новеллы: на странице — окошко «Играть» в правом нижнем углу, открывается библиотека поверх страницы", openGame: "Открыть",
+      lib: "Библиотека", others: "Другие новеллы", libTitle: "Библиотека новелл", freeN: "бесплатно", cont: "Продолжить",
+      soon: "Premium — скоро", doneL: "пройдено", startHere: "Начните с неё" },
     en: { play: "Play", back: "Back", restart: "Restart", decides: "decides", end: "The End", again: "Play again",
       choice: "Back to the last choice", hint: "Click, Space or → to continue · ← back", load: "Could not load the novel",
       sound: "Sound", fold: "Minimize", cta: "PLAY", close: "Hide",
-      card: "Novel: a PLAY window in the bottom-right corner of the page, opens over it", openGame: "Open the game" },
+      card: "Novels: a PLAY window in the bottom-right corner, opens the library over the page", openGame: "Open",
+      lib: "Library", others: "Other novels", libTitle: "Novel library", freeN: "free", cont: "Continue",
+      soon: "Premium — soon", doneL: "finished", startHere: "Start here" },
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CPS = 60; // typewriter speed, characters per second
@@ -161,6 +165,7 @@
         <div class="nv-shade"></div>
         <div class="nv-top"><div class="nv-bar"><i></i></div>
           <button data-act="back" aria-label="${t.back}" title="${t.back}">←</button>
+          <button data-act="lib" aria-label="${t.lib}" title="${t.lib}">▦</button>
           <span class="nv-title">${esc(nv.title)}</span>
           <button data-act="sound" aria-label="${t.sound}" title="${t.sound}" aria-pressed="${Sfx.on}">${Sfx.on ? "♪" : "×"}</button>
           <button data-act="restart" aria-label="${t.restart}" title="${t.restart}">↺</button>
@@ -173,7 +178,8 @@
             <button class="nv-btn" data-act="play">${t.play}</button></div>
         </div>
         <div class="nv-end" hidden><h3>${t.end}</h3>
-          <button class="nv-btn" data-act="restart">${t.again}</button><button class="nv-btn ghost" data-act="choice">${t.choice}</button></div>
+          <button class="nv-btn" data-act="restart">${t.again}</button><button class="nv-btn ghost" data-act="choice">${t.choice}</button>
+          <button class="nv-btn ghost" data-act="lib">${t.others}</button></div>
       </div>`;
     const q = (s) => host.querySelector(s);
     const phone = q(".nv-phone");
@@ -192,7 +198,7 @@
       bgs[front ^ 1].classList.remove("on");
     };
     const setChar = (side, id, s) => {
-      const wrap = q(`.nv-ch.${side}`), img = wrap.firstElementChild, c = nv.chars[id];
+      const wrap = q(`.nv-ch.${side}`), img = wrap.firstElementChild, c = nv.chars[id]?.img ? nv.chars[id] : null; // no sprite — off stage
       wrap.classList.toggle("on", !!c);
       if (!c) return;
       const f = (s.who === id && s.emo && c.emo?.[s.emo]) || c.img;
@@ -292,6 +298,7 @@
       if (s.t === "choice") return;
       if (s.next) return go(s.next);
       phone.classList.add("ended"); // after the final screen
+      ui.done?.(nv.id);
       Sfx.end();
       q(".nv-end").hidden = false;
     }
@@ -335,6 +342,7 @@
         return b.setAttribute("aria-pressed", Sfx.on);
       }
       if (act === "fold") return e.stopPropagation(), ui.fold(); // or the window reopens on the same click
+      if (act === "lib") return ui.library();
       if (act === "play") return play();
       if (act === "back") return back();
       if (act === "restart") return restart();
@@ -364,13 +372,26 @@
   }
 
   // ---- the floating window: a teaser square in the bottom-right corner → opens over the page → folds back
-  // there and keeps showing the screen of the game. One window per page (the first "novel" block); the block
-  // itself is invisible on the site — in the admin it is a card that sets which novel plays ----
-  let dock = null; // { src, lang, el, back, player, nv }
+  // there and keeps showing what is inside. Inside — the library of novels (assets/novels/library.json of the
+  // emotions-club repo, build_library.py there): a click on a cover zooms it in with Play (free novels) or the
+  // Premium badge; Play flips the card over and the game starts. Finished novels get a bright frame (localStorage
+  // nvDone). One window per page (the first "novel" block); the block itself is invisible on the site — in the
+  // admin it is a card. ----
+  let dock = null; // { src, lang, el, back, lib, view, cur, player }
   const MINI = () => (innerWidth < 600 ? 112 : 168);
   const GAP = () => (innerWidth < 600 ? 14 : 20);
+  const session = { view: "lib", cur: null }; // what the window shows — survives re-renders
   let hidden = false;
   try { hidden = sessionStorage.getItem("nvHidden") === "1"; } catch (e) {}
+  const done = new Set();
+  try { JSON.parse(localStorage.getItem("nvDone") || "[]").forEach((id) => done.add(id)); } catch (e) {}
+  const markDone = (id) => {
+    done.add(id);
+    try { localStorage.setItem("nvDone", JSON.stringify([...done])); } catch (e) {}
+    dock?.el.querySelector(`.nv-card[data-id="${CSS.escape(id)}"]`)?.classList.add("done");
+  };
+  // only the approximate time to play it through
+  const facts = (n, lang) => `≈ ${n.minutes} ${lang === "ru" ? "мин" : "min"}`;
 
   // the open window is laid out in the middle; folded, the same element is moved and scaled into the corner
   function place() {
@@ -392,12 +413,12 @@
     dock.el.classList.add("open");
     dock.back.classList.add("on");
     document.documentElement.classList.add("nv-lock");
-    warm();
-    if (dock.player.started()) Sfx.ambient(true);
-    setTimeout(() => dock?.player.phone.focus({ preventScroll: true }), 50);
+    if (session.view === "game" && dock.player?.started()) Sfx.ambient(true);
+    setTimeout(() => (session.view === "game" ? dock?.player?.phone : dock?.el.querySelector(".nv-lib"))?.focus({ preventScroll: true }), 50);
   }
   function fold() {
     if (!isOpen()) return;
+    unzoom(true);
     dock.el.classList.remove("open");
     dock.back.classList.remove("on");
     document.documentElement.classList.remove("nv-lock");
@@ -408,37 +429,124 @@
     dock.el.classList.add("away");
     try { sessionStorage.setItem("nvHidden", "1"); } catch (e) {}
   }
-  // the backgrounds and the cast are ≈1 MB — loaded once the window is touched or opened
-  function warm() {
-    if (!dock || dock.warm) return;
-    dock.warm = true;
-    const { nv, src } = dock, base = src.replace(/[^/]*$/, "");
-    [...new Set([...Object.values(nv.screens).map((s) => s.bg), ...Object.values(nv.chars).map((c) => c.img)])]
-      .filter(Boolean).forEach((f) => { new Image().src = base + f; });
+  function setView(v) {
+    session.view = v;
+    dock.el.dataset.view = v;
+    dock.el.classList.toggle("playing", v === "game");
+    if (v === "lib") Sfx.ambient(false);
   }
 
-  function makeDock(nv, src, lang) {
+  function libHTML(lib, lang) {
+    const t = UI[lang] || UI.en;
+    const free = lib.novels.filter((n) => n.free).length;
+    return `<div class="nv-lib" tabindex="-1">
+      <div class="nv-lib-head"><div><span>Emotions Club</span><h3>${t.libTitle}</h3>
+        <p>${free} ${t.freeN} · ${lib.novels.length - free} Premium</p></div>
+        <button class="nv-round" data-act="fold" aria-label="${t.fold}" title="${t.fold}">↘</button></div>
+      <div class="nv-scroll"><div class="nv-grid">${lib.novels.map((n) => `
+        <button class="nv-card${n.free ? "" : " paid"}${n.first ? " first" : ""}${done.has(n.id) ? " done" : ""}" data-id="${esc(n.id)}" type="button">
+          <img src="${esc(n.thumbUrl)}" alt="" loading="lazy">
+          ${n.free ? "" : `<span class="nv-prem">Premium</span>`}${n.first ? `<span class="nv-first">${t.startHere}</span>` : ""}<span class="nv-ok" aria-label="${t.doneL}">✓</span>
+          <span class="nv-cap"><b>${esc(n.title)}</b><small>${n.genre ? `<i>${esc(n.genre)} · </i>` : ""}${facts(n, lang)}</small></span>
+        </button>`).join("")}</div></div>
+      <div class="nv-zoom" hidden></div>
+    </div>`;
+  }
+
+  // the zoomed card: grows from its place in the grid; Play flips it over, and the game opens behind it
+  function zoom(card) {
+    const n = dock.lib.novels.find((x) => x.id === card.dataset.id), t = UI[dock.lang] || UI.en;
+    const z = dock.el.querySelector(".nv-zoom"), host = dock.el.querySelector(".nv-lib");
+    const st = states.get(n.srcUrl);
+    const go = st?.id ? t.cont : t.play;
+    z.innerHTML = `<div class="nv-flip">
+        <div class="nv-face front">
+          <img src="${esc(n.coverUrl)}" alt="">
+          ${n.free ? "" : `<span class="nv-prem">Premium</span>`}
+          <div class="nv-face-info"><small>${esc(n.genre || "")}${done.has(n.id) ? ` · ${t.doneL}` : ""}</small><h3>${esc(n.title)}</h3>
+            <p>${facts(n, dock.lang)}</p>
+            ${n.free ? `<button class="nv-btn" data-act="go">▶ ${go}</button>` : `<button class="nv-btn locked" type="button" disabled>${t.soon}</button>`}</div>
+        </div>
+        <div class="nv-face back"><span>Emotions Club</span></div>
+      </div>`;
+    z.hidden = false;
+    const f = z.firstElementChild, a = card.getBoundingClientRect(), h = host.getBoundingClientRect();
+    // start exactly over the card (centre to centre, in the window's own scale), then CSS moves it to the middle
+    const k = h.width / host.offsetWidth, w = f.offsetWidth;
+    const dx = (a.left + a.width / 2 - h.left) / k - (f.offsetLeft + w / 2), dy = (a.top + a.height / 2 - h.top) / k - (f.offsetTop + w / 2);
+    f.style.setProperty("--from", `translate(${dx}px, ${dy}px) scale(${a.width / k / w})`);
+    f.classList.add("from");
+    z.dataset.id = n.id;
+    card.classList.add("lift");
+    requestAnimationFrame(() => requestAnimationFrame(() => { f.classList.remove("from"); z.classList.add("on"); }));
+    Sfx.tap();
+  }
+  function unzoom(now) {
+    const z = dock?.el.querySelector(".nv-zoom");
+    if (!z || z.hidden) return;
+    const card = dock.el.querySelector(`.nv-card[data-id="${CSS.escape(z.dataset.id)}"]`);
+    const end = () => { z.hidden = true; z.innerHTML = ""; z.classList.remove("on"); card?.classList.remove("lift"); };
+    if (now || reduce) return end();
+    z.classList.remove("on");
+    z.firstElementChild.classList.add("from");
+    setTimeout(end, 380);
+  }
+  function startNovel(n) {
+    const z = dock.el.querySelector(".nv-zoom");
+    z.firstElementChild?.classList.add("flip");
+    Sfx.whoosh();
+    load(n.srcUrl).then((nv) => {
+      setTimeout(() => {
+        if (session.cur !== n.id || !dock.player) {
+          session.cur = n.id;
+          dock.player = build(dock.el.querySelector(".nv-game"), nv, n.srcUrl, dock.lang, ui);
+        }
+        setView("game");
+        dock.player.play();
+        setTimeout(() => unzoom(true), 450);
+      }, reduce ? 0 : 520);
+    }, () => { z.firstElementChild?.classList.remove("flip"); });
+  }
+  const ui = {
+    open, fold, isOpen,
+    library: () => { setView("lib"); Sfx.tap(); },
+    done: markDone,
+  };
+
+  function makeDock(lib, src, lang) {
     const t = UI[lang] || UI.en;
     const el = document.createElement("div");
     el.className = "nv-dock away";
-    el.innerHTML = `<div class="nv-host"></div>
+    el.innerHTML = `<div class="nv-host">${libHTML(lib, lang)}<div class="nv-game"></div></div>
       <button class="nv-cta" type="button" aria-label="${t.cta}"><i class="play">▶ ${t.cta}</i><i class="more">⤢</i></button>
       <button class="nv-x" type="button" aria-label="${t.close}" title="${t.close}">×</button>`;
     const back = document.createElement("div");
     back.className = "nv-backdrop";
     document.body.append(back, el);
-    dock = { src, lang, el, back, nv };
-    dock.player = build(el.firstElementChild, nv, src, lang, { open, fold, isOpen });
-    el.classList.toggle("playing", dock.player.started());
-    // folded: a click anywhere on the square opens the game (PLAY starts it right away)
+    dock = { src, lang, el, back, lib, player: null };
+    // back to the novel that was open before a re-render (language switch)
+    const cur = session.cur && lib.novels.find((n) => n.id === session.cur);
+    if (cur && session.view === "game") {
+      load(cur.srcUrl).then((nv) => { if (dock?.el === el) dock.player = build(el.querySelector(".nv-game"), nv, cur.srcUrl, lang, ui); });
+      setView("game");
+    } else setView("lib");
+
     el.addEventListener("click", (e) => {
-      if (isOpen()) return el.classList.toggle("playing", dock.player.started());
-      if (e.target.closest(".nv-x")) return dismiss();
-      if (dock.player.started()) open();
-      else dock.player.play();
-      el.classList.add("playing");
+      if (!isOpen()) { // folded: a click anywhere on the square opens the window
+        if (e.target.closest(".nv-x")) return dismiss();
+        return open();
+      }
+      if (session.view !== "lib") return;
+      const b = e.target.closest("button");
+      if (b?.dataset.act === "fold") return e.stopPropagation(), fold();
+      if (b?.dataset.act === "go") return startNovel(lib.novels.find((n) => n.id === el.querySelector(".nv-zoom").dataset.id));
+      const card = e.target.closest(".nv-card");
+      if (card) return zoom(card);
+      if (!el.querySelector(".nv-zoom").hidden && !e.target.closest(".nv-face")) unzoom();
     });
-    el.addEventListener("pointerenter", warm, { once: true });
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !el.querySelector(".nv-zoom").hidden) { e.stopPropagation(); unzoom(); }
+    });
     back.addEventListener("click", fold);
     place();
     if (!hidden) setTimeout(() => el.classList.remove("away"), 1200);
@@ -446,14 +554,29 @@
 
   addEventListener("resize", place);
   addEventListener("keydown", (e) => { if (e.key === "Escape" && isOpen()) fold(); });
-  // links to #play (the button in the head of the case) open the game
+  // links to #play (the button in the head of the case) open the library
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href="#play"]');
     if (!a || !dock) return;
     e.preventDefault();
-    dock.player.play();
-    dock.el.classList.add("playing");
+    open();
   });
+
+  // library.json → absolute urls; a single novel.json (the older format of the block) is a library of one
+  function loadLib(src) {
+    return load(src).then((d) => {
+      const base = src.replace(/[^/]*$/, "");
+      let list = d.screens ? [{ id: d.id, title: d.title, genre: d.genre, free: true, src: src.slice(base.length), cover: d.cover, minutes: 0, choices: 0, endings: 1 }] : d.novels;
+      // suggested first: the shortest free novel — at the top of the grid and lit
+      const first = list.filter((n) => n.free).sort((a, b) => a.minutes - b.minutes)[0];
+      if (first && !d.screens) list = [first, ...list.filter((n) => n !== first)];
+      return { novels: list.map((n) => {
+        const dir = base + n.src.replace(/[^/]*$/, "");
+        const abs = (f, rel) => (!f ? "" : rel ? base + f : dir + f);
+        return { ...n, first: n === first && list.length > 1, srcUrl: base + n.src, coverUrl: d.screens ? abs(n.cover) : abs(n.cover, true), thumbUrl: d.screens ? abs(n.cover) : abs(n.thumb || n.cover, true) };
+      }) };
+    });
+  }
 
   function mount(root = document, { lang = "en", editor = false } = {}) {
     const el = root.querySelector(".nv[data-src]");
@@ -463,20 +586,20 @@
     }
     const src = el.dataset.src;
     if (editor) {
-      el.innerHTML = `<div class="nv-card"><b>${esc((UI.ru).card)}</b><span>${esc(src)}</span>
+      el.innerHTML = `<div class="nv-card-edit"><b>${esc(UI.ru.card)}</b><span>${esc(src)}</span>
         <button class="btn" type="button">${UI.ru.openGame}</button></div>`;
-      el.querySelector("button").onclick = () => dock && (dock.el.classList.remove("away"), dock.player.play());
+      el.querySelector("button").onclick = () => dock && (dock.el.classList.remove("away"), open());
     }
     if (dock && dock.src === src && dock.lang === lang) return;
-    load(src).then((nv) => {
+    loadLib(src).then((lib) => {
       if (dock && dock.src === src && dock.lang === lang) return;
       const wasOpen = isOpen(), away = dock?.el.classList.contains("away");
       if (dock) { dock.el.remove(); dock.back.remove(); document.documentElement.classList.remove("nv-lock"); dock = null; }
-      makeDock(nv, src, lang);
+      makeDock(lib, src, lang);
       if (wasOpen) open();
       else if (away === false) dock.el.classList.remove("away");
     }, () => console.warn("novel: could not load", src));
   }
 
-  window.Novel = { mount, open: () => dock?.player.play() };
+  window.Novel = { mount, open: () => open() };
 })();
