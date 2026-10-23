@@ -17,7 +17,7 @@ Soft skills: Bridging creative & tech, Process audit & automation, Rapid prototy
 ## My projects
 
 - [Virtual Gifts](https://eyeanton.github.io/project.html?id=virtual-gifts) (2026, Design) — A collection of animated virtual gifts for a dating app: from the idea to a full-screen animation with sound. Tags: AI 3D, Motion, Art direction, VP9 alpha.
-- [Emotions Club](https://eyeanton.github.io/project.html?id=emotions-club) (2025, AI & bots) — Interactive visual novels for two players: an agent writes one JSON per story, one ComfyUI flow makes backgrounds, characters with emotions, covers and video covers in one style. 29 novels. Tags: ComfyUI, AI pipeline, Characters, Art direction.
+- [Visual Novels](https://eyeanton.github.io/project.html?id=emotions-club) (2025, AI & bots) — Interactive visual novels for two players: an agent writes one JSON per story, one ComfyUI flow makes backgrounds, characters with emotions, covers and video covers in one style. 29 novels. Tags: ComfyUI, AI pipeline, Characters, Art direction.
 - **Sticker generator** (2026, AI & bots) — A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines. Tags: Python, aiogram, ComfyUI, Docker.
 - [Stasik](https://eyeanton.github.io/stasik-page/) (2026, Hardware) — Firmware for M5Stack (ESP32): a health counter with screen, buttons and sound, over-the-air updates. Plus an Android app that works as its remote. Tags: C++, PlatformIO, M5Unified, Android.
 
