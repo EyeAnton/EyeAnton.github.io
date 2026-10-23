@@ -1317,35 +1317,19 @@
           "items": [
             {
               "src": "/emotions-club/assets/videocovers/moonlight_heist.mp4",
-              "poster": "/emotions-club/assets/videocovers/moonlight_heist.webp",
-              "t": {
-                "ru": "Moonlight Heist",
-                "en": "Moonlight Heist"
-              }
+              "poster": "/emotions-club/assets/videocovers/moonlight_heist.webp"
             },
             {
               "src": "/emotions-club/assets/videocovers/the_witch_next_door.mp4",
-              "poster": "/emotions-club/assets/videocovers/the_witch_next_door.webp",
-              "t": {
-                "ru": "The Witch Next Door",
-                "en": "The Witch Next Door"
-              }
+              "poster": "/emotions-club/assets/videocovers/the_witch_next_door.webp"
             },
             {
               "src": "/emotions-club/assets/videocovers/treasure_of_two.mp4",
-              "poster": "/emotions-club/assets/videocovers/treasure_of_two.webp",
-              "t": {
-                "ru": "Treasure of Two",
-                "en": "Treasure of Two"
-              }
+              "poster": "/emotions-club/assets/videocovers/treasure_of_two.webp"
             },
             {
               "src": "/emotions-club/assets/videocovers/the_double_life.mp4",
-              "poster": "/emotions-club/assets/videocovers/the_double_life.webp",
-              "t": {
-                "ru": "The Double Life",
-                "en": "The Double Life"
-              }
+              "poster": "/emotions-club/assets/videocovers/the_double_life.webp"
             }
           ],
           "phoneSrc": "/emotions-club/assets/promo/promo_2.mp4",

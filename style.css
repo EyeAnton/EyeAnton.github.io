@@ -710,3 +710,17 @@ img:focus, video:focus, [role="button"]:focus, .gc-card:focus, .chip:focus { out
 /* ---- mini chat (feedback-chat component, startChat in app.js): Lighthouse colours; stands on the novel teaser (novel.js: as wide as the chat button, 112px on a phone) while it's shown ---- */
 body .fc { --fc-accent: var(--accent); --fc-me: var(--blue-600); --fc-surface: var(--ink-3); --fc-line: var(--ink-5); --fc-font: var(--font); }
 body:has(.nv-dock:not(.away)) .fc { --fc-lift: calc(var(--nv-mini, 168px) + 12px); } /* --nv-mini: novel.js place() */
+
+/* ---- a cover zoomed in (setupCoverZoom in app.js): over the darkened, blurred page, like the gift overlay ---- */
+.cs-cloud:not([data-gifts]) img, .cs-covers img { cursor: zoom-in; }
+.lb {
+  position: fixed; inset: 0; z-index: 100; cursor: zoom-out;
+  background: rgba(3, 6, 16, .66); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity .35s ease;
+}
+.lb.open { opacity: 1; }
+.lb img {
+  position: fixed; object-fit: cover; border-radius: var(--radius-lg); box-shadow: 0 40px 100px rgba(0, 0, 0, .65);
+  transition: transform .45s cubic-bezier(.2, .85, .25, 1);
+}
+@media (prefers-reduced-motion: reduce) { .lb, .lb img { transition: none; } }

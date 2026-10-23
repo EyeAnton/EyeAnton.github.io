@@ -199,13 +199,14 @@ main { overflow-x: clip; } /* 100vw of the full-bleed strip includes the scrollb
 .cs-vcovers figure:first-child:nth-last-child(2n + 1) { grid-column: 1 / -1; }
 @media (max-width: 700px) { .cs-vcovers { grid-template-columns: 1fr; } }
 /* covers with a phone on the left (vcovers.phoneSrc): the phone is as tall as their grid, its video fills it */
-.cs-promo { display: grid; grid-template-columns: minmax(0, .28fr) minmax(0, 1fr); gap: clamp(16px, 2.4vw, 32px); align-items: stretch; }
-.cs-promo .cs-phone { display: flex; }
-.cs-promo .cs-phone video { height: 100%; aspect-ratio: auto; }
+.cs-promo { display: grid; grid-template-columns: minmax(0, .235fr) minmax(0, 1fr); gap: clamp(16px, 2.4vw, 32px); align-items: stretch; }
+/* the grid of covers sets the height; the phone takes it (its video lies inside the frame, it doesn't push) */
+.cs-promo .cs-phone { position: relative; }
+.cs-promo .cs-phone video { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); aspect-ratio: auto; }
 @media (max-width: 700px) {
   .cs-promo { grid-template-columns: 1fr; }
   .cs-promo .cs-phone { width: min(58%, 240px); justify-self: center; }
-  .cs-promo .cs-phone video { height: auto; aspect-ratio: 9 / 16; }
+  .cs-promo .cs-phone video { position: static; width: 100%; height: auto; aspect-ratio: 9 / 16; }
   .cs-promo .cs-vcovers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 }
 
