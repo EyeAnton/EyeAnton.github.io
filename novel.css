@@ -44,14 +44,20 @@ html.nv-editing .pb-novel { display: block; }
   border: 0; border-radius: 999px; background: var(--nv-lilac); color: #1b1033; cursor: pointer;
   font: 600 calc(14px / var(--k)) / 1 Montserrat, system-ui, sans-serif; letter-spacing: .08em;
   box-shadow: 0 calc(6px / var(--k)) calc(20px / var(--k)) rgba(0, 0, 0, .45);
-  animation: nv-pulse 2.2s ease-in-out infinite;
 }
 .nv-cta i { font-style: normal; white-space: nowrap; }
 .nv-cta .more, .nv-dock.playing .nv-cta .play { display: none; }
 .nv-dock.playing .nv-cta .more { display: block; }
 .nv-dock.playing .nv-cta { left: auto; right: calc(10px / var(--k)); top: calc(10px / var(--k)); bottom: auto; translate: none;
   width: calc(30px / var(--k)); height: calc(30px / var(--k)); padding: 0; justify-content: center; animation: none; }
-@keyframes nv-pulse { 50% { box-shadow: 0 0 0 calc(8px / var(--k)) rgba(169, 139, 255, .25), 0 calc(6px / var(--k)) calc(20px / var(--k)) rgba(0, 0, 0, .45); } }
+/* folded and not opened yet: rings spread out of the square and fade — the only call for attention */
+.nv-dock::before, .nv-dock::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: calc(18px / var(--k)); pointer-events: none;
+  border: calc(2px / var(--k)) solid var(--nv-lilac); opacity: 0;
+}
+.nv-dock:not(.open):not(.away):not(.seen)::before { animation: nv-ring 2.4s ease-out infinite; }
+.nv-dock:not(.open):not(.away):not(.seen)::after { animation: nv-ring 2.4s ease-out 1.2s infinite; }
+@keyframes nv-ring { 0% { opacity: .75; transform: scale(1); } 100% { opacity: 0; transform: scale(1.32); } }
 .nv-x {
   position: absolute; z-index: 10; top: calc(-8px / var(--k)); left: calc(-8px / var(--k)); width: calc(24px / var(--k)); height: calc(24px / var(--k));
   display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
@@ -67,6 +73,8 @@ html.nv-editing .pb-novel { display: block; }
 }
 .nv-backdrop.on { opacity: 1; visibility: visible; transition: opacity .4s ease; }
 html.nv-lock { overflow: hidden; }
+/* the scrollbar keeps its place while the page is locked — otherwise the page (and the covers belt) jumps sideways */
+html:has(.nv-dock) { scrollbar-gutter: stable; }
 
 /* ---- the phone ---- */
 .nv-phone {
@@ -251,5 +259,6 @@ html.nv-lock { overflow: hidden; }
   .nv-start h3, .nv-end h3 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .nv-dock::before, .nv-dock::after { animation: none !important; }
   .nv-bg img, .nv-ch, .nv-box::after, .nv-dock, .nv-cta, .nv-flip, .nv-zoom, .nv-lib, .nv-game, .nv-card.first { transition: none; animation: none; }
 }

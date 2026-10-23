@@ -707,7 +707,6 @@ img, video, svg { -webkit-user-drag: none; }
 :focus:not(:focus-visible) { outline: none; }
 img:focus, video:focus, [role="button"]:focus, .gc-card:focus, .chip:focus { outline: none; }
 
-/* ---- mini chat (feedback-chat component, startChat in app.js): Lighthouse colours; stands on the novel teaser (novel.js, 168px / 112px on a phone) while it's shown ---- */
+/* ---- mini chat (feedback-chat component, startChat in app.js): Lighthouse colours; stands on the novel teaser (novel.js: as wide as the chat button, 112px on a phone) while it's shown ---- */
 body .fc { --fc-accent: var(--accent); --fc-me: var(--blue-600); --fc-surface: var(--ink-3); --fc-line: var(--ink-5); --fc-font: var(--font); }
-body:has(.nv-dock:not(.away)) .fc { --fc-lift: 180px; }
-@media (max-width: 600px) { body:has(.nv-dock:not(.away)) .fc { --fc-lift: 122px; } }
+body:has(.nv-dock:not(.away)) .fc { --fc-lift: calc(var(--nv-mini, 168px) + 12px); } /* --nv-mini: novel.js place() */

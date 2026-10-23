@@ -103,20 +103,28 @@
       src.start(t);
       src.stop(t + len + 0.05);
     }
-    // a low uneasy room tone for the thriller: two detuned saws under a slowly breathing low-pass
+    // background by the mood of the genre (setMood): "dark" — a low uneasy room tone (two detuned saws under a
+    // slowly breathing low-pass); "warm" (romance, comedy) — a soft major-seventh pad slowly swaying between two
+    // chords; "airy" (adventure, fantasy, sci-fi) — an open suspended chord. All very quiet.
+    const PADS = {
+      warm: { type: "sine", chords: [[174.6, 220, 261.6, 329.6], [130.8, 164.8, 196, 246.9]], cut: 1400, vol: 0.03 },
+      airy: { type: "triangle", chords: [[146.8, 220, 329.6, 440], [130.8, 196, 293.7, 392]], cut: 900, vol: 0.022 },
+    };
     function ambient(play) {
       wanted = play;
       if (!ctx) return;
       if (play && on && !amb) {
         const g = ctx.createGain(), lp = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), depth = ctx.createGain();
+        const pad = PADS[mood];
         lp.type = "lowpass";
-        lp.frequency.value = 160;
-        lfo.frequency.value = 0.07;
-        depth.gain.value = 70;
+        lp.frequency.value = pad ? pad.cut : 160;
+        lfo.frequency.value = pad ? 0.05 : 0.07;
+        depth.gain.value = pad ? pad.cut * 0.3 : 70;
         lfo.connect(depth).connect(lp.frequency);
-        const oscs = [55, 55.4, 82.6].map((f) => {
+        const freqs = pad ? pad.chords[0] : [55, 55.4, 82.6];
+        const oscs = freqs.map((f) => {
           const o = ctx.createOscillator();
-          o.type = "sawtooth";
+          o.type = pad ? pad.type : "sawtooth";
           o.frequency.value = f;
           o.connect(lp);
           o.start();
@@ -125,8 +133,14 @@
         lfo.start();
         lp.connect(g).connect(out);
         g.gain.setValueAtTime(0.0001, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 2.5);
-        amb = { g, stop: () => [...oscs, lfo].forEach((o) => o.stop()) };
+        g.gain.exponentialRampToValueAtTime(pad ? pad.vol : 0.035, ctx.currentTime + 2.5);
+        // the pad glides to the other chord every 8 s
+        let i = 0;
+        const sway = pad && setInterval(() => {
+          i ^= 1;
+          oscs.forEach((o, k) => o.frequency.setTargetAtTime(pad.chords[i][k], ctx.currentTime, 1.2));
+        }, 8000);
+        amb = { g, stop: () => { clearInterval(sway); [...oscs, lfo].forEach((o) => o.stop()); } };
       } else if ((!play || !on) && amb) {
         const a = amb;
         amb = null;
@@ -134,10 +148,19 @@
         setTimeout(a.stop, 1500);
       }
     }
+    const MOOD = { Romance: "warm", Comedy: "warm", Adventure: "airy", Fantasy: "airy", "Sci-Fi": "airy" };
+    let mood = "dark";
+    function setMood(genre) {
+      const m = MOOD[genre] || "dark";
+      if (m === mood) return;
+      mood = m;
+      if (amb) { ambient(false); setTimeout(() => ambient(wanted), 600); } // swap the background softly
+    }
     return {
       get on() { return on; },
       wake,
       ambient,
+      setMood,
       toggle() {
         on = !on;
         try { localStorage.setItem("nvSound", on ? "1" : "0"); } catch (e) {}
@@ -148,10 +171,17 @@
       tap: () => tone("sine", [900, 620], 0.07, 0.05),
       blip: () => tone("triangle", 480 + Math.random() * 140, 0.035, 0.012),
       whoosh: () => hiss(250, 2600, 0.55, 0.22),
-      scene: () => { tone("sine", [90, 38], 1.4, 0.35); hiss(120, 900, 1.1, 0.12); },
+      // a scene title: a low boom in the dark stories, a light rising arpeggio in the others
+      scene: () => {
+        if (mood === "dark") { tone("sine", [90, 38], 1.4, 0.35); hiss(120, 900, 1.1, 0.12); return; }
+        [523.3, 659.3, 784, 1046.5].forEach((f, i) => tone("triangle", f, 1.2, 0.045, i * 0.09));
+        hiss(400, 3000, 0.9, 0.06);
+      },
       chime: () => { tone("triangle", 659, 0.5, 0.06, 0.05); tone("triangle", 988, 0.7, 0.05, 0.16); },
       pick: () => { tone("sine", [520, 1040], 0.12, 0.08); tone("triangle", 1319, 0.5, 0.035, 0.08); },
-      end: () => [220, 261.6, 329.6, 440].forEach((f, i) => tone("triangle", f, 2.6, 0.05, i * 0.12)),
+      // the end: a minor chord for the dark stories, a major one for the rest
+      end: () => (mood === "dark" ? [220, 261.6, 329.6, 440] : [261.6, 329.6, 392, 523.3])
+        .forEach((f, i) => tone("triangle", f, 2.6, 0.05, i * 0.12)),
     };
   })();
 
@@ -327,6 +357,7 @@
     const started = () => !!st.id;
     const play = () => {
       if (!ui.isOpen()) ui.open();
+      Sfx.setMood(nv.genre);
       Sfx.ambient(true);
       st.id ? show() : go(nv.start);
     };
@@ -380,7 +411,12 @@
   // nvDone). One window per page (the first "novel" block); the block itself is invisible on the site — in the
   // admin it is a card. ----
   let dock = null; // { src, lang, el, back, lib, view, cur, player }
-  const MINI = () => (innerWidth < 600 ? 112 : 168);
+  // the folded square is as wide as the chat button above it ("Написать Антону", feedback-chat .fc-launch);
+  // on a phone that button is a small circle — then the square keeps its own size
+  const MINI = () => {
+    const w = document.querySelector(".fc-launch")?.offsetWidth || 0;
+    return w > 120 ? w : innerWidth < 600 ? 112 : 168;
+  };
   const GAP = () => (innerWidth < 600 ? 14 : 20);
   const session = { view: "lib", cur: null }; // what the window shows — survives re-renders
   let hidden = false;
@@ -406,13 +442,14 @@
     s.top = `${T}px`;
     s.setProperty("--k", k);
     s.setProperty("--fold", `translate(${vw - g - m - L}px, ${vh - g - m - T}px) scale(${k})`);
+    document.documentElement.style.setProperty("--nv-mini", `${m}px`); // the chat button stands on it (style.css)
   }
   const isOpen = () => dock?.el.classList.contains("open");
   function open() {
     if (!dock || isOpen()) return;
     Sfx.wake();
     dock.el.classList.remove("away");
-    dock.el.classList.add("open");
+    dock.el.classList.add("open", "seen"); // seen: no more rings around the folded square
     dock.back.classList.add("on");
     document.documentElement.classList.add("nv-lock");
     if (session.view === "game" && dock.player?.started()) Sfx.ambient(true);
@@ -551,7 +588,14 @@
     });
     back.addEventListener("click", fold);
     place();
-    if (!hidden) setTimeout(() => el.classList.remove("away"), 1200);
+    if (!hidden) requestAnimationFrame(() => el.classList.remove("away")); // right away, with the slide-in
+    // the chat button comes later and changes its width with the language — follow it
+    const fit = () => {
+      const b = document.querySelector(".fc-launch");
+      if (!b) return setTimeout(fit, 300);
+      new ResizeObserver(place).observe(b);
+    };
+    fit();
   }
 
   addEventListener("resize", place);
