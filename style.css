@@ -30,19 +30,20 @@ main [data-block] { scroll-margin-top: 72px; }
     linear-gradient(var(--bg), var(--bg)) padding-box,
     var(--grad-stroke) border-box;
   border: var(--stroke) solid transparent; border-radius: var(--pill);
-  padding: 3px; cursor: pointer;
+  padding: 3px;
   box-shadow: var(--glow-blue);
 }
-.lang span {
+.lang button {
+  font: inherit; letter-spacing: inherit; color: inherit; background: none; cursor: pointer;
   padding: 5px 10px; border-radius: var(--pill);
   border: 1px solid transparent;
   transition: color .2s, border-color .2s;
 }
-.lang:hover span { color: var(--text); }
+.lang button:hover { color: var(--text); }
 .lang[data-lang="ru"] [data-l="ru"],
 .lang[data-lang="en"] [data-l="en"],
 .lang[data-lang="agent"] [data-l="agent"] { color: var(--text); border-color: var(--accent); }
-@media (max-width: 420px) { .lang span { padding: 5px 7px; } }
+@media (max-width: 420px) { .lang button { padding: 5px 7px; } }
 
 /* AGENT view: only the header and llms.txt (app.js renderAgent); everything else on the page — hidden */
 html.agent body > :not(.top, #agentView, script) { display: none !important; }
