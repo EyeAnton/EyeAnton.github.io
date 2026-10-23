@@ -1,6 +1,6 @@
-/* ---- mini chat (chat.js): launcher bottom-left (the right corner holds .to-top, the CV guest and the novel) ---- */
+/* ---- mini chat (chat.js): launcher bottom-right (.to-top sits in the middle); above the novel teaser while it's shown ---- */
 .ch-launch {
-  position: fixed; left: max(20px, env(safe-area-inset-left)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 75;
+  position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 75;
   display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px 0 14px; cursor: pointer;
   border: 1px solid var(--line-strong); border-radius: 999px;
   background: rgb(10 18 38 / .8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -8,19 +8,21 @@
   opacity: 0; translate: 0 12px; transition: opacity .3s, translate .3s, border-color .2s, background .2s, box-shadow .2s;
 }
 .ch-launch.in { opacity: 1; translate: 0 0; }
+/* the novel teaser (novel.js, 168px; 112px on a phone) holds the corner: the launcher stands on top of it */
+body:has(.nv-dock:not(.away)) .ch-launch { bottom: calc(max(20px, env(safe-area-inset-bottom)) + 180px); }
 .ch-launch.off { opacity: 0; translate: 0 12px; pointer-events: none; }
 .ch-launch:hover, .ch-launch:focus-visible { border-color: var(--accent); background: var(--accent); box-shadow: var(--glow-sm); outline: none; }
 .ch-launch svg, .ch-x svg, .ch-send svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .ch-box {
-  position: fixed; left: max(20px, env(safe-area-inset-left)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 86;
+  position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 86;
   width: min(360px, calc(100vw - 32px)); height: min(520px, calc(100dvh - 40px));
   display: flex; flex-direction: column; overflow: hidden;
   border: 1px solid var(--line-strong); border-radius: var(--radius);
   background: rgb(10 18 38 / .92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 24px 60px rgb(0 0 0 / .45);
   color: var(--gray-100); font: 400 14px/1.45 var(--font);
-  opacity: 0; visibility: hidden; transform-origin: 0 100%; scale: .92; translate: 0 10px;
+  opacity: 0; visibility: hidden; transform-origin: 100% 100%; scale: .92; translate: 0 10px;
   transition: opacity .25s, scale .25s, translate .25s, visibility .25s;
 }
 .ch-box.on { opacity: 1; visibility: visible; scale: 1; translate: 0 0; }
@@ -68,7 +70,8 @@
 
 /* phone: a round launcher, the dialog as a sheet across the bottom */
 @media (max-width: 600px) {
-  .ch-launch { left: max(14px, env(safe-area-inset-left)); bottom: max(14px, env(safe-area-inset-bottom)); width: 44px; padding: 0; justify-content: center; }
+  .ch-launch { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: 44px; padding: 0; justify-content: center; }
+  body:has(.nv-dock:not(.away)) .ch-launch { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 122px); }
   .ch-launch span { display: none; }
   .ch-box { left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); width: auto; height: min(560px, calc(100dvh - 72px)); }
 }
