@@ -168,10 +168,9 @@ function statsHTML() {
     .map(([n, l], i) => `<div class="stat reveal" style="--d:${i * 90}ms"><b>${n}</b><span>${esc(l)}</span></div>`).join("");
 }
 
-// skill groups: big gradient number, title, text, tools — rows line up across cards (subgrid)
+// skill groups: title, text, tools — rows line up across cards (subgrid)
 function areasHTML(compact) {
   return PROFILE.skills.map((g, i) => `<div class="area reveal" style="--d:${i * 80}ms">
-      <span class="area-num">${num(i)}</span>
       <h3>${esc(g.title[lang])}</h3>
       <p>${esc(g.d[lang])}</p>
       ${tagsHTML(compact ? g.tools.slice(0, 4) : g.tools)}
