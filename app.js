@@ -983,6 +983,7 @@ if (PAGE) {
           try { document.querySelector(location.hash)?.scrollIntoView({ behavior: "instant" }); } catch {}
         }
         if (typeof startGuest === "function") startGuest();
+        if (typeof startChat === "function") startChat();
       })
       .catch((err) => {
         console.error(err);
