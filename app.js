@@ -257,8 +257,12 @@ const BLOCK_HTML = {
     <div>${(it.images || []).map((s) => imgHTML(s)).join("")}</div></article>`)}</div>`,
   covers: (b) => `<div class="cs-covers">${each(b, (it, i, p) =>
     `<figure class="reveal">${imgHTML(it.src, L(it.t))}${fld(b, `${p}.t`, "figcaption", "Название")}</figure>`)}</div>`,
-  vcovers: (b) => `<div class="cs-vcovers">${each(b, (it, i, p) =>
-    `<figure class="reveal">${loopHTML(it)}${fld(b, `${p}.t`, "figcaption", "Название")}</figure>`)}</div>`,
+  // phoneSrc: a 9:16 promo in a phone to the left of the covers, as tall as their grid
+  vcovers: (b) => {
+    const grid = `<div class="cs-vcovers">${each(b, (it, i, p) =>
+      `<figure class="reveal">${loopHTML(it)}${fld(b, `${p}.t`, "figcaption", "Название")}</figure>`)}</div>`;
+    return b.phoneSrc ? `<div class="cs-promo"><div class="cs-phone reveal">${loopHTML({ src: b.phoneSrc, poster: b.phonePoster })}</div>${grid}</div>` : grid;
+  },
   phones: (b) => `<div class="cs-phones">${each(b, (it) => `<div class="cs-phone reveal">${loopHTML(it)}</div>`)}</div>`,
   results: (b) => `<ul class="cs-results">${each(b, (it, i, p) =>
     `<li class="surface reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
