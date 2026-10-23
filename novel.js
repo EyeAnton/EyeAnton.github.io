@@ -13,13 +13,13 @@
       sound: "Звук", fold: "Свернуть", cta: "PLAY", close: "Скрыть",
       card: "Новеллы: на странице — окошко «Играть» в правом нижнем углу, открывается библиотека поверх страницы", openGame: "Открыть",
       lib: "Библиотека", others: "Другие новеллы", libTitle: "Библиотека новелл", freeN: "бесплатно", cont: "Продолжить",
-      soon: "Premium — скоро", doneL: "пройдено" },
+      soon: "Premium — скоро", doneL: "пройдено", startHere: "Начните с неё" },
     en: { play: "Play", back: "Back", restart: "Restart", decides: "decides", end: "The End", again: "Play again",
       choice: "Back to the last choice", hint: "Click, Space or → to continue · ← back", load: "Could not load the novel",
       sound: "Sound", fold: "Minimize", cta: "PLAY", close: "Hide",
       card: "Novels: a PLAY window in the bottom-right corner, opens the library over the page", openGame: "Open",
       lib: "Library", others: "Other novels", libTitle: "Novel library", freeN: "free", cont: "Continue",
-      soon: "Premium — soon", doneL: "finished" },
+      soon: "Premium — soon", doneL: "finished", startHere: "Start here" },
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CPS = 60; // typewriter speed, characters per second
@@ -390,12 +390,8 @@
     try { localStorage.setItem("nvDone", JSON.stringify([...done])); } catch (e) {}
     dock?.el.querySelector(`.nv-card[data-id="${CSS.escape(id)}"]`)?.classList.add("done");
   };
-  // 1 минута / 2 минуты / 5 минут
-  const plural = (n, [one, few, many]) => (n % 10 === 1 && n % 100 !== 11 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
-  function facts(n, lang) {
-    if (lang !== "ru") return `${n.minutes} min · ${n.choices} choices · ${n.endings} ending${n.endings > 1 ? "s" : ""}`;
-    return `${n.minutes} мин · ${n.choices} ${plural(n.choices, ["выбор", "выбора", "выборов"])} · ${n.endings} ${plural(n.endings, ["финал", "финала", "финалов"])}`;
-  }
+  // only the approximate time to play it through
+  const facts = (n, lang) => `≈ ${n.minutes} ${lang === "ru" ? "мин" : "min"}`;
 
   // the open window is laid out in the middle; folded, the same element is moved and scaled into the corner
   function place() {
@@ -448,10 +444,10 @@
         <p>${free} ${t.freeN} · ${lib.novels.length - free} Premium</p></div>
         <button class="nv-round" data-act="fold" aria-label="${t.fold}" title="${t.fold}">↘</button></div>
       <div class="nv-scroll"><div class="nv-grid">${lib.novels.map((n) => `
-        <button class="nv-card${n.free ? "" : " paid"}${done.has(n.id) ? " done" : ""}" data-id="${esc(n.id)}" type="button">
+        <button class="nv-card${n.free ? "" : " paid"}${n.first ? " first" : ""}${done.has(n.id) ? " done" : ""}" data-id="${esc(n.id)}" type="button">
           <img src="${esc(n.thumbUrl)}" alt="" loading="lazy">
-          ${n.free ? "" : `<span class="nv-prem">Premium</span>`}<span class="nv-ok" aria-label="${t.doneL}">✓</span>
-          <b>${esc(n.title)}</b><small>${esc(n.genre || "")}</small>
+          ${n.free ? "" : `<span class="nv-prem">Premium</span>`}${n.first ? `<span class="nv-first">${t.startHere}</span>` : ""}<span class="nv-ok" aria-label="${t.doneL}">✓</span>
+          <span class="nv-cap"><b>${esc(n.title)}</b><small>${n.genre ? `<i>${esc(n.genre)} · </i>` : ""}${facts(n, lang)}</small></span>
         </button>`).join("")}</div></div>
       <div class="nv-zoom" hidden></div>
     </div>`;
@@ -570,11 +566,14 @@
   function loadLib(src) {
     return load(src).then((d) => {
       const base = src.replace(/[^/]*$/, "");
-      const list = d.screens ? [{ id: d.id, title: d.title, genre: d.genre, free: true, src: src.slice(base.length), cover: d.cover, minutes: 0, choices: 0, endings: 1 }] : d.novels;
+      let list = d.screens ? [{ id: d.id, title: d.title, genre: d.genre, free: true, src: src.slice(base.length), cover: d.cover, minutes: 0, choices: 0, endings: 1 }] : d.novels;
+      // suggested first: the shortest free novel — at the top of the grid and lit
+      const first = list.filter((n) => n.free).sort((a, b) => a.minutes - b.minutes)[0];
+      if (first && !d.screens) list = [first, ...list.filter((n) => n !== first)];
       return { novels: list.map((n) => {
         const dir = base + n.src.replace(/[^/]*$/, "");
         const abs = (f, rel) => (!f ? "" : rel ? base + f : dir + f);
-        return { ...n, srcUrl: base + n.src, coverUrl: d.screens ? abs(n.cover) : abs(n.cover, true), thumbUrl: d.screens ? abs(n.cover) : abs(n.thumb || n.cover, true) };
+        return { ...n, first: n === first && list.length > 1, srcUrl: base + n.src, coverUrl: d.screens ? abs(n.cover) : abs(n.cover, true), thumbUrl: d.screens ? abs(n.cover) : abs(n.thumb || n.cover, true) };
       }) };
     });
   }
