@@ -1316,14 +1316,6 @@
           },
           "items": [
             {
-              "src": "/emotions-club/assets/videocovers/ghost_in_4b.mp4",
-              "poster": "/emotions-club/assets/videocovers/ghost_in_4b.webp",
-              "t": {
-                "ru": "The Ghost in 4B",
-                "en": "The Ghost in 4B"
-              }
-            },
-            {
               "src": "/emotions-club/assets/videocovers/moonlight_heist.mp4",
               "poster": "/emotions-club/assets/videocovers/moonlight_heist.webp",
               "t": {
@@ -1355,18 +1347,9 @@
                 "en": "The Double Life"
               }
             }
-          ]
-        },
-        {
-          "id": "ec12",
-          "type": "phones",
-          "visible": true,
-          "items": [
-            {
-              "src": "/emotions-club/assets/promo/promo_2.mp4",
-              "poster": "/emotions-club/assets/promo/promo_2.webp"
-            }
-          ]
+          ],
+          "phoneSrc": "/emotions-club/assets/promo/promo_2.mp4",
+          "phonePoster": "/emotions-club/assets/promo/promo_2.webp"
         },
         {
           "id": "ec13",
