@@ -915,6 +915,40 @@ function setupUnbox() {
 }
 
 // "back to top": appears after scrolling down one screen, smooth scroll up (instant with reduced motion)
+// ---- mini chat: the feedback-chat component (repo feedback-chat, loaded from its Pages) ----
+// CV, channels and the Worker address come from site.json (profile.cv / channels / chat.endpoint);
+// the chat follows <html lang>, which render() sets. Not in ?edit.
+function startChat() {
+  if (startChat.on || EDITOR) return;
+  startChat.on = true;
+  window.FEEDBACK_CHAT = {
+    endpoint: PROFILE.chat?.endpoint || "",
+    name: { ru: "Антон Егоров", en: "Anton Egorov" },
+    initials: "AE",
+    button: { ru: "Написать Антону", en: "Message Anton" },
+    cv: PROFILE.cv,
+    channels: PROFILE.channels,
+    texts: {
+      ru: {
+        hello: "Привет! Я мини-ассистент Антона. Чем помочь?",
+        askFeedback: "Что понравилось, что нет? Пишите как есть — Антон прочитает в Telegram.",
+        askQuestion: "Какой вопрос? Про проект, сотрудничество, стек — что угодно.",
+        sent: "Готово, Антон уже получил сообщение.",
+      },
+      en: {
+        hello: "Hi! I'm Anton's mini assistant. How can I help?",
+        askFeedback: "What worked, what didn't? Be honest — Anton reads it in Telegram.",
+        askQuestion: "What would you like to ask? A project, collaboration, the stack — anything.",
+        askContact: "How can Anton reach you back? Telegram, email — or skip.",
+        sent: "Done — Anton already has your message.",
+      },
+    },
+  };
+  const s = document.createElement("script");
+  s.src = "https://eyeanton.github.io/feedback-chat/chat.js";
+  document.body.append(s);
+}
+
 function setupToTop() {
   const btn = document.createElement("button");
   btn.className = "to-top";
