@@ -1,4 +1,4 @@
-/* Visual novel player — the "novel" block of a project page (Emotions Club).
+/* Visual novel player — the "novel" block of a project page (the Visual Novels case).
    Plays assets/novels/<id>/novel.json of the emotions-club repo (tools/build_novel.py there): one screen per line,
    as in the app — a phone screen with the background, the characters of the scene (the one who speaks is lit),
    the line in a bubble with the name, options as buttons; sound effects are synthesized (WebAudio, no files).
@@ -21,6 +21,8 @@
       lib: "Library", others: "Other novels", libTitle: "Novel library", freeN: "free", cont: "Continue",
       soon: "Premium — soon", doneL: "finished", startHere: "Start here" },
   };
+  // "all novels": four rounded squares, big enough to read at a glance (the ▦ glyph was a fine mesh)
+  const GRID_ICON = `<svg class="nv-ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="2" width="7" height="7" rx="2"/><rect x="11" y="2" width="7" height="7" rx="2"/><rect x="2" y="11" width="7" height="7" rx="2"/><rect x="11" y="11" width="7" height="7" rx="2"/></svg>`;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const CPS = 60; // typewriter speed, characters per second
   const states = new Map(); // src → { id, hist, stage } — survives re-renders
@@ -165,7 +167,7 @@
         <div class="nv-shade"></div>
         <div class="nv-top"><div class="nv-bar"><i></i></div>
           <button data-act="back" aria-label="${t.back}" title="${t.back}">←</button>
-          <button data-act="lib" aria-label="${t.lib}" title="${t.lib}">▦</button>
+          <button data-act="lib" aria-label="${t.lib}" title="${t.lib}">${GRID_ICON}</button>
           <span class="nv-title">${esc(nv.title)}</span>
           <button data-act="sound" aria-label="${t.sound}" title="${t.sound}" aria-pressed="${Sfx.on}">${Sfx.on ? "♪" : "×"}</button>
           <button data-act="restart" aria-label="${t.restart}" title="${t.restart}">↺</button>
@@ -440,7 +442,7 @@
     const t = UI[lang] || UI.en;
     const free = lib.novels.filter((n) => n.free).length;
     return `<div class="nv-lib" tabindex="-1">
-      <div class="nv-lib-head"><div><span>Emotions Club</span><h3>${t.libTitle}</h3>
+      <div class="nv-lib-head"><div><span>Visual Novels</span><h3>${t.libTitle}</h3>
         <p>${free} ${t.freeN} · ${lib.novels.length - free} Premium</p></div>
         <button class="nv-round" data-act="fold" aria-label="${t.fold}" title="${t.fold}">↘</button></div>
       <div class="nv-scroll"><div class="nv-grid">${lib.novels.map((n) => `
@@ -467,7 +469,7 @@
             <p>${facts(n, dock.lang)}</p>
             ${n.free ? `<button class="nv-btn" data-act="go">▶ ${go}</button>` : `<button class="nv-btn locked" type="button" disabled>${t.soon}</button>`}</div>
         </div>
-        <div class="nv-face back"><span>Emotions Club</span></div>
+        <div class="nv-face back"><span>Visual Novels</span></div>
       </div>`;
     z.hidden = false;
     const f = z.firstElementChild, a = card.getBoundingClientRect(), h = host.getBoundingClientRect();

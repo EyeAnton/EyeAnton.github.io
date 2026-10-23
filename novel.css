@@ -1,6 +1,6 @@
 /* Visual novels (novel.js): a floating square window — a PLAY square in the bottom-right corner that opens over
-   the page and folds back. Inside — the library of covers and the game screen. Drawn in the colours of the Emotions
-   Club app (violet bubbles of its promo). The "novel" block itself is not shown on the site; in the admin's editor
+   the page and folds back. Inside — the library of covers and the game screen. Drawn in the colours of the novels'
+   app (violet bubbles of its promo). The "novel" block itself is not shown on the site; in the admin's editor
    it is a card. */
 .nv-dock, .nv { --nv-violet: #3a2766; --nv-lilac: #a98bff; --nv-ink: rgba(14, 10, 26, .82); }
 .pb-novel { display: none; }
@@ -103,6 +103,7 @@ html.nv-lock { overflow: hidden; }
 .nv-bar { position: absolute; left: 22px; right: 22px; top: 12px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .18); overflow: hidden; }
 .nv-bar i { display: block; height: 100%; width: 0; background: var(--nv-lilac); transition: width .4s ease; }
 .nv-top button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(14, 10, 26, .45); font-size: 17px; backdrop-filter: blur(6px); }
+.nv-ico { display: block; width: 18px; height: 18px; margin: auto; fill: currentColor; }
 .nv-top button:hover { background: rgba(169, 139, 255, .35); }
 .nv-title { padding-left: 42px; text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
 .nv-phone.start .nv-top { visibility: hidden; }

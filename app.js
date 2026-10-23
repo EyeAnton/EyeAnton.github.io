@@ -194,7 +194,7 @@ function expHTML() {
 }
 
 /* ---------------- content blocks (project pages, custom home blocks) ---------------- */
-// Markup follows the Emotions Club case (styles: case.css, cs-*). Any block may carry a section head —
+// Markup follows the Visual Novels case (styles: case.css, cs-*). Any block may carry a section head —
 // eyebrow / title / text, centred; a block without one sits tight under the block above.
 
 // a localized field; an untranslated one falls back to the other language on the site (the editor shows it empty)
@@ -460,7 +460,7 @@ function renderProjects() {
   $("#grid").innerHTML = list.map(cardHTML).join("");
 }
 
-// project.html?id=<id>: a case page like Emotions Club — hero (project.head + the card's title / text / links),
+// project.html?id=<id>: a case page like Visual Novels — hero (project.head + the card's title / text / links),
 // then project.page blocks. A "next" block replaces the default contact section at the bottom.
 function renderProject() {
   const t = UI[lang];
@@ -476,7 +476,7 @@ function renderProject() {
   const h = p.head || {};
   if (EDITOR) p.head = { eyebrow: {}, lead: {}, ...h }; // a copy: show the placeholders
 
-  // the "accent" part of the title gets the brand gradient (Emotions <Club>)
+  // the "accent" part of the title gets the brand gradient (Visual <Novels>)
   let title = esc(L(p.title));
   if (h.accent && title.includes(esc(h.accent))) title = title.replace(esc(h.accent), `<span class="t-grad">${esc(h.accent)}</span>`);
   const lead = fld(p, L(h.lead) || (EDITOR && !L(p.desc)) ? "head.lead" : "desc", "p", "Лид", false, "lead");

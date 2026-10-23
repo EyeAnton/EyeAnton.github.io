@@ -588,8 +588,8 @@
         "zoom": 1.04
       },
       "title": {
-        "ru": "Emotions Club",
-        "en": "Emotions Club"
+        "ru": "Visual Novels",
+        "en": "Visual Novels"
       },
       "desc": {
         "ru": "Интерактивные визуальные новеллы на двоих: агент пишет один JSON на историю, один ComfyUI-флоу делает фоны, персонажей с эмоциями, обложки и видеообложки в едином стиле. 29 новелл.",
@@ -611,7 +611,7 @@
           "ru": "Интерактивные визуальные новеллы на двоих. Агент пишет один JSON на всю историю, а один ComfyUI-флоу превращает его в фоны, персонажей с эмоциями и обложки — в едином стиле и сразу с правильными именами файлов.",
           "en": "Interactive visual novels for two players. An agent writes one JSON for the whole story, and one ComfyUI flow turns it into backgrounds, characters with emotions and covers — in one style, with the right file names from the start."
         },
-        "accent": "Club",
+        "accent": "Novels",
         "ctas": [
           {
             "label": {
