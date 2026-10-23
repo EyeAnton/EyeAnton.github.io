@@ -1,15 +1,16 @@
-/* Visual novel player (novel.js): a square game screen in a floating window — a PLAY square in the bottom-right
-   corner that opens over the page and folds back. Drawn in the colours of the Emotions Club app (violet bubbles
-   of its promo). The "novel" block itself is not shown on the site; in the admin's editor it is a card. */
+/* Visual novels (novel.js): a floating square window — a PLAY square in the bottom-right corner that opens over
+   the page and folds back. Inside — the library of covers and the game screen. Drawn in the colours of the Emotions
+   Club app (violet bubbles of its promo). The "novel" block itself is not shown on the site; in the admin's editor
+   it is a card. */
 .nv-dock, .nv { --nv-violet: #3a2766; --nv-lilac: #a98bff; --nv-ink: rgba(14, 10, 26, .82); }
 .pb-novel { display: none; }
 html.nv-editing .pb-novel { display: block; }
-.nv-card {
+.nv-card-edit {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 18px 22px;
   border-radius: var(--radius, 20px); border: 1px dashed var(--nv-lilac); background: rgba(58, 39, 102, .35);
 }
-.nv-card b { flex: 1 1 320px; font-weight: 500; }
-.nv-card span { order: 3; flex-basis: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; color: var(--gray-400, #8592ae); }
+.nv-card-edit b { flex: 1 1 320px; font-weight: 500; }
+.nv-card-edit span { order: 3; flex-basis: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; color: var(--gray-400, #8592ae); }
 
 /* ---- the window: laid out open in the middle (novel.js place()), folded = moved and scaled into the corner ---- */
 .nv-dock {
@@ -19,11 +20,22 @@ html.nv-editing .pb-novel { display: block; }
 .nv-dock.open { z-index: 85; transform: none; }
 .nv-dock.away { opacity: 0; transform: var(--fold) translateY(calc(40px / var(--k))); pointer-events: none; visibility: hidden;
   transition: transform .6s cubic-bezier(.2, .85, .25, 1), opacity .45s ease, visibility 0s .6s; }
-.nv-host { width: 100%; height: 100%; }
+/* the frame of the window: the library and the game lie in it one over the other */
+.nv-host {
+  position: relative; width: 100%; height: 100%; overflow: hidden; isolation: isolate;
+  border-radius: var(--radius-lg, 28px); background: #120d1c;
+  box-shadow: 0 0 0 1px var(--ink-4, #1e2d52), 0 30px 80px rgba(0, 0, 0, .55);
+  transition: border-radius .6s, box-shadow .6s, filter .2s;
+  font-family: Montserrat, system-ui, sans-serif; color: #fff;
+}
+.nv-lib, .nv-game { position: absolute; inset: 0; transition: opacity .45s ease, visibility 0s; }
+.nv-dock[data-view="game"] .nv-lib, .nv-dock[data-view="lib"] .nv-game { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s ease, visibility 0s .45s; }
 .nv-dock:not(.open) { cursor: pointer; }
-.nv-dock:not(.open) .nv-phone { pointer-events: none; border-radius: calc(18px / var(--k));
+.nv-dock:not(.open) .nv-host { border-radius: calc(18px / var(--k));
   box-shadow: 0 0 0 calc(2px / var(--k)) var(--nv-lilac), 0 calc(14px / var(--k)) calc(40px / var(--k)) rgba(0, 0, 0, .6); }
-.nv-dock:not(.open):hover .nv-phone { filter: brightness(1.1); }
+.nv-dock:not(.open) .nv-host > * { pointer-events: none; }
+.nv-dock:not(.open):hover .nv-host { filter: brightness(1.1); }
+.nv-dock:not(.open) .nv-lib-head button { visibility: hidden; }
 .nv-dock:not(.open) .nv-top, .nv-dock:not(.open) .nv-start > div { visibility: hidden; }
 /* folded: PLAY (before the game) or a small "open" mark (during it); sizes divided by the scale stay true */
 .nv-cta {
@@ -58,13 +70,10 @@ html.nv-lock { overflow: hidden; }
 
 /* ---- the phone ---- */
 .nv-phone {
-  position: relative; overflow: hidden; width: 100%; height: 100%;
-  border-radius: var(--radius-lg, 28px); transition: border-radius .6s, box-shadow .6s, filter .2s; background: #120d1c; cursor: pointer; user-select: none; -webkit-user-select: none;
-  box-shadow: 0 0 0 1px var(--ink-4, #1e2d52), 0 30px 80px rgba(0, 0, 0, .55);
-  font-family: Montserrat, system-ui, sans-serif; color: #fff; outline: none;
-  -webkit-tap-highlight-color: transparent;
+  position: relative; overflow: hidden; width: 100%; height: 100%; background: #120d1c;
+  cursor: pointer; user-select: none; -webkit-user-select: none; outline: none; -webkit-tap-highlight-color: transparent;
 }
-.nv-phone:focus-visible { box-shadow: 0 0 0 3px var(--nv-lilac), 0 30px 80px rgba(0, 0, 0, .55); }
+.nv-phone:focus-visible { box-shadow: inset 0 0 0 3px var(--nv-lilac); }
 .nv-phone button { font: inherit; color: inherit; cursor: pointer; }
 
 .nv-bg, .nv-bg img, .nv-shade { position: absolute; inset: 0; }
@@ -90,12 +99,12 @@ html.nv-lock { overflow: hidden; }
 .nv-phone[data-t="cutscene"] .nv-shade { background: linear-gradient(to bottom, rgba(10, 6, 20, .55), transparent 16%); }
 
 /* top: progress, back, title, restart */
-.nv-top { position: absolute; inset: 0 0 auto; z-index: 3; display: grid; grid-template-columns: 36px 1fr 36px 36px 36px; align-items: center; gap: 6px; padding: 22px 14px 0; }
+.nv-top { position: absolute; inset: 0 0 auto; z-index: 3; display: grid; grid-template-columns: 36px 36px 1fr 36px 36px 36px; align-items: center; gap: 6px; padding: 22px 14px 0; }
 .nv-bar { position: absolute; left: 22px; right: 22px; top: 12px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .18); overflow: hidden; }
 .nv-bar i { display: block; height: 100%; width: 0; background: var(--nv-lilac); transition: width .4s ease; }
 .nv-top button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(14, 10, 26, .45); font-size: 17px; backdrop-filter: blur(6px); }
 .nv-top button:hover { background: rgba(169, 139, 255, .35); }
-.nv-title { padding-left: 84px; text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+.nv-title { padding-left: 42px; text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
 .nv-phone.start .nv-top { visibility: hidden; }
 
 /* the line */
@@ -147,8 +156,78 @@ html.nv-lock { overflow: hidden; }
 .nv-btn:hover { filter: brightness(1.1); }
 .nv-start[hidden], .nv-end[hidden], .nv-scene[hidden], .nv-opts[hidden], .nv-box[hidden], .nv-name[hidden] { display: none; }
 
+/* ---- the library ---- */
+.nv-lib { display: flex; flex-direction: column; outline: none;
+  background: radial-gradient(120% 70% at 50% 0%, #2a1c4d 0%, #120d1c 60%); }
+.nv-lib-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 24px 24px 16px; }
+.nv-lib-head span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--nv-lilac); }
+.nv-lib-head h3 { margin: 4px 0 2px; font-size: 24px; font-weight: 600; }
+.nv-lib-head p { margin: 0; font-size: 13px; color: #b9addc; }
+.nv-round { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(169, 139, 255, .15); color: #fff; font-size: 17px; cursor: pointer; }
+.nv-round:hover { background: rgba(169, 139, 255, .35); }
+.nv-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(169, 139, 255, .4) transparent; }
+.nv-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); align-content: start; gap: 14px; padding: 2px 24px 24px;
+}
+.nv-card {
+  position: relative; display: block; padding: 0; overflow: hidden; cursor: pointer; text-align: left;
+  border: 0; border-radius: 16px; background: #1d1430; color: #fff; font: inherit;
+  box-shadow: 0 0 0 1px rgba(169, 139, 255, .18);
+  transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+}
+.nv-card::before { content: ""; display: block; padding-top: 100%; } /* square; aspect-ratio collapses grid rows here */
+.nv-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.nv-card::after { content: ""; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, rgba(10, 6, 20, .92)); }
+.nv-card b, .nv-card small { position: absolute; z-index: 1; left: 10px; right: 10px; }
+.nv-card b { bottom: 22px; font-size: 13px; font-weight: 600; line-height: 1.2; }
+.nv-card small { bottom: 8px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #cbbcff; }
+.nv-card:hover, .nv-card:focus-visible { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(169, 139, 255, .55), 0 12px 26px rgba(0, 0, 0, .45); outline: none; }
+.nv-card.paid img { filter: saturate(.75) brightness(.8); }
+.nv-card.lift { opacity: 0; }
+/* finished: a bright frame and a check */
+.nv-card.done { box-shadow: 0 0 0 3px var(--nv-lilac), 0 0 22px rgba(169, 139, 255, .55); }
+.nv-ok { position: absolute; z-index: 1; top: 8px; right: 8px; display: none; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--nv-lilac); color: #1b1033; font-size: 12px; font-weight: 700; }
+.nv-card.done .nv-ok { display: grid; }
+.nv-prem {
+  position: absolute; z-index: 1; top: 8px; left: 8px; padding: 3px 8px; border-radius: 999px;
+  background: linear-gradient(135deg, #f6d48a, #c9973a); color: #2a1a05; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* the zoomed card: grows out of the grid (--from), Play flips it over */
+.nv-zoom { position: absolute; inset: 0; z-index: 5; background: rgba(8, 5, 16, 0); transition: background .35s ease; perspective: 1400px; }
+.nv-zoom.on { background: rgba(8, 5, 16, .7); }
+.nv-zoom[hidden] { display: none; }
+.nv-flip {
+  position: absolute; left: 18%; top: 18%; width: 64%; aspect-ratio: 1; transform-style: preserve-3d;
+  transition: transform .45s cubic-bezier(.2, .85, .25, 1);
+}
+.nv-flip.from { transform: var(--from); }
+/* over the back, growing to the whole window — the game appears right behind it */
+.nv-flip.flip { transform: rotateY(180deg) scale(1.5625); transition: transform .55s cubic-bezier(.5, 0, .3, 1); }
+.nv-face { position: absolute; inset: 0; overflow: hidden; border-radius: 22px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  box-shadow: 0 0 0 1px rgba(169, 139, 255, .45), 0 30px 60px rgba(0, 0, 0, .6); cursor: default; }
+.nv-face.front img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.nv-face.front::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(10, 6, 20, .95) 70%); }
+.nv-face .nv-prem { top: 14px; left: 14px; font-size: 12px; padding: 4px 12px; }
+.nv-face-info { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 6px; padding: 20px; text-align: center; }
+.nv-face-info small { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #cbbcff; }
+.nv-face-info h3 { margin: 0; font-size: 26px; font-weight: 600; }
+.nv-face-info p { margin: 0 0 8px; font-size: 13px; color: #d9d2ee; }
+.nv-face-info .nv-btn { min-width: 0; padding: 11px 26px; }
+.nv-btn.locked { background: transparent; border-color: #c9973a; color: #f6d48a !important; cursor: default; filter: none; }
+.nv-face.back { display: grid; place-items: center; transform: rotateY(180deg);
+  background: radial-gradient(circle at 50% 40%, #4e3592, #1b1033 70%); }
+.nv-face.back span { font-size: 15px; letter-spacing: .3em; text-transform: uppercase; color: var(--nv-lilac); }
+
 @media (max-width: 520px) {
-  .nv-dock.open .nv-phone { border-radius: var(--radius, 20px); }
+  .nv-dock.open .nv-host { border-radius: var(--radius, 20px); }
+  .nv-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 12px 14px; }
+  .nv-lib-head { padding: 16px 14px 12px; }
+  .nv-lib-head h3 { font-size: 19px; }
+  .nv-card b { font-size: 11px; }
+  .nv-flip { left: 9%; top: 9%; width: 82%; }
+  .nv-flip.flip { transform: rotateY(180deg) scale(1.22); }
+  .nv-face-info h3 { font-size: 20px; }
   .nv-title { padding-left: 0; font-size: 10px; }
   .nv-box { left: 10px; right: 10px; bottom: 10px; padding: 14px 14px 12px; border-radius: 18px; min-height: 0; }
   .nv-text { font-size: 13px; line-height: 1.45; }
@@ -160,5 +239,5 @@ html.nv-lock { overflow: hidden; }
   .nv-start h3, .nv-end h3 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nv-bg img, .nv-ch, .nv-box::after, .nv-dock, .nv-cta { transition: none; animation: none; }
+  .nv-bg img, .nv-ch, .nv-box::after, .nv-dock, .nv-cta, .nv-flip, .nv-zoom, .nv-lib, .nv-game { transition: none; animation: none; }
 }

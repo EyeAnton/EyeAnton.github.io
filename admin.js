@@ -737,9 +737,9 @@
     quote: { name: "Цитата", hint: "Крупная цитата с автором", blank: () => ({ quote: loc(), who: loc() }),
       fields: [["quote", "Цитата", "loc-area"], ["who", "Автор", "loc"]] },
     links: { name: "Кнопки", hint: "Ссылки на сайт, Behance, видео", blank: items("links", 1), fields: [["items", "Кнопки", "list:links"]] },
-    novel: { name: "Новелла (плеер)", hint: "Играбельная новелла: телефон + экран в JSON", blank: () => ({ ...head("Сыграйте сами", "Play it yourself"),
-      src: "/emotions-club/assets/novels/room_313/novel.json" }),
-      fields: [["src", "Путь к novel.json (репо emotions-club, tools/build_novel.py)", "text"]] },
+    novel: { name: "Новеллы (библиотека)", hint: "Окно PLAY в углу: библиотека новелл, игра поверх страницы", blank: () => ({ ...head("Сыграйте сами", "Play it yourself"),
+      src: "/emotions-club/assets/novels/library.json" }),
+      fields: [["src", "Путь к library.json (репо emotions-club, tools/build_library.py) или к одной novel.json", "text"]] },
     // the Virtual Gifts case (gifts.css; the three "Подарки" blocks are interactive, data from the gift-catalog repo)
     points: { name: "Карточки с крупными номерами", hint: "01 · 02 · 03 градиентом", group: "Как в Virtual Gifts",
       blank: () => ({ ...head("Задача", "The task"), ...items("cards", 3)() }), fields: [["items", "Карточки", "list:cards"]] },
