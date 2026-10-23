@@ -1010,6 +1010,53 @@ function setupToTop() {
   return label;
 }
 
+// covers of a case — the head belt (.cs-cloud without gifts) and the grid (.cs-covers): a click zooms the cover in
+// from its place over the darkened, blurred page (like the gift overlay); the full-size copy from covers/full/ next
+// to it replaces the small one when it loads. A click anywhere or Esc puts it back.
+function setupCoverZoom() {
+  const SEL = ".cs-cloud:not([data-gifts]) img, .cs-covers img";
+  const ease = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1;
+  let lb = null;
+  // where the picture stands open: centred, up to 1024px, inside 90% of the screen
+  const fit = (r) => {
+    const a = r.width / r.height, W = Math.min(1024, innerWidth * 0.9, innerHeight * 0.88 * a), H = W / a;
+    return { W, H, L: (innerWidth - W) / 2, T: (innerHeight - H) / 2 };
+  };
+  const toSource = (r, f) => `translate(${r.left + r.width / 2 - (f.L + f.W / 2)}px, ${r.top + r.height / 2 - (f.T + f.H / 2)}px) scale(${r.width / f.W})`;
+  function open(src) {
+    const r = src.getBoundingClientRect(), f = fit(r);
+    lb = document.createElement("div");
+    lb.className = "lb";
+    lb.innerHTML = `<img alt="${esc(src.alt || "")}" src="${esc(src.currentSrc || src.src)}" style="left:${f.L}px;top:${f.T}px;width:${f.W}px;height:${f.H}px">`;
+    const img = lb.firstElementChild;
+    img.style.transform = toSource(r, f);
+    lb.source = src;
+    lb.fit = f;
+    document.body.append(lb);
+    const big = src.src.replace(/\/covers\/([^/]+)$/, "/covers/full/$1");
+    if (big !== src.src) {
+      const pre = new Image();
+      pre.onload = () => { img.src = big; };
+      pre.src = big;
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => { lb.classList.add("open"); img.style.transform = "none"; }));
+  }
+  function close() {
+    if (!lb) return;
+    const b = lb, r = b.source.getBoundingClientRect();
+    lb = null;
+    b.classList.remove("open");
+    if (r.width) b.firstElementChild.style.transform = toSource(r, b.fit);
+    setTimeout(() => b.remove(), 450 * ease);
+  }
+  document.addEventListener("click", (e) => {
+    if (lb) return close();
+    const img = e.target.closest(SEL);
+    if (img) open(img);
+  });
+  addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+}
+
 if (PAGE) {
   document.documentElement.classList.add("js");
   // a reload starts at the top: no restored scroll, no jump to a #якорь left in the address by a header tab
@@ -1027,6 +1074,7 @@ if (PAGE) {
     bootEditor();
   } else {
     const toTopLabel = setupToTop();
+    setupCoverZoom();
     $("#lang").addEventListener("click", (e) => { // RUS / ENG / AGENT: the clicked one is chosen
       const pick = e.target.closest("[data-l]")?.dataset.l;
       if (!pick || pick === (agent ? "agent" : lang)) return;
