@@ -562,6 +562,7 @@ function render() {
   applyLinks();
   if (PAGE === "home") pickHeroGift();
   $("#lang").dataset.lang = agent ? "agent" : lang; // ring around the active RUS / ENG / AGENT
+  $("#lang").querySelectorAll("[data-l]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.l === $("#lang").dataset.lang));
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
     cvTop.href = PROFILE.cv[lang];
@@ -1022,8 +1023,11 @@ if (PAGE) {
     bootEditor();
   } else {
     const toTopLabel = setupToTop();
-    $("#lang").addEventListener("click", () => { // RUS → ENG → AGENT → RUS
-      if (agent) { agent = false; lang = "ru"; } else if (lang === "ru") lang = "en"; else agent = true;
+    $("#lang").addEventListener("click", (e) => { // RUS / ENG / AGENT: the clicked one is chosen
+      const pick = e.target.closest("[data-l]")?.dataset.l;
+      if (!pick || pick === (agent ? "agent" : lang)) return;
+      agent = pick === "agent";
+      if (!agent) lang = pick;
       store.set("lang", lang);
       store.set("view", agent ? "agent" : "");
       if (!agent && location.hash === "#agent") history.replaceState(null, "", location.pathname + location.search);
