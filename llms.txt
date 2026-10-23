@@ -1,0 +1,60 @@
+# Anton Egorov — AI Creative Technologist
+
+> I turn AI generation into scalable production.
+
+- Portfolio: https://eyeanton.github.io/
+- CV (PDF): https://eyeanton.github.io/assets/cv-en.pdf
+
+## What I do
+
+- **AI generation** — Video, imagery and sound for products — from prompt to finished file. Tools: ComfyUI, Nano Banana, Flux, Midjourney, Recraft, Kling, ElevenLabs, Suno.
+- **Automation** — Pipelines that turn generation into scalable product. Tools: Google Cloud Run, Gemini API, Make, Claude, Cursor, ffmpeg, Python, Node.js.
+- **Motion & 3D** — Modelling, texturing, optimization and animation. Tools: After Effects, Premiere Pro, Blender, Marvelous Designer, Substance Painter.
+- **Design** — Professional using of the basic design tools. Tools: Figma, Photoshop.
+
+Soft skills: Bridging creative & tech, Process audit & automation, Rapid prototyping, AI tool evaluation, Explaining AI to non-tech teams, Cross-functional collaboration.
+
+## My projects
+
+- [Virtual Gifts](https://eyeanton.github.io/project.html?id=virtual-gifts) (2026, Design) — A collection of animated virtual gifts for a dating app: from the idea to a full-screen animation with sound. Tags: AI 3D, Motion, Art direction, VP9 alpha.
+- [Emotions Club](https://eyeanton.github.io/project.html?id=emotions-club) (2025, AI & bots) — Interactive visual novels for two players: an agent writes one JSON per story, one ComfyUI flow makes backgrounds, characters with emotions, covers and video covers in one style. 29 novels. Tags: ComfyUI, AI pipeline, Characters, Art direction.
+- **Sticker generator** (2026, AI & bots) — A Telegram bot that turns photos into stickers and stylised portraits through RunningHub AI pipelines. Tags: Python, aiogram, ComfyUI, Docker.
+- [Stasik](https://eyeanton.github.io/stasik-page/) (2026, Hardware) — Firmware for M5Stack (ESP32): a health counter with screen, buttons and sound, over-the-air updates. Plus an Android app that works as its remote. Tags: C++, PlatformIO, M5Unified, Android.
+
+## Stack & tools
+
+ComfyUI, Flux, Midjourney, Nano Banana, Kling, Recraft, ElevenLabs, Suno, Gemini API, Claude, Cursor, Make, Replicate, Blender, After Effects, Premiere Pro, Marvelous Designer, Substance Painter, Figma, Photoshop, ffmpeg, Python, Node.js, Google Cloud Run.
+
+## Career track
+
+### Senior CG Artist — Social Discovery Group (Jan 2025 — Oct 2026)
+- Automated video-gift pipeline: Kling API + Gemini + ffmpeg, chroma key, webm/hevc export (Node.js)
+- Photo-to-sticker pipeline: Make + Google Cloud Run + Gemini API
+- Visual-novel generation on RunningHub: scripts, characters and illustrations, fully automated
+- 3D motion: gifts, icons, onboarding animations; motion workflow from storyboard to revisions
+
+### 3D Motion Designer — Social Discovery Group (Mar 2024 — Dec 2024)
+- Promo videos for multiple platforms in After Effects
+- 3D animation in Blender, AI-generated imagery and video
+
+### Freelance (Nov 2022 — Mar 2024)
+- 3D and motion design for brands and digital platforms
+- Social media promo content and infographics
+
+### 3D Modeller — Comme Des Creators (May 2020 — Nov 2022)
+- 3D clothing modelling and 3D animation
+- OpenGL-based renders: modelling, texturing, asset integration
+
+## Let's talk
+
+Open to remote work or relocation. Download my CV or reach out wherever is convenient — Telegram is fastest.
+
+- Telegram: [@EyeAnton](https://t.me/EyeAnton)
+- Email: [leritosha@gmail.com](mailto:leritosha@gmail.com)
+- Behance: [EyeAnton](https://www.behance.net/EyeAnton)
+- GitHub: [EyeAnton](https://github.com/EyeAnton)
+
+## Data
+
+- [site.json](https://eyeanton.github.io/site.json): texts and profile (RU/EN)
+- [projects.json](https://eyeanton.github.io/projects.json): all projects with links

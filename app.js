@@ -72,6 +72,10 @@ const EDITOR = (() => {
   try { return window.parent.siteEditor || null; } catch { return null; }
 })();
 
+// AGENT — the third position of the RUS / ENG switch (or a #agent link): the page shows llms.txt instead of the layout
+let agent = !EDITOR && !!PAGE && (location.hash === "#agent" || store.get("view") === "agent");
+if (agent) lang = "en";
+
 function plural(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
   if (m10 === 1 && m100 !== 11) return one;
@@ -557,7 +561,7 @@ function render() {
   document.documentElement.classList.add("i18n-ready");
   applyLinks();
   if (PAGE === "home") pickHeroGift();
-  $("#lang").dataset.lang = lang; // ring around the active RUS / ENG
+  $("#lang").dataset.lang = agent ? "agent" : lang; // ring around the active RUS / ENG / AGENT
   const cvTop = $("#cvTop"); // header "CV ↓": the résumé in the current language
   if (cvTop && PROFILE.cv?.[lang]) {
     cvTop.href = PROFILE.cv[lang];
@@ -574,6 +578,41 @@ function render() {
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
   window.Novel?.mount(document, { lang, editor: !!EDITOR }); // novel players (project.html loads novel.js)
   if (EDITOR) decorateForEditor();
+  renderAgent();
+}
+
+/* ---------------- AGENT: the site as Markdown (llms.txt, written by tools/bake.py) ---------------- */
+
+let agentText = null;
+// the Markdown stays as it is, only the [label](url) labels become links
+const linkMd = (s) => esc(s).replace(/\[([^\]\n]+)\]\(((?:https?:|mailto:)[^)\s]+)\)/g, '[<a href="$2" target="_blank" rel="noopener">$1</a>]($2)');
+function renderAgent() {
+  document.documentElement.classList.toggle("agent", agent);
+  let view = $("#agentView");
+  if (!agent) { if (view) view.hidden = true; return; }
+  if (!view) {
+    view = document.createElement("section");
+    view.id = "agentView";
+    view.className = "agent-view";
+    view.innerHTML = `<div class="agent-bar"><span>llms.txt · the site as Markdown for AI agents</span>
+      <button class="btn ghost small" type="button">Copy Markdown</button>
+      <a class="btn quiet small" href="llms.txt" target="_blank" rel="noopener">Raw ↗</a></div><pre></pre>`;
+    const copy = view.querySelector("button");
+    copy.addEventListener("click", () => navigator.clipboard?.writeText(agentText || "").then(() => {
+      copy.textContent = "Copied ✓";
+      setTimeout(() => { copy.textContent = "Copy Markdown"; }, 1500);
+    }));
+    $(".top").after(view);
+  }
+  view.hidden = false;
+  scrollTo({ top: 0, behavior: "instant" });
+  if (agentText != null) return;
+  const pre = view.querySelector("pre");
+  pre.textContent = "Loading llms.txt…";
+  fetch("llms.txt", { cache: "no-cache" })
+    .then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+    .then((s) => { agentText = s; pre.innerHTML = linkMd(s); })
+    .catch(() => { pre.textContent = "llms.txt is not available right now."; });
 }
 
 function setProjects(data) {
@@ -983,9 +1022,11 @@ if (PAGE) {
     bootEditor();
   } else {
     const toTopLabel = setupToTop();
-    $("#lang").addEventListener("click", () => {
-      lang = lang === "ru" ? "en" : "ru";
+    $("#lang").addEventListener("click", () => { // RUS → ENG → AGENT → RUS
+      if (agent) { agent = false; lang = "ru"; } else if (lang === "ru") lang = "en"; else agent = true;
       store.set("lang", lang);
+      store.set("view", agent ? "agent" : "");
+      if (!agent && location.hash === "#agent") history.replaceState(null, "", location.pathname + location.search);
       render();
       toTopLabel();
     });
