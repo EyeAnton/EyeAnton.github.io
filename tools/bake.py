@@ -3,9 +3,10 @@
 The site renders every [data-i18n] element from site.json (app.js), so the text inside the HTML is only
 a fallback — but it is what GitHub, search engines and link previews see. This keeps it equal to the
 Russian texts in site.json. Elements with markup inside are left as they are.
-It also writes llms.txt — the site as Markdown for AI agents (English); the AGENT switch in the header shows that file.
-Run by .github/workflows/bake.yml after every change of site.json / projects.json;
-by hand: python3 tools/bake.py (stdlib only).
+It also writes llms.txt — the site as Markdown for AI agents (English); the AGENT switch in the header shows that file,
+and stamps the local scripts and styles of every page with the hash of their content (app.js?v=1a2b3c4d): GitHub Pages
+lets browsers keep files for 10 minutes, a new ?v= makes them take the fresh file at once (an unchanged one stays cached).
+Run by hand after changing texts, js or css: python3 tools/bake.py (stdlib only).
 """
 import html
 import json
@@ -15,6 +16,9 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PAGES = ["index.html", "projects.html", "contact.html", "project.html", "design-system.html"]
+STAMPED = PAGES + ["admin.html"]
+# src="app.js" / href="style.css" (with or without an old ?v=) — local files only
+ASSET = re.compile(r'\b(src|href)="([\w.-]+\.(?:js|css))(?:\?v=[0-9a-f]*)?"')
 # <tag ... data-i18n="key" ...>plain text</tag>
 EL = re.compile(r'(<(?P<tag>[a-z][a-z0-9]*)\b[^>]*\bdata-i18n="(?P<key>[^"]+)"[^>]*>)(?P<text>[^<]*)(</(?P=tag)>)')
 
@@ -134,6 +138,18 @@ def llms(site, data):
     return "\n".join(out)
 
 
+def stamp(text):
+    """app.js → app.js?v=<the first 8 hex of the sha1 of its content>."""
+    import hashlib
+
+    def put(m):
+        f = ROOT / m[2]
+        if not f.exists():
+            return m[0]
+        return f'{m[1]}="{m[2]}?v={hashlib.sha1(f.read_bytes()).hexdigest()[:8]}"'
+    return ASSET.sub(put, text)
+
+
 def main():
     site = json.loads((ROOT / "site.json").read_text(encoding="utf-8"))
     changed = []
@@ -143,13 +159,13 @@ def main():
         with open(txt, "w", encoding="utf-8", newline="\n") as f:
             f.write(new)
         changed.append("llms.txt")
-    for name in PAGES:
+    for name in STAMPED:
         p = ROOT / name
         if not p.exists():
             continue
         with open(p, encoding="utf-8", newline="") as f:  # newline="": line endings stay as they are
             old = f.read()
-        new = bake(old, site)
+        new = stamp(bake(old, site) if name in PAGES else old)
         if new != old:
             with open(p, "w", encoding="utf-8", newline="") as f:
                 f.write(new)
