@@ -233,7 +233,9 @@ const loopHTML = (it) => it.src
 // code panels: plain text; <k>key</k>, <s>string</s>, <i>comment</i> are kept as highlighting
 const codeHTML = (s) => esc(s).replace(/&lt;(\/?)([ksi])&gt;/g, "<$1$2>");
 const ext = (href) => (/^https?:/.test(href) ? ' target="_blank" rel="noopener"' : "");
-const each = (b, f) => (b.items || []).map((it, i) => f(it, i, `items.${i}`)).join("") || empty("Добавьте пункты");
+// a block with its own head stands fine with no items: the placeholder is only for a block that is still empty
+const hasHead = (b) => ["eyebrow", "title", "text"].some((k) => b[k]?.ru || b[k]?.en);
+const each = (b, f) => (b.items || []).map((it, i) => f(it, i, `items.${i}`)).join("") || (hasHead(b) ? "" : empty("Добавьте пункты"));
 const btns = (b, path = "items") => (getIn(b, path) || []).filter((it) => EDITOR || it.href).map((it, i) =>
   `<a class="btn${i ? " ghost" : ""}" href="${esc(it.href || "#")}"${ext(it.href || "")}>${fld(b, `${path}.${i}.label`, "span", "Кнопка") || esc(it.href)}</a>`).join("");
 
