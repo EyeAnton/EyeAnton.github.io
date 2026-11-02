@@ -168,25 +168,25 @@
           "items": [
             {
               "t": {
-                "ru": "Мягкий объёмный 3D и тёплый свет — подарок хочется «взять в руки»",
+                "ru": "Мягкий объёмный 3D и тёплый свет - \nподарок хочется «взять в руки»",
                 "en": "Soft volumetric 3D and warm light — a gift you want to hold"
               }
             },
             {
               "t": {
-                "ru": "Чистый силуэт без фона: объект обрезан по контуру и центрирован",
+                "ru": "Чистый силуэт без фона: \nобъект обрезан по контуру и центрирован",
                 "en": "A clean silhouette with no background: trimmed to the outline and centred"
               }
             },
             {
               "t": {
-                "ru": "Короткая анимация с началом и концом — подарок «приходит» и сам исчезает",
+                "ru": "Короткая анимация с началом и концом -\nподарок «раскрывается» ",
                 "en": "A short animation with a start and an end — the gift arrives and leaves on its own"
               }
             },
             {
               "t": {
-                "ru": "Свой звук у каждого анимированного подарка",
+                "ru": "Особое внимание саунд-дизайну",
                 "en": "Every animated gift has its own sound"
               }
             }
@@ -210,7 +210,7 @@
             "en": "One gift, five steps"
           },
           "text": {
-            "ru": "Каждая анимация - результат ручного отбора, \nа не просто генеративный шум.",
+            "ru": "Каждая анимация - результат ручного отбора, \nа не просто генеративный шум.\nАвтоматизировали то, что не нуждается в человеческой оценке.",
             "en": "Every animation is the result of hand selection,\nnot just generative noise."
           },
           "keys": [
@@ -291,11 +291,11 @@
           "visible": true,
           "anchor": "pipeline",
           "title": {
-            "ru": "От сториборда до файла в приложении",
+            "ru": "Ручной отбор + \nавтоматика рутины",
             "en": "From storyboard to a file in the app"
           },
           "text": {
-            "ru": "Генерацию, хромакей и экспорт связывает скрипт на Node.js, поэтому новый подарок проходит путь целиком, а ручная работа остаётся там, где она нужна: в стиле и анимации.",
+            "ru": "Ручная работа осталась там, где она нужна: в стиле и анимации.\nРутинные процессы - передал автоматике через Node.js",
             "en": "A Node.js script ties generation, chroma key and export together, so a new gift goes all the way through, and hands-on work stays where it matters: style and animation."
           },
           "items": [
@@ -305,7 +305,7 @@
                 "en": "Idea & storyboard"
               },
               "d": {
-                "ru": "Повод, образ, ключевые кадры",
+                "ru": "Сбор референсов,\nподбор ",
                 "en": "Occasion, look, key frames"
               }
             },
