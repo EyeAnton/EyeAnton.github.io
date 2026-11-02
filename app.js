@@ -299,8 +299,19 @@ const BLOCK_HTML = {
       ${fld(b, "eyebrow", "p", "Надзаголовок", false, "eyebrow")}${fld(b, "title", "h2", "Заголовок", false, "t-h2")}${fld(b, "text", "p", "Текст")}
       <ul class="gc-rules">${each(b, (it, i, p) => fld(b, `${p}.t`, "li", "Правило"))}</ul></div>
     <div class="gc-board surface-glow reveal" style="--d:120ms">${(b.images || []).map((s) => imgHTML(s)).join("") || empty("Добавьте картинки")}</div></div>`,
-  rail: (b) => `<ol class="gc-pipe">${each(b, (it, i, p) => `<li class="reveal" style="--d:${i * 60}ms">
+  rail: (b) => `<ol class="gc-pipe" style="--n:${(b.items || []).length || 1}"${b.stop ? ` data-stop="${esc(b.stop.replace(/^#/, ""))}"` : ""}>${each(b, (it, i, p) => `<li class="reveal" style="--d:${i * 60}ms"${it.anchor ? ` data-anchor="${esc(it.anchor.replace(/^#/, ""))}"` : ""}>
     <span class="gc-step">${num(i)}</span>${fld(b, `${p}.t`, "b", "Шаг")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ol>`,
+  // a story told as an equation: source → idea → frames, frame + prompt = video. What an item is follows from what it
+  // holds (files, text, srcs, src); an item with nothing to show is a frame in the editor, on the site it drops out with its sign
+  chain: (b) => {
+    const out = [];
+    (b.items || []).forEach((it, i) => {
+      const body = chainBody(b, it, `items.${i}`);
+      if (!body) return;
+      out.push(`${out.length && it.op ? `<span class="gc-op">${esc(it.op)}</span>` : ""}<figure class="gc-link reveal" style="--d:${i * 60}ms">${body}${fld(b, `items.${i}.label`, "figcaption", "Подпись")}</figure>`);
+    });
+    return `<div class="gc-chain">${out.join("") || empty("Добавьте звенья")}</div>${(b.items || []).some((it) => it.files) ? PLATFORM_ICONS : ""}`;
+  },
   list2: (b) => `<ul class="gc-results">${each(b, (it, i, p) =>
     `<li class="reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
   lanes: (b) => `<div class="gc-alpha surface reveal"><div class="gc-alpha-head">
@@ -372,6 +383,21 @@ function statNum(b, path) {
   return m ? `<b>${esc(m[1])}&nbsp;<small>${esc(m[2])}</small></b>` : fld(b, path, "b", "42", true);
 }
 // blocks that lay out their own heading (not the centred section head)
+const SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent); // the only one that needs HEVC for alpha
+function chainBody(b, it, p) {
+  if (it.files) {
+    const rows = it.files.split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((r) => r.join(""));
+    return `<ul class="gc-files">${rows.map(([icons, name]) => `<li><code>${esc(name ?? icons)}</code><span class="gc-icons">${name === undefined ? "" : icons.split(",").map((x) => x.trim()).filter(Boolean)
+      .map((x) => `<svg><use href="#i-${esc(x)}"/></svg>`).join("")}</span></li>`).join("")}</ul>`;
+  }
+  if (it.text) return fld(b, `${p}.text`, "p", "Текст", false, "gc-link-text");
+  if (it.srcs?.length) return `<div class="gc-link-frames">${it.srcs.map((s) => imgHTML(s)).join("")}</div>`;
+  if (it.src && /\.(webm|mp4|mov)$/i.test(it.src)) {
+    return `<div class="gc-link-media${it.mov ? " alpha" : ""}"><video muted loop playsinline preload="none" data-play src="${esc(imgSrc(SAFARI && it.mov ? it.mov : it.src))}"></video></div>`;
+  }
+  if (it.src) return `<div class="gc-link-media">${imgHTML(it.src)}</div>`;
+  return EDITOR ? `<div class="gc-link-media">${empty("Укажите файл")}</div>` : "";
+}
 const OWN_HEAD = new Set(["split", "lanes"]);
 
 const headHTML = (b) => {
@@ -639,9 +665,64 @@ function render() {
   watchVideos();
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
   window.Novel?.mount(document, { lang, editor: !!EDITOR }); // novel players (project.html loads novel.js)
+  if (!EDITOR) setupRail();
   if (EDITOR) decorateForEditor();
   renderAgent();
 }
+
+/* ---------------- step rail that follows the scroll (block rail with «stop») ---------------- */
+// Once the rail has scrolled away, a compact copy (.gc-dock) stays under the header until the block with the «stop» anchor.
+// The step whose block has been reached is lit; a click scrolls to it.
+let rail = null;
+function setupRail() {
+  rail?.dock.remove();
+  rail = null;
+  const pipe = document.querySelector(".gc-pipe[data-stop]");
+  if (!pipe) return;
+  const lis = [...pipe.querySelectorAll("li[data-anchor]")];
+  if (!lis.length) return;
+  const dock = document.createElement("nav");
+  dock.className = "gc-dock";
+  dock.setAttribute("aria-label", lang === "ru" ? "Шаги" : "Steps");
+  dock.innerHTML = lis.map((li) => `<button type="button"><span>${esc(li.querySelector(".gc-step").textContent)}</span>${esc(li.querySelector("b")?.textContent || "")}</button>`).join("");
+  document.body.append(dock);
+  const btns = [...dock.children];
+  const offset = () => ($(".top")?.offsetHeight || 0) + dock.offsetHeight + 12;
+  const go = (li) => {
+    const el = document.getElementById(li.dataset.anchor);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).paddingTop) + scrollY - offset();
+    scrollTo({ top, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+  lis.forEach((li, i) => {
+    li.addEventListener("click", () => go(li));
+    btns[i].addEventListener("click", () => go(li));
+  });
+  rail = { dock, pipe, lis, btns, offset, stop: pipe.dataset.stop, on: -2 };
+  railScroll();
+}
+function railScroll() {
+  if (!rail) return;
+  const { dock, pipe, lis, btns, offset, stop } = rail;
+  const head = $(".top")?.offsetHeight || 0, off = offset();
+  dock.style.top = `${head}px`;
+  const end = document.getElementById(stop);
+  dock.classList.toggle("on", pipe.getBoundingClientRect().bottom < head && (!end || end.getBoundingClientRect().top > off));
+  let on = -1;
+  lis.forEach((li, i) => {
+    const el = document.getElementById(li.dataset.anchor);
+    if (el && el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).paddingTop) <= off + 40) on = i;
+  });
+  if (on === rail.on) return;
+  rail.on = on;
+  lis.forEach((li, i) => li.classList.toggle("on", i === on));
+  btns.forEach((b, i) => {
+    b.classList.toggle("on", i === on);
+    if (i === on) dock.scrollTo({ left: b.offsetLeft - (dock.clientWidth - b.offsetWidth) / 2, behavior: "smooth" });
+  });
+}
+addEventListener("scroll", () => requestAnimationFrame(railScroll), { passive: true });
+addEventListener("resize", () => requestAnimationFrame(railScroll));
 
 /* ---------------- AGENT: the site as Markdown (llms.txt, written by tools/bake.py) ---------------- */
 
