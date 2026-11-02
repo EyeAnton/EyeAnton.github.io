@@ -240,6 +240,7 @@ main { overflow-x: clip; } /* 100vw of the full-bleed strip includes the scrollb
   max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter);
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(16px, 3vw, 32px);
 }
+.pb > .sec-head:has(+ :empty) { margin-bottom: 0; } /* no items under the head: no gap left for them */
 .cs-blocks > .pb { grid-column: 1 / -1; min-width: 0; padding-top: clamp(64px, 9vw, 120px); }
 .cs-blocks > .pb.half { grid-column: span 1; }
 .cs-blocks > .pb.tight { padding-top: clamp(16px, 3vw, 40px); } /* no heading: continues the section above */
