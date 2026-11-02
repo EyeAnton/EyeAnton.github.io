@@ -82,7 +82,6 @@ function plural(n, one, few, many) {
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
 }
-const catName = (id) => (CATEGORIES.find((c) => c.id === id) || { [lang]: id })[lang];
 const num = (i) => String(i + 1).padStart(2, "0");
 
 // picture cover settings from the admin (cover.fit / pos / zoom / bg / pad) → CSS variables on .cover;
@@ -152,8 +151,8 @@ function cardHTML(p, i) {
   return `<article class="card${p.featured ? " featured" : ""}"${hrefAttr(p)} style="animation-delay:${i * 40}ms">
     ${coverHTML(p)}
     <div class="body">
-      <div class="meta"><span>${catName(p.cat)} · ${p.year}</span>${badgeHTML(p)}</div>
       <h3>${esc(p.title[lang])}</h3>
+      <div class="meta"><span>${p.year}</span>${badgeHTML(p)}</div>
       <p>${esc(p.desc[lang])}</p>
       ${tagsHTML(p.tags)}
       ${links ? `<div class="links">${links}</div>` : ""}
@@ -420,15 +419,14 @@ function renderHome() {
 
   let picks = PROJECTS.filter((p) => p.home);
   if (!picks.length) picks = PROJECTS.slice(0, 4);
-  $("#showcase").innerHTML = picks.map((p, i) => {
+  $("#showcase").innerHTML = picks.map((p) => {
     const links = linksHTML(p);
     return `<article class="show reveal"${hrefAttr(p)}>
       <div class="show-media">${coverHTML(p)}</div>
       <div class="show-body">
-        <span class="show-num">${num(i)}</span>
-        <div class="meta"><span>${catName(p.cat)} · ${p.year}</span>${badgeHTML(p)}</div>
-        <h3>${esc(p.title[lang])}</h3>
-        <p>${esc(p.desc[lang])}</p>
+        <h3 data-gap="card.title">${esc(p.title[lang])}</h3>
+        <div class="meta" data-gap="card.year"><span>${p.year}</span>${badgeHTML(p)}</div>
+        <p data-gap="card.desc">${esc(p.desc[lang])}</p>
         ${tagsHTML(p.tags)}
         ${links ? `<div class="links">${links}</div>` : ""}
       </div>
@@ -519,12 +517,52 @@ function renderContact() {
 }
 
 /* ---------------- block style (site.json / project.page → block.style) ---------------- */
-// { bg: card|band|glow|accent, space: 0|s|l, align: left|center, w: narrow|wide, h: s|l, accent: blue|teal|white, anim: false }
+// { bg: card|band|glow|accent, space: 0|s|l, pt, pb (px, instead of space), align: left|center, w: narrow|wide, h: s|l,
+//   accent: blue|teal|white, anim: false, gaps: { "<text key>": px added to the distance below that text } }
 // set as data-s-* attributes on the [data-block] element (rules: end of style.css); built-in home sections stay
 // in the DOM between renders, so every pass clears what the previous one set
-const STYLE_KEYS = ["bg", "space", "align", "w", "h", "accent", "anim"];
+const STYLE_KEYS = ["bg", "space", "pt", "pb", "align", "w", "h", "accent", "anim"];
+
+// Distance below a text (style.gaps). The key is the same for every copy of a text in a block: list items share one
+// (items.2.t → items.*.t), so all the cards of a block stay alike. Above 600px the value is exact, narrower it shrinks
+// down to 60% — the same rule as pt/pb in style.css.
+const gapKey = (el) => el.dataset.gap || el.dataset.f?.replace(/\.\d+\./g, ".*.") || el.dataset.i18n;
+const gapScale = () => Math.min(1, Math.max(.6, innerWidth / 600));
+const nextShown = (el) => {
+  let n = el.nextElementSibling;
+  while (n && (n.matches(".edit-bar, .edit-add") || getComputedStyle(n).display === "none")) n = n.nextElementSibling;
+  return n;
+};
+function setGap(el, delta) {
+  el.style.marginBottom = el.style.display = "";
+  el.toggleAttribute("data-gapped", !!delta);
+  if (!delta) return;
+  const cs = getComputedStyle(el);
+  if (cs.display === "none") return;
+  if (cs.display === "inline") el.style.display = "inline-block"; // margins don't move inline text
+  const mb = parseFloat(cs.marginBottom) || 0, d = delta * gapScale(), next = nextShown(el);
+  if (/flex|grid/.test(getComputedStyle(el.parentElement).display)) { el.style.marginBottom = `${mb + d}px`; return; }
+  // plain flow: the margin collapses with the next element's top margin, so aim at the distance itself
+  const mt = next ? parseFloat(getComputedStyle(next).marginTop) || 0 : 0, want = Math.max(mb, mt) + d;
+  el.style.marginBottom = `${want >= mt ? want : want - mt}px`;
+}
+let gapStyles = new Map();
+function applyGaps() {
+  document.querySelectorAll("[data-gapped]").forEach((el) => setGap(el, 0));
+  document.querySelectorAll("main [data-block]").forEach((blk) => {
+    const gaps = gapStyles.get(blk.dataset.block)?.gaps;
+    if (!gaps) return;
+    blk.querySelectorAll("[data-gap], [data-f], [data-i18n]").forEach((el) => {
+      if (gaps[gapKey(el)] && el.closest("[data-block]") === blk) setGap(el, gaps[gapKey(el)]);
+    });
+  });
+}
+let gapResize = 0;
+addEventListener("resize", () => { clearTimeout(gapResize); gapResize = setTimeout(applyGaps, 150); });
+
 function styleBlocks(list) {
   const by = new Map((list || []).map((b) => [b.id, b.style]));
+  gapStyles = by;
   document.querySelectorAll("main [data-block]").forEach((el) => {
     const st = by.get(el.dataset.block) || {};
     for (const k of STYLE_KEYS) {
@@ -532,8 +570,13 @@ function styleBlocks(list) {
       if (v === undefined || v === "") el.removeAttribute(`data-s-${k}`);
       else el.setAttribute(`data-s-${k}`, String(v));
     }
+    for (const k of ["pt", "pb"]) {
+      if (st[k] === undefined) el.style.removeProperty(`--s-${k}`);
+      else el.style.setProperty(`--s-${k}`, st[k]);
+    }
     if (st.anim === false) el.querySelectorAll(".reveal").forEach((r) => r.classList.add("in"));
   });
+  applyGaps();
 }
 
 /* ---------------- reveal on scroll ---------------- */
@@ -577,7 +620,10 @@ function render() {
   if (PAGE === "project") renderProject();
   if (PAGE === "contact") renderContact();
   if (PAGE === "home") styleBlocks(SITE.blocks);
-  if (PAGE === "project") styleBlocks((EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === new URLSearchParams(location.search).get("id")))?.page);
+  if (PAGE === "project") {
+    const pr = EDITOR ? EDITOR.project() : PROJECTS.find((x) => x.id === new URLSearchParams(location.search).get("id"));
+    styleBlocks([...(pr?.page || []), { id: "_head", style: pr?.style }]); // _head: the project head has only gaps
+  }
   watchReveal();
   watchVideos();
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
@@ -665,13 +711,75 @@ function bootEditor() {
   document.body.appendChild(del);
   let delFor = null, delTimer = 0;
   const hideDel = () => { del.classList.remove("on"); delFor = null; };
+
+  // Strip under a hovered text: drag it to change the distance to what follows, double click — back to as designed
+  const gapBar = document.createElement("div");
+  gapBar.className = "edit-gap";
+  gapBar.contentEditable = "false";
+  gapBar.title = "Тянуть — изменить отступ до следующего элемента, двойной клик — как было";
+  gapBar.innerHTML = "<span></span>";
+  document.body.appendChild(gapBar);
+  let gapFor = null, gapDrag = null;
+  const hideGap = () => { gapBar.classList.remove("on"); gapFor = null; };
+  const gapOf = (el) => ({ id: el.closest("[data-block]").dataset.block, key: gapKey(el) });
+  const gapBetween = (el) => { const n = nextShown(el); return n ? n.getBoundingClientRect().top - el.getBoundingClientRect().bottom : null; };
+  const placeGap = () => {
+    const r = gapFor.getBoundingClientRect(), { id, key } = gapOf(gapFor), real = gapBetween(gapFor);
+    const d = gapDrag ? gapDrag.delta : EDITOR.getGap(id, key);
+    gapBar.style.left = `${r.left + scrollX}px`;
+    gapBar.style.top = `${r.bottom + scrollY}px`;
+    gapBar.style.width = `${r.width}px`;
+    gapBar.firstChild.textContent = real != null ? `↕ ${Math.round(real)} px` : `↕ ${d > 0 ? "+" : ""}${Math.round(d)} px`;
+    gapBar.classList.toggle("set", !!d);
+  };
+  const gapApply = (el, delta) => {
+    const blk = el.closest("[data-block]"), key = gapKey(el);
+    blk.querySelectorAll("[data-gap], [data-f], [data-i18n]").forEach((o) => {
+      if (gapKey(o) === key && o.closest("[data-block]") === blk) setGap(o, delta);
+    });
+  };
+  gapBar.addEventListener("pointerdown", (e) => {
+    if (!gapFor) return;
+    e.preventDefault();
+    gapBar.setPointerCapture(e.pointerId);
+    const { id, key } = gapOf(gapFor), delta = EDITOR.getGap(id, key), real = gapBetween(gapFor);
+    gapDrag = { y: e.clientY, from: delta, delta, id, key, min: real != null ? delta - real / gapScale() : -Infinity };
+    gapBar.classList.add("drag");
+    hideDel();
+  });
+  gapBar.addEventListener("pointermove", (e) => {
+    if (!gapDrag) return;
+    gapDrag.delta = Math.round(Math.max(gapDrag.min, gapDrag.from + (e.clientY - gapDrag.y) / gapScale()));
+    gapApply(gapFor, gapDrag.delta);
+    placeGap();
+  });
+  const gapEnd = () => {
+    if (!gapDrag) return;
+    const { id, key, delta, from } = gapDrag;
+    gapDrag = null;
+    gapBar.classList.remove("drag");
+    if (delta !== from) EDITOR.setGap(id, key, delta);
+    if (gapFor) placeGap();
+  };
+  gapBar.addEventListener("pointerup", gapEnd);
+  gapBar.addEventListener("pointercancel", gapEnd);
+  gapBar.addEventListener("dblclick", () => {
+    if (!gapFor) return;
+    const { id, key } = gapOf(gapFor);
+    EDITOR.setGap(id, key, 0);
+    gapApply(gapFor, 0);
+    placeGap();
+  });
+
   document.addEventListener("mouseover", (e) => {
     clearTimeout(delTimer);
-    if (e.target.closest(".edit-del")) return;
+    if (gapDrag || e.target.closest(".edit-del, .edit-gap")) return;
+    const gapEl = e.target.closest(".top nav") ? null : e.target.closest("[data-block] [data-gap], [data-block] [data-f], [data-block] [data-i18n]");
+    if (gapEl && gapEl !== gapFor) { gapFor = gapEl; placeGap(); gapBar.classList.add("on"); }
     const tab = e.target.closest(".top nav a[data-i18n]"); // header tab: taken off the header (site.navHidden)
     const el = tab || e.target.closest("[data-block] [data-f], [data-block] [data-i18n]");
     const ok = el && (tab || (el.dataset.f ? EDITOR.blockInfo(el.closest("[data-block]").dataset.block).removable : PAGE === "home"));
-    if (!ok) { delTimer = setTimeout(hideDel, 300); return; }
+    if (!ok) { delTimer = setTimeout(() => { hideDel(); if (!gapEl) hideGap(); }, 300); return; }
     if (el === delFor) return;
     delFor = el;
     del.innerHTML = tab ? `<button type="button" data-del="tab" title="Убрать вкладку из шапки (вернуть — «Общие настройки»)">✕ вкладка</button>`
@@ -686,6 +794,7 @@ function bootEditor() {
 
   const sync = () => {
     hideDel();
+    hideGap();
     lang = EDITOR.lang;
     applySite(EDITOR.draft);
     setProjects(EDITOR.projects());
