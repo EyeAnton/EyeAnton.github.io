@@ -308,9 +308,25 @@ const BLOCK_HTML = {
     (b.items || []).forEach((it, i) => {
       const body = chainBody(b, it, `items.${i}`);
       if (!body) return;
-      out.push(`${out.length && it.op ? `<span class="gc-op">${esc(it.op)}</span>` : ""}<figure class="gc-link reveal" style="--d:${i * 60}ms">${body}${fld(b, `items.${i}.label`, "figcaption", "Подпись")}</figure>`);
+      const fly = it.icon && it.thumb ? `<img class="gc-link-fly" src="${esc(imgSrc(it.thumb))}" alt="">` : "";
+      out.push(`${out.length && it.op ? `<span class="gc-op">${esc(it.op)}${fly}</span>` : ""}<figure class="gc-link reveal" style="--d:${i * 60}ms">${body}${fld(b, `items.${i}.label`, "figcaption", "Подпись")}</figure>`);
     });
     return `<div class="gc-chain">${out.join("") || empty("Добавьте звенья")}</div>${(b.items || []).some((it) => it.files) ? PLATFORM_ICONS : ""}`;
+  },
+  export: (b) => {
+    let tile = -1;
+    const files = (b.items || []).filter((it) => it.fmt);
+    const row = (t, path, attrs, cls = "") => `<div class="gc-x-row${cls}"${attrs}>${fld(b, path, "b", "Шаг")}<div class="gc-x-bar"><i></i></div></div>`;
+    return `<div class="gc-x">
+      <div class="gc-x-src">
+        <div class="gc-x-preview">${b.src ? `<video muted loop playsinline preload="auto" src="${esc(imgSrc(SAFARI && b.mov ? b.mov : b.src))}"></video>` : empty("Укажите видео")}</div>
+        <div class="gc-x-mov"><span class="gc-file"><em>${esc(b.source || "MOV")}</em></span></div>
+      </div>
+      <div class="gc-x-script" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 8 4 4-4 4M12 17h6"/></svg></div>
+      <div class="gc-x-bars">${(b.items || []).map((it, i) => row(it.t, `items.${i}.t`, it.fmt ? ` data-tile="${++tile}"` : "")).join("")}${row(b.pack, "pack", "", " last")}</div>
+      <div class="gc-x-out"><code class="gc-x-folder">${esc(b.folder || "")}</code>${files.map((it) => `<div class="gc-x-tile"><span class="gc-file"><em>${esc(it.fmt)}</em></span><code>${esc(it.name || "")}</code></div>`).join("")}</div>
+      <button class="gc-x-again" type="button" aria-label="${lang === "ru" ? "Запустить ещё раз" : "Run again"}" title="${lang === "ru" ? "Запустить ещё раз" : "Run again"}">↻</button>
+    </div>`;
   },
   list2: (b) => `<ul class="gc-results">${each(b, (it, i, p) =>
     `<li class="reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
@@ -385,12 +401,14 @@ function statNum(b, path) {
 // blocks that lay out their own heading (not the centred section head)
 const SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent); // the only one that needs HEVC for alpha
 function chainBody(b, it, p) {
+  if (it.icon === "ae") return `<div class="gc-link-media gc-link-ae"><b aria-hidden="true">Ae</b></div>`;
   if (it.files) {
     const rows = it.files.split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((r) => r.join(""));
     return `<ul class="gc-files">${rows.map(([icons, name]) => `<li><code>${esc(name ?? icons)}</code><span class="gc-icons">${name === undefined ? "" : icons.split(",").map((x) => x.trim()).filter(Boolean)
       .map((x) => `<svg><use href="#i-${esc(x)}"/></svg>`).join("")}</span></li>`).join("")}</ul>`;
   }
   if (it.text) return fld(b, `${p}.text`, "p", "Текст", false, "gc-link-text");
+  if (it.src && it.green) return `<div class="gc-link-media green"><video muted loop playsinline preload="none" data-play${it.to ? ` data-from="${esc(it.from || 0)}" data-to="${esc(it.to)}"` : ""} src="${esc(imgSrc(SAFARI && it.mov ? it.mov : it.src))}"></video></div>`;
   if (it.srcs?.length) return `<div class="gc-link-frames">${it.srcs.map((s) => imgHTML(s)).join("")}</div>`;
   if (it.src && /\.(webm|mp4|mov)$/i.test(it.src)) {
     return `<div class="gc-link-media${it.mov ? " alpha" : ""}"><video muted loop playsinline preload="none" data-play src="${esc(imgSrc(SAFARI && it.mov ? it.mov : it.src))}"></video></div>`;
@@ -666,27 +684,31 @@ function render() {
   window.Gifts?.mount(document, { lang, editor: !!EDITOR }); // gift widgets (project.html loads gifts.js)
   window.Novel?.mount(document, { lang, editor: !!EDITOR }); // novel players (project.html loads novel.js)
   if (!EDITOR) setupRail();
+  setupExports();
   if (EDITOR) decorateForEditor();
   renderAgent();
 }
 
 /* ---------------- step rail that follows the scroll (block rail with «stop») ---------------- */
-// Once the rail has scrolled away, a compact copy (.gc-dock) stays under the header until the block with the «stop» anchor.
-// The step whose block has been reached is lit; a click scrolls to it.
+// When the rail reaches the header, the same rail (circles, lines, titles; no descriptions) stays under the header until
+// the block with the «stop» anchor. The step whose block has been reached lights up; a click scrolls to it.
 let rail = null;
 function setupRail() {
   rail?.dock.remove();
   rail = null;
-  const pipe = document.querySelector(".gc-pipe[data-stop]");
-  if (!pipe) return;
-  const lis = [...pipe.querySelectorAll("li[data-anchor]")];
-  if (!lis.length) return;
+  const pipe = document.querySelector("main .gc-pipe[data-stop]");
+  if (!pipe || !pipe.querySelector("li[data-anchor]")) return;
   const dock = document.createElement("nav");
   dock.className = "gc-dock";
   dock.setAttribute("aria-label", lang === "ru" ? "Шаги" : "Steps");
-  dock.innerHTML = lis.map((li) => `<button type="button"><span>${esc(li.querySelector(".gc-step").textContent)}</span>${esc(li.querySelector("b")?.textContent || "")}</button>`).join("");
+  const copy = pipe.cloneNode(true);
+  copy.querySelectorAll("li").forEach((li) => {
+    li.classList.add("in");
+    li.querySelectorAll("span:not(.gc-step)").forEach((x) => x.remove());
+  });
+  dock.append(copy);
   document.body.append(dock);
-  const btns = [...dock.children];
+  const lis = [...pipe.querySelectorAll("li[data-anchor]")], twins = [...copy.querySelectorAll("li[data-anchor]")];
   const offset = () => ($(".top")?.offsetHeight || 0) + dock.offsetHeight + 12;
   const go = (li) => {
     const el = document.getElementById(li.dataset.anchor);
@@ -694,20 +716,20 @@ function setupRail() {
     const top = el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).paddingTop) + scrollY - offset();
     scrollTo({ top, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
-  lis.forEach((li, i) => {
-    li.addEventListener("click", () => go(li));
-    btns[i].addEventListener("click", () => go(li));
-  });
-  rail = { dock, pipe, lis, btns, offset, stop: pipe.dataset.stop, on: -2 };
+  [...lis, ...twins].forEach((li) => li.addEventListener("click", () => go(li)));
+  rail = { dock, copy, pipe, lis, twins, offset, stop: pipe.dataset.stop, on: -2 };
   railScroll();
 }
 function railScroll() {
   if (!rail) return;
-  const { dock, pipe, lis, btns, offset, stop } = rail;
-  const head = $(".top")?.offsetHeight || 0, off = offset();
+  const { dock, copy, pipe, lis, twins, offset, stop } = rail;
+  const head = $(".top")?.offsetHeight || 0, off = offset(), r = pipe.getBoundingClientRect();
   dock.style.top = `${head}px`;
+  copy.style.width = `${r.width}px`;
   const end = document.getElementById(stop);
-  dock.classList.toggle("on", pipe.getBoundingClientRect().bottom < head && (!end || end.getBoundingClientRect().top > off));
+  // wide: the rail takes over right where it is; narrow: the page shows a vertical list, it comes after the list
+  const passed = matchMedia("(max-width: 960px)").matches ? r.bottom < head : r.top <= head + 8;
+  dock.classList.toggle("on", passed && (!end || end.getBoundingClientRect().top > off));
   let on = -1;
   lis.forEach((li, i) => {
     const el = document.getElementById(li.dataset.anchor);
@@ -715,14 +737,76 @@ function railScroll() {
   });
   if (on === rail.on) return;
   rail.on = on;
-  lis.forEach((li, i) => li.classList.toggle("on", i === on));
-  btns.forEach((b, i) => {
-    b.classList.toggle("on", i === on);
-    if (i === on) dock.scrollTo({ left: b.offsetLeft - (dock.clientWidth - b.offsetWidth) / 2, behavior: "smooth" });
-  });
+  [lis, twins].forEach((list) => list.forEach((li, i) => li.classList.toggle("on", i === on)));
 }
 addEventListener("scroll", () => requestAnimationFrame(railScroll), { passive: true });
 addEventListener("resize", () => requestAnimationFrame(railScroll));
+
+// a chain video can show a piece of the file: data-from, data-to in seconds, looped
+document.addEventListener("timeupdate", (e) => {
+  const v = e.target;
+  if (!v.dataset?.to) return;
+  const from = +v.dataset.from || 0;
+  if (v.currentTime < from - .1 || v.currentTime >= +v.dataset.to) v.currentTime = from;
+}, true);
+
+/* ---------------- export animation (block export) ---------------- */
+// Preview → shrinks into a file → the file goes into the script → bars one by one, files appear → the last bar packs and names them.
+// Stays on the final picture; «↻» runs it again. In the editor and with reduced motion: the final picture right away.
+const xWait = (ms) => new Promise((r) => setTimeout(r, ms));
+async function runExport(x) {
+  const run = (x._run = (x._run || 0) + 1), live = () => x._run === run;
+  const rows = [...x.querySelectorAll(".gc-x-row")], tiles = [...x.querySelectorAll(".gc-x-tile")], video = x.querySelector("video");
+  const mov = x.querySelector(".gc-x-mov"), script = x.querySelector(".gc-x-script");
+  x.classList.remove("done", "packed", "shrink", "running");
+  rows.forEach((r) => r.classList.remove("run", "ok"));
+  tiles.forEach((t) => t.classList.remove("on"));
+  video.currentTime = 0;
+  video.play().catch(() => {});
+  await xWait(2400); if (!live()) return;
+  x.classList.add("shrink");
+  await xWait(800); if (!live()) return;
+  video.pause();
+  const a = mov.getBoundingClientRect(), b = script.getBoundingClientRect(), fly = mov.cloneNode(true);
+  fly.classList.add("fly");
+  Object.assign(fly.style, { left: `${a.left - x.getBoundingClientRect().left}px`, top: `${a.top - x.getBoundingClientRect().top}px` });
+  x.append(fly);
+  await fly.animate([{ translate: "0 0", scale: 1, opacity: 1 },
+    { translate: `${b.left + b.width / 2 - a.left - a.width / 2}px ${b.top + b.height / 2 - a.top - a.height / 2}px`, scale: .4, opacity: .2 }],
+    { duration: 750, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" }).finished;
+  fly.remove();
+  if (!live()) return;
+  x.classList.add("running");
+  for (const row of rows) {
+    row.classList.add("run");
+    await xWait(row.classList.contains("last") ? 1500 : 1150); if (!live()) return;
+    row.classList.remove("run");
+    row.classList.add("ok");
+    if (row.dataset.tile) tiles[+row.dataset.tile]?.classList.add("on");
+    if (row.classList.contains("last")) x.classList.add("packed");
+    await xWait(180); if (!live()) return;
+  }
+  x.classList.remove("running");
+  x.classList.add("done");
+}
+const xView = "IntersectionObserver" in window ? new IntersectionObserver((es) => es.forEach((e) => {
+  if (!e.isIntersecting) return;
+  xView.unobserve(e.target);
+  runExport(e.target);
+}), { threshold: .45 }) : null;
+function setupExports() {
+  document.querySelectorAll(".gc-x").forEach((x) => {
+    const final = () => {
+      x._run = (x._run || 0) + 1;
+      x.classList.add("shrink", "packed", "done");
+      x.querySelectorAll(".gc-x-row").forEach((r) => r.classList.add("ok"));
+      x.querySelectorAll(".gc-x-tile").forEach((t) => t.classList.add("on"));
+    };
+    if (EDITOR || !xView || matchMedia("(prefers-reduced-motion: reduce)").matches) return final();
+    x.querySelector(".gc-x-again").addEventListener("click", () => runExport(x));
+    xView.observe(x);
+  });
+}
 
 /* ---------------- AGENT: the site as Markdown (llms.txt, written by tools/bake.py) ---------------- */
 

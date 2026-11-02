@@ -184,8 +184,8 @@
           "visible": true,
           "anchor": "step-idea",
           "eyebrow": {
-            "ru": "Шаг 1",
-            "en": "Step 1"
+            "ru": "01",
+            "en": "01"
           },
           "title": {
             "ru": "Идея и сториборд",
@@ -222,9 +222,9 @@
                 "en": "Storyboard"
               },
               "srcs": [
-                "/gift-catalog/assets/process/sep__sakura/k1.webp",
-                "/gift-catalog/assets/process/sep__sakura/k2.webp",
-                "/gift-catalog/assets/process/sep__sakura/k3.webp"
+                "/gift-catalog/assets/process/sep__sakura/s1.webp",
+                "/gift-catalog/assets/process/sep__sakura/s2.webp",
+                "/gift-catalog/assets/process/sep__sakura/s3.webp"
               ]
             }
           ]
@@ -235,8 +235,8 @@
           "visible": true,
           "anchor": "step-gen",
           "eyebrow": {
-            "ru": "Шаг 2",
-            "en": "Step 2"
+            "ru": "02",
+            "en": "02"
           },
           "title": {
             "ru": "Генерация",
@@ -258,10 +258,13 @@
             {
               "op": "+",
               "label": {
+                "ru": "",
+                "en": ""
+              },
+              "text": {
                 "ru": "Промпт",
                 "en": "Prompt"
-              },
-              "src": ""
+              }
             },
             {
               "op": "=",
@@ -269,7 +272,11 @@
                 "ru": "Видео на зелёном фоне",
                 "en": "Video on green"
               },
-              "src": ""
+              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov",
+              "green": "1",
+              "from": "0",
+              "to": "3.27"
             }
           ]
         },
@@ -279,16 +286,16 @@
           "visible": true,
           "anchor": "step-review",
           "eyebrow": {
-            "ru": "Шаг 3",
-            "en": "Step 3"
+            "ru": "03",
+            "en": "03"
           },
           "title": {
             "ru": "Ревью и доработка",
             "en": "Review & polish"
           },
           "text": {
-            "ru": "Автоматика сразу убирает хромакей и склеивает куски в одно видео на прозрачном фоне.",
-            "en": "The automation removes the chroma key right away and joins the pieces into one video on a transparent background."
+            "ru": "Автоматика сразу убирает хромакей и склеивает куски. В After Effects довожу визуал и накладываю звук.",
+            "en": "The automation removes the chroma key right away and joins the pieces. In After Effects I finalise the visuals and add the sound."
           },
           "items": [
             {
@@ -297,7 +304,11 @@
                 "ru": "Кусок 1 на зелёном",
                 "en": "Piece 1 on green"
               },
-              "src": ""
+              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov",
+              "green": "1",
+              "from": "0",
+              "to": "3.27"
             },
             {
               "op": "+",
@@ -305,7 +316,11 @@
                 "ru": "Кусок 2 на зелёном",
                 "en": "Piece 2 on green"
               },
-              "src": ""
+              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov",
+              "green": "1",
+              "from": "3.27",
+              "to": "6.54"
             },
             {
               "op": "=",
@@ -315,6 +330,15 @@
               },
               "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
               "mov": "/gift-catalog/assets/anim640/sep__sakura.mov"
+            },
+            {
+              "op": "→",
+              "label": {
+                "ru": "After Effects: финал визуала и звук",
+                "en": "After Effects: final visuals and sound"
+              },
+              "icon": "ae",
+              "thumb": "/gift-catalog/assets/thumbs/sep__sakura.webp"
             }
           ]
         },
@@ -332,12 +356,7 @@
             "en": "I built a tool for quick preview: the gift lands in a chat and plays full screen, on a laptop and on a phone."
           },
           "keys": [
-            "wed__wedding_rings",
-            "sep__roses2_bon_3d",
-            "sep__bear_3d",
-            "sep__glass_heart_3d",
-            "sep__paris_ticket",
-            "sep__yacht_3d"
+            "sep__sakura"
           ],
           "hires": [],
           "matches": {
@@ -355,40 +374,63 @@
         },
         {
           "id": "vgs4",
-          "type": "chain",
+          "type": "export",
           "visible": true,
           "anchor": "step-export",
           "eyebrow": {
-            "ru": "Шаг 4",
-            "en": "Step 4"
+            "ru": "04",
+            "en": "04"
           },
           "title": {
             "ru": "Экспорт",
             "en": "Export"
           },
           "text": {
-            "ru": "Автоматика перегоняет видео в нужные форматы и собирает пакет: под каждую платформу свой файл.",
-            "en": "The automation converts the video to the formats needed and builds the package: a file for each platform."
+            "ru": "Скрипт перегоняет видео в нужные форматы и собирает пакет: под каждую платформу свой файл.",
+            "en": "A script converts the video to the formats needed and builds the package: a file for each platform."
           },
+          "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+          "mov": "/gift-catalog/assets/anim640/sep__sakura.mov",
+          "source": "MOV",
+          "folder": "sakura/",
           "items": [
             {
-              "op": "",
-              "label": {
-                "ru": "Видео на прозрачном фоне",
-                "en": "Video on a transparent background"
+              "t": {
+                "ru": "Кодируется WebM",
+                "en": "Encoding WebM"
               },
-              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
-              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov"
+              "fmt": "WEBM",
+              "name": "movie-webm.webm"
             },
             {
-              "op": "=",
-              "label": {
-                "ru": "Пакет для разработчиков",
-                "en": "Package for developers"
+              "t": {
+                "ru": "Кодируется HEVC",
+                "en": "Encoding HEVC"
               },
-              "files": "sakura/\nwin, android | movie-webm.webm\napple | movie-hevc.mp4\nwin, android, apple | sound.mp3"
+              "fmt": "HEVC",
+              "name": "movie-hevc.mp4"
+            },
+            {
+              "t": {
+                "ru": "Нормализуется звук",
+                "en": "Normalising sound"
+              },
+              "fmt": "",
+              "name": ""
+            },
+            {
+              "t": {
+                "ru": "Кодируется MP3",
+                "en": "Encoding MP3"
+              },
+              "fmt": "MP3",
+              "name": "sound.mp3"
             }
-          ]
+          ],
+          "pack": {
+            "ru": "Упаковка в папку и нейминг",
+            "en": "Packing into a folder and naming"
+          }
         },
         {
           "id": "vg10",
