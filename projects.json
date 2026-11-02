@@ -143,11 +143,11 @@
           "visible": true,
           "anchor": "task",
           "title": {
-            "ru": "Подарок — это эмоция, которая приходит в чат",
+            "ru": "Задача - передать эмоции",
             "en": "A gift is an emotion that lands in a chat"
           },
           "text": {
-            "ru": "Дейтинг-приложению нужен выбор подарков к широкому выбору контекста: праздник, признание в любви и просто так. ",
+            "ru": "Пользователи хотят выразить весь спектр своих чувств - \nот \"приятно познакомиться\" до \"ты любовь моей жизни\" ",
             "en": "A dating app needs a choice of gifts for a wide range of contexts: holidays, confessions of love and just because."
           },
           "items": []
@@ -162,7 +162,7 @@
             "en": "One style for the whole collection"
           },
           "text": {
-            "ru": "Свадебный торт, яхта и панда с сердцем делаются в разное время и разными инструментами, но в чате должны выглядеть как один набор. Поэтому сначала — правила, потом — генерация.",
+            "ru": "Нейронки развиваются быстро, а стиль надо сохранять. ",
             "en": "A wedding cake, a yacht and a panda with a heart are made at different times with different tools, yet in a chat they have to look like one set. So rules come first, generation second."
           },
           "items": [
