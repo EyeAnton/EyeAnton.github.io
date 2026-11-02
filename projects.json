@@ -103,17 +103,233 @@
       },
       "page": [
         {
-          "id": "vg03",
-          "type": "gifts-showcase",
-          "visible": false,
-          "anchor": "showcase",
+          "id": "vg04",
+          "type": "points",
+          "visible": true,
+          "anchor": "task",
           "title": {
-            "ru": "Весь экран — подарку",
-            "en": "The whole screen belongs to the gift"
+            "ru": "Задача - передать эмоции",
+            "en": "A gift is an emotion that lands in a chat"
           },
           "text": {
-            "ru": "Сообщение с подарком приходит в дейтинг-чат, переписка гаснет, и поверх неё на весь экран проигрывается анимация с прозрачным фоном. Одинаково в приложении и в вебе.",
-            "en": "A gift message lands in a dating chat, the conversation dims, and a transparent-background animation plays full screen on top. The same in the app and on the web."
+            "ru": "Пользователи хотят выразить весь спектр своих чувств - \nот \"приятно познакомиться\" до \"ты любовь моей жизни\" ",
+            "en": "A dating app needs a choice of gifts for a wide range of contexts: holidays, confessions of love and just because."
+          },
+          "items": []
+        },
+        {
+          "id": "vg07",
+          "type": "rail",
+          "visible": true,
+          "anchor": "pipeline",
+          "title": {
+            "ru": "Ручной отбор + \nавтоматика рутины",
+            "en": "From storyboard to a file in the app"
+          },
+          "text": {
+            "ru": "Ручная работа осталась там, где она нужна: в стиле и анимации.\nРутинные процессы - передал автоматике через Node.js",
+            "en": "A Node.js script ties generation, chroma key and export together, so a new gift goes all the way through, and hands-on work stays where it matters: style and animation."
+          },
+          "items": [
+            {
+              "t": {
+                "ru": "Идея и сториборд",
+                "en": "Idea & storyboard"
+              },
+              "d": {
+                "ru": "Исходник, идея анимации, раскадровка",
+                "en": "Source, animation idea, storyboard"
+              },
+              "anchor": "step-idea"
+            },
+            {
+              "t": {
+                "ru": "Генерация",
+                "en": "Generation"
+              },
+              "d": {
+                "ru": "Кадр + промпт = видео на зелёном фоне",
+                "en": "Frame + prompt = video on green"
+              },
+              "anchor": "step-gen"
+            },
+            {
+              "t": {
+                "ru": "Ревью и доработка",
+                "en": "Review & polish"
+              },
+              "d": {
+                "ru": "Склейка, хромакей, просмотр на лайве",
+                "en": "Joining, chroma key, live preview"
+              },
+              "anchor": "step-review"
+            },
+            {
+              "t": {
+                "ru": "Экспорт",
+                "en": "Export"
+              },
+              "d": {
+                "ru": "Форматы под Windows, Android и iOS",
+                "en": "Formats for Windows, Android and iOS"
+              },
+              "anchor": "step-export"
+            }
+          ],
+          "stop": "style"
+        },
+        {
+          "id": "vgs1",
+          "type": "chain",
+          "visible": true,
+          "anchor": "step-idea",
+          "eyebrow": {
+            "ru": "Шаг 1",
+            "en": "Step 1"
+          },
+          "title": {
+            "ru": "Идея и сториборд",
+            "en": "Idea & storyboard"
+          },
+          "text": {
+            "ru": "",
+            "en": ""
+          },
+          "items": [
+            {
+              "op": "",
+              "label": {
+                "ru": "Исходник",
+                "en": "Source"
+              },
+              "src": "/gift-catalog/assets/process/sep__sakura/source.webp"
+            },
+            {
+              "op": "→",
+              "label": {
+                "ru": "Идея анимации",
+                "en": "Animation idea"
+              },
+              "text": {
+                "ru": "Фаза 1 — дерево расцветает. Фаза 2 — лепестки плавно опадают, как во время цветения сакуры.",
+                "en": "Phase 1: the tree blossoms. Phase 2: petals drift down like a sakura in bloom."
+              }
+            },
+            {
+              "op": "→",
+              "label": {
+                "ru": "Раскадровка",
+                "en": "Storyboard"
+              },
+              "srcs": [
+                "/gift-catalog/assets/process/sep__sakura/k1.webp",
+                "/gift-catalog/assets/process/sep__sakura/k2.webp",
+                "/gift-catalog/assets/process/sep__sakura/k3.webp"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "vgs2",
+          "type": "chain",
+          "visible": true,
+          "anchor": "step-gen",
+          "eyebrow": {
+            "ru": "Шаг 2",
+            "en": "Step 2"
+          },
+          "title": {
+            "ru": "Генерация",
+            "en": "Generation"
+          },
+          "text": {
+            "ru": "Один кусок за раз: дальше куски склеиваются.",
+            "en": "One piece at a time: the pieces get joined later."
+          },
+          "items": [
+            {
+              "op": "",
+              "label": {
+                "ru": "Кадр",
+                "en": "Frame"
+              },
+              "src": "/gift-catalog/assets/process/sep__sakura/k1.webp"
+            },
+            {
+              "op": "+",
+              "label": {
+                "ru": "Промпт",
+                "en": "Prompt"
+              },
+              "src": ""
+            },
+            {
+              "op": "=",
+              "label": {
+                "ru": "Видео на зелёном фоне",
+                "en": "Video on green"
+              },
+              "src": ""
+            }
+          ]
+        },
+        {
+          "id": "vgs3",
+          "type": "chain",
+          "visible": true,
+          "anchor": "step-review",
+          "eyebrow": {
+            "ru": "Шаг 3",
+            "en": "Step 3"
+          },
+          "title": {
+            "ru": "Ревью и доработка",
+            "en": "Review & polish"
+          },
+          "text": {
+            "ru": "Автоматика сразу убирает хромакей и склеивает куски в одно видео на прозрачном фоне.",
+            "en": "The automation removes the chroma key right away and joins the pieces into one video on a transparent background."
+          },
+          "items": [
+            {
+              "op": "",
+              "label": {
+                "ru": "Кусок 1 на зелёном",
+                "en": "Piece 1 on green"
+              },
+              "src": ""
+            },
+            {
+              "op": "+",
+              "label": {
+                "ru": "Кусок 2 на зелёном",
+                "en": "Piece 2 on green"
+              },
+              "src": ""
+            },
+            {
+              "op": "=",
+              "label": {
+                "ru": "Склеено, фон прозрачный",
+                "en": "Joined, transparent background"
+              },
+              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov"
+            }
+          ]
+        },
+        {
+          "id": "vg03",
+          "type": "gifts-showcase",
+          "visible": true,
+          "anchor": "showcase",
+          "title": {
+            "ru": "Сразу видно, как это на лайве",
+            "en": "See it live right away"
+          },
+          "text": {
+            "ru": "Я сделал инструмент для быстрого просмотра: подарок приходит в чат и играет на весь экран, на ноутбуке и на телефоне.",
+            "en": "I built a tool for quick preview: the gift lands in a chat and plays full screen, on a laptop and on a phone."
           },
           "keys": [
             "wed__wedding_rings",
@@ -138,19 +354,119 @@
           }
         },
         {
-          "id": "vg04",
-          "type": "points",
+          "id": "vgs4",
+          "type": "chain",
           "visible": true,
-          "anchor": "task",
+          "anchor": "step-export",
+          "eyebrow": {
+            "ru": "Шаг 4",
+            "en": "Step 4"
+          },
           "title": {
-            "ru": "Задача - передать эмоции",
-            "en": "A gift is an emotion that lands in a chat"
+            "ru": "Экспорт",
+            "en": "Export"
           },
           "text": {
-            "ru": "Пользователи хотят выразить весь спектр своих чувств - \nот \"приятно познакомиться\" до \"ты любовь моей жизни\" ",
-            "en": "A dating app needs a choice of gifts for a wide range of contexts: holidays, confessions of love and just because."
+            "ru": "Автоматика перегоняет видео в нужные форматы и собирает пакет: под каждую платформу свой файл.",
+            "en": "The automation converts the video to the formats needed and builds the package: a file for each platform."
           },
-          "items": []
+          "items": [
+            {
+              "op": "",
+              "label": {
+                "ru": "Видео на прозрачном фоне",
+                "en": "Video on a transparent background"
+              },
+              "src": "/gift-catalog/assets/anim640/sep__sakura.webm",
+              "mov": "/gift-catalog/assets/anim640/sep__sakura.mov"
+            },
+            {
+              "op": "=",
+              "label": {
+                "ru": "Пакет для разработчиков",
+                "en": "Package for developers"
+              },
+              "files": "sakura/\nwin, android | movie-webm.webm\napple | movie-hevc.mp4\nwin, android, apple | sound.mp3"
+            }
+          ]
+        },
+        {
+          "id": "vg10",
+          "type": "lanes",
+          "visible": true,
+          "eyebrow": {
+            "ru": "Прозрачность на всех платформах",
+            "en": "Transparency on every platform"
+          },
+          "text": {
+            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают \nпо-разному. Для работы на всех устройтсвах нужны отдельные форматы.",
+            "en": "The least obvious part of delivery: browsers handle transparent video\ndifferently. Working on every device takes separate formats."
+          },
+          "items": [
+            {
+              "icons": "win, android",
+              "plat": {
+                "ru": "Windows · Android",
+                "en": "Windows · Android"
+              },
+              "platSub": {
+                "ru": "Chrome, Firefox, Edge",
+                "en": "Chrome, Firefox, Edge"
+              },
+              "codec": {
+                "ru": "WebM · VP9 alpha",
+                "en": "WebM · VP9 alpha"
+              },
+              "codecSub": {
+                "ru": "ffmpeg · libvpx-vp9",
+                "en": "ffmpeg · libvpx-vp9"
+              },
+              "state": "ok",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            },
+            {
+              "icons": "apple",
+              "plat": {
+                "ru": "macOS · iOS",
+                "en": "macOS · iOS"
+              },
+              "platSub": {
+                "ru": "Safari и все браузеры на iPhone",
+                "en": "Safari and every browser on iPhone"
+              },
+              "codec": {
+                "ru": "WebM · VP9 alpha",
+                "en": "WebM · VP9 alpha"
+              },
+              "codecSub": {
+                "ru": "альфа теряется — подарок на чёрном квадрате",
+                "en": "alpha is dropped — the gift lands on a black square"
+              },
+              "state": "bad",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            },
+            {
+              "icons": "apple",
+              "plat": {
+                "ru": "macOS · iOS",
+                "en": "macOS · iOS"
+              },
+              "platSub": {
+                "ru": "отдельный файл для WebKit",
+                "en": "a separate file for WebKit"
+              },
+              "codec": {
+                "ru": "MOV · HEVC alpha",
+                "en": "MOV · HEVC alpha"
+              },
+              "codecSub": {
+                "ru": "ffmpeg пишет поток, который Safari не декодирует, — поэтому своя утилита на Swift через AVFoundation",
+                "en": "ffmpeg writes a stream Safari can't decode, so a small Swift tool builds it through AVFoundation"
+              },
+              "state": "fix",
+              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
+            }
+          ]
         },
         {
           "id": "vg05",
@@ -201,9 +517,23 @@
           ]
         },
         {
+          "id": "vg08",
+          "type": "gifts-catalog",
+          "visible": true,
+          "anchor": "catalog",
+          "title": {
+            "ru": "Отправьте подарок",
+            "en": "Send a gift"
+          },
+          "text": {
+            "ru": "Нажмите на любой — он придёт так, как его видит получатель в чате. Анимированные подарки играют со звуком.",
+            "en": "Tap any of them — it arrives the way the recipient sees it in a chat. Animated gifts play with sound."
+          }
+        },
+        {
           "id": "vg06",
           "type": "gifts-process",
-          "visible": true,
+          "visible": false,
           "anchor": "process",
           "title": {
             "ru": "Один подарок - пять шагов",
@@ -286,96 +616,6 @@
           }
         },
         {
-          "id": "vg07",
-          "type": "rail",
-          "visible": true,
-          "anchor": "pipeline",
-          "title": {
-            "ru": "Ручной отбор + \nавтоматика рутины",
-            "en": "From storyboard to a file in the app"
-          },
-          "text": {
-            "ru": "Ручная работа осталась там, где она нужна: в стиле и анимации.\nРутинные процессы - передал автоматике через Node.js",
-            "en": "A Node.js script ties generation, chroma key and export together, so a new gift goes all the way through, and hands-on work stays where it matters: style and animation."
-          },
-          "items": [
-            {
-              "t": {
-                "ru": "Идея и сториборд",
-                "en": "Idea & storyboard"
-              },
-              "d": {
-                "ru": "Сбор референсов,\nподбор ",
-                "en": "Occasion, look, key frames"
-              }
-            },
-            {
-              "t": {
-                "ru": "Генерация",
-                "en": "Generation"
-              },
-              "d": {
-                "ru": "Gemini — промпты и кадры, Kling API — видео",
-                "en": "Gemini for prompts and frames, Kling API for video"
-              }
-            },
-            {
-              "t": {
-                "ru": "Ревью и доработка",
-                "en": "Review & polish"
-              },
-              "d": {
-                "ru": "Blender, монтаж и правки в After Effects",
-                "en": "Blender, edit and fixes in After Effects"
-              }
-            },
-            {
-              "t": {
-                "ru": "Хромакей",
-                "en": "Chroma key"
-              },
-              "d": {
-                "ru": "ffmpeg вырезает фон в альфа-канал",
-                "en": "ffmpeg cuts the background into an alpha channel"
-              }
-            },
-            {
-              "t": {
-                "ru": "Экспорт",
-                "en": "Export"
-              },
-              "d": {
-                "ru": "VP9 alpha · HEVC alpha · WebP · MP3",
-                "en": "VP9 alpha · HEVC alpha · WebP · MP3"
-              }
-            },
-            {
-              "t": {
-                "ru": "Пакет",
-                "en": "Package"
-              },
-              "d": {
-                "ru": "Манифест JSON + медиа под mobile, web и Figma",
-                "en": "JSON manifest + media for mobile, web and Figma"
-              }
-            }
-          ]
-        },
-        {
-          "id": "vg08",
-          "type": "gifts-catalog",
-          "visible": true,
-          "anchor": "catalog",
-          "title": {
-            "ru": "Отправьте подарок",
-            "en": "Send a gift"
-          },
-          "text": {
-            "ru": "Нажмите на любой — он придёт так, как его видит получатель в чате. Анимированные подарки играют со звуком.",
-            "en": "Tap any of them — it arrives the way the recipient sees it in a chat. Animated gifts play with sound."
-          }
-        },
-        {
           "id": "vg09",
           "type": "specs",
           "visible": false,
@@ -416,84 +656,6 @@
                 "ru": "~0.4 MB в Chrome и Firefox; для Safari — анимированный WebP с альфой.",
                 "en": "~0.4 MB in Chrome and Firefox; Safari gets an animated WebP with alpha."
               }
-            }
-          ]
-        },
-        {
-          "id": "vg10",
-          "type": "lanes",
-          "visible": true,
-          "eyebrow": {
-            "ru": "Прозрачность на всех платформах",
-            "en": "Transparency on every platform"
-          },
-          "text": {
-            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают \nпо-разному. Для работы на всех устройтсвах нужны отдельные форматы.",
-            "en": "The least obvious part of delivery: browsers handle transparent video\ndifferently. Working on every device takes separate formats."
-          },
-          "items": [
-            {
-              "icons": "win, android",
-              "plat": {
-                "ru": "Windows · Android",
-                "en": "Windows · Android"
-              },
-              "platSub": {
-                "ru": "Chrome, Firefox, Edge",
-                "en": "Chrome, Firefox, Edge"
-              },
-              "codec": {
-                "ru": "WebM · VP9 alpha",
-                "en": "WebM · VP9 alpha"
-              },
-              "codecSub": {
-                "ru": "ffmpeg · libvpx-vp9",
-                "en": "ffmpeg · libvpx-vp9"
-              },
-              "state": "ok",
-              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
-            },
-            {
-              "icons": "apple",
-              "plat": {
-                "ru": "macOS · iOS",
-                "en": "macOS · iOS"
-              },
-              "platSub": {
-                "ru": "Safari и все браузеры на iPhone",
-                "en": "Safari and every browser on iPhone"
-              },
-              "codec": {
-                "ru": "WebM · VP9 alpha",
-                "en": "WebM · VP9 alpha"
-              },
-              "codecSub": {
-                "ru": "альфа теряется — подарок на чёрном квадрате",
-                "en": "alpha is dropped — the gift lands on a black square"
-              },
-              "state": "bad",
-              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
-            },
-            {
-              "icons": "apple",
-              "plat": {
-                "ru": "macOS · iOS",
-                "en": "macOS · iOS"
-              },
-              "platSub": {
-                "ru": "отдельный файл для WebKit",
-                "en": "a separate file for WebKit"
-              },
-              "codec": {
-                "ru": "MOV · HEVC alpha",
-                "en": "MOV · HEVC alpha"
-              },
-              "codecSub": {
-                "ru": "ffmpeg пишет поток, который Safari не декодирует, — поэтому своя утилита на Swift через AVFoundation",
-                "en": "ffmpeg writes a stream Safari can't decode, so a small Swift tool builds it through AVFoundation"
-              },
-              "state": "fix",
-              "img": "/gift-catalog/assets/thumbs/sep__glass_heart_3d.webp"
             }
           ]
         },
