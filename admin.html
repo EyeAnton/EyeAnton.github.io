@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="design-system.css?v=f5b725dd">
-  <link rel="stylesheet" href="style.css?v=d2160a20">
+  <link rel="stylesheet" href="style.css?v=0a9b2584">
   <style>
     .adm { max-width: 1480px; margin: 0 auto; padding: 24px var(--gutter) 120px; }
     .adm h1 { font: 500 40px/1.1 var(--font); letter-spacing: var(--track-tight); margin: 0 0 6px; }
@@ -40,12 +40,12 @@
     .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
     .list { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; }
     .item {
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+      display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px;
       background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer;
     }
     .item.on { border-color: var(--gold); }
     .item.hidden-p .t { opacity: .45; text-decoration: line-through; }
-    .item .t { font-weight: 500; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item .t { display: block; font-weight: 500; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .item .c { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
     .item .mv { display: flex; gap: 2px; }
     .item .mv button { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; }
@@ -161,6 +161,11 @@
     .st-row { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
     .st-row .pv-tabs { flex-wrap: wrap; }
     .st-row .chip { font-size: 12px; padding: 6px 10px; }
+    .card-part { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; }
+    .card-part .mv { display: flex; gap: 2px; }
+    .card-part .mv button { background: none; border: 0; color: var(--muted); font-size: 15px; cursor: pointer; padding: 2px 5px; }
+    .card-part .mv button:hover { color: var(--text); }
+    .card-part .mv button:disabled { opacity: .3; cursor: default; }
     .st-range { display: flex; align-items: center; gap: 10px; }
     .st-range input { flex: 1; min-width: 0; }
     details.rep-item > summary b { white-space: nowrap; }
@@ -180,7 +185,7 @@
       .list, .preview { position: static; }
     }
     @media (max-width: 1300px) {
-      .se { grid-template-columns: 1fr; }
+      .se { grid-template-columns: 1fr; } .se-blocks { position: static; }
       .se-panel { position: static; max-height: none; }
     }
     @media (max-width: 560px) { .row, .row3 { grid-template-columns: 1fr; } }
@@ -281,7 +286,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=f010fdd0"></script>
-  <script src="admin.js?v=7e6b7c16"></script>
+  <script src="app.js?v=c82754ed"></script>
+  <script src="admin.js?v=c7ea6dde"></script>
 </body>
 </html>

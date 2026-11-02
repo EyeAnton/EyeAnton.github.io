@@ -1035,7 +1035,7 @@
         <label class="sw" title="${b.visible === false ? "Скрыт" : "Показывается"}">
           <input type="checkbox" data-act="vis" ${b.visible === false ? "" : "checked"}><span></span>
         </label>
-        <div style="min-width:0">${b.type && home ? `<span class="c">свой блок</span>` : ""}<span class="t">${h(blockLabel(b))}</span></div>
+        <div style="min-width:0">${b.type && home ? `<span class="c">свой блок</span>` : ""}<span class="t" title="${h(blockLabel(b))}">${h(blockLabel(b))}</span></div>
         <div class="mv">
           <button type="button" data-act="up" aria-label="Выше" ${i ? "" : "disabled"}>↑</button>
           <button type="button" data-act="down" aria-label="Ниже">↓</button>
@@ -1290,6 +1290,32 @@
         ${obj.style ? `<button class="btn ghost small" type="button" data-streset>Сбросить</button>` : ""}
       </div></details>`;
   }
+  // «Карточка проекта» (site.card, app.js cardParts): one for the home page and the catalog; defaults aren't stored
+  const CARD_LABELS = { title: "Название", desc: "Описание", tags: "Теги", links: "Кнопка" };
+  const cardOrder = () => {
+    const o = site.card?.order || [];
+    return [...o.filter((k) => CARD_LABELS[k]), ...Object.keys(CARD_LABELS).filter((k) => !o.includes(k))];
+  };
+  function cardSection() {
+    const c = site.card || {}, year = c.year || "right", order = cardOrder();
+    return `<h2 class="sec">Карточка проекта</h2>
+      <p class="hint">Одна на главную и каталог. Год и значок стоят вместе с названием.</p>
+      <div class="st-row"><span>Год</span><div class="pv-tabs">${[["right", "Справа от названия"], ["below", "Под названием"], ["hide", "Не показывать"]].map(([v, l]) =>
+        `<button class="chip" type="button" data-cardyear="${v}" aria-selected="${year === v}">${l}</button>`).join("")}</div></div>
+      ${order.map((k, i) => `<div class="card-part">${k === "title" ? `<span>${CARD_LABELS[k]}</span>`
+        : `<label class="check"><input type="checkbox" data-cardshow="${k}" ${c.hide?.includes(k) ? "" : "checked"}> ${CARD_LABELS[k]}</label>`}
+        <div class="mv"><button type="button" data-cardmv="${k}" data-d="-1" aria-label="Выше" ${i ? "" : "disabled"}>↑</button><button type="button" data-cardmv="${k}" data-d="1" aria-label="Ниже" ${i < order.length - 1 ? "" : "disabled"}>↓</button></div></div>`).join("")}`;
+  }
+  function setCard(fn) {
+    const c = { ...site.card };
+    fn(c);
+    if (c.year === "right") delete c.year;
+    if (!c.hide?.length) delete c.hide;
+    if (c.order?.join() === Object.keys(CARD_LABELS).join()) delete c.order;
+    if (Object.keys(c).length) site.card = c; else delete site.card;
+    renderSePanel(); refreshFrame(); updateStatus();
+  }
+
   function setStyle(obj, k, v) {
     const st = { ...obj.style };
     if (v === "") delete st[k]; else st[k] = k === "anim" ? false : v;
@@ -1376,7 +1402,7 @@
         <p class="hint">Число проектов и живых сайтов считается само по вкладке «Проекты».</p>`,
       areas: `<h2 class="sec">Навыки</h2>${repeater("profile.skills")}
         <h2 class="sec">Soft skills</h2>${field("profile.soft.ru", "RU — по одному на строку", "lines")}${field("profile.soft.en", "EN — по одному на строку", "lines")}`,
-      showcase: `<p class="hint">Какие проекты здесь показывать — галочка «На главной (избранное)» во вкладке «Проекты»; порядок — как в списке проектов.</p>
+      showcase: `${cardSection()}<p class="hint">Какие проекты здесь показывать — галочка «На главной (избранное)» во вкладке «Проекты»; порядок — как в списке проектов.</p>
         <div><button class="btn ghost small" type="button" data-goto="projects">Открыть «Проекты»</button></div>`,
       stack: `<h2 class="sec">Бегущая строка</h2>${field("profile.stack.0", "Первый ряд — по одному на строку", "lines")}${field("profile.stack.1", "Второй ряд — по одному на строку", "lines")}
         <h2 class="sec">Подсказки по клику</h2><p class="hint">По строке: «Название — коротко что это». Название — как в бегущей строке.</p>
@@ -1406,6 +1432,11 @@
 
   q("#sePanel").addEventListener("input", (e) => {
     const el = e.target;
+    if (el.dataset.cardshow) {
+      const k = el.dataset.cardshow;
+      setCard((c) => { c.hide = (c.hide || []).filter((x) => x !== k); if (!el.checked) c.hide.push(k); });
+      return;
+    }
     if (el.dataset.strange) { // exact spacing: the panel isn't rebuilt under the dragged slider
       setStyle(panelObj(), el.dataset.strange, +el.value);
       const row = el.closest(".st-row");
@@ -1525,6 +1556,13 @@
       seUndo = null;
       refreshFrame(); updateStatus();
       selectBlock(id);
+      return;
+    }
+    if (b.dataset.cardyear) { setCard((c) => { c.year = b.dataset.cardyear; }); return; }
+    if (b.dataset.cardmv) {
+      const o = cardOrder(), i = o.indexOf(b.dataset.cardmv), j = i + +b.dataset.d;
+      [o[i], o[j]] = [o[j], o[i]];
+      setCard((c) => { c.order = o; });
       return;
     }
     if (b.dataset.st || b.hasAttribute("data-stpaste") || b.hasAttribute("data-streset")) {
