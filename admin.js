@@ -908,6 +908,17 @@
     // ✕ on a built-in home text (app.js): it stays in site.text, the site just doesn't show it in this block
     removeText(id, key) { hideText(id, key, true); },
     removeTab(key) { hideTab(key, true); },
+    // strip under a text in the page (app.js): the distance to what follows, kept in style.gaps of its block
+    getGap(id, key) { return (id === "_head" ? seProject() : findBlock(id))?.style?.gaps?.[key] || 0; },
+    setGap(id, key, px) {
+      const obj = id === "_head" ? seProject() : findBlock(id);
+      if (!obj) return;
+      const gaps = { ...obj.style?.gaps };
+      if (px) gaps[key] = px; else delete gaps[key];
+      setStyle(obj, "gaps", Object.keys(gaps).length ? gaps : "");
+      if (seBlock === id) renderSePanel();
+      updateStatus();
+    },
     ready() { frameLoaded = true; },
   };
   function hideText(id, key, on) {
@@ -1251,10 +1262,28 @@
     const st = obj.style || {};
     const key = `${seTarget}/${seBlock}/style`;
     const set = STYLE_OPTS.filter(([k]) => k in st).map(([k, , opts]) => opts.find(([v]) => v === String(st[k]))?.[1]).filter(Boolean);
+    for (const [k, l] of [["pt", "сверху"], ["pb", "снизу"]]) if (k in st) set.push(`${l} ${st[k]} px`);
+    const nGaps = Object.keys(st.gaps || {}).length;
+    if (nGaps) set.push(`тексты: ${nGaps}`);
+    // the thumb starts where the block really is now; «Авто» — back to as designed
+    const measure = (k) => {
+      try {
+        const el = q("#seFrame").contentDocument.querySelector(`[data-block="${CSS.escape(seBlock)}"]`);
+        const cs = el.ownerDocument.defaultView.getComputedStyle(el), side = k === "pt" ? "Top" : "Bottom";
+        return Math.round(parseFloat(cs[(st.bg === "card" ? "margin" : "padding") + side])) || 0;
+      } catch { return 0; }
+    };
+    const range = (k, label) => `<div class="st-row"><span>${label}: <output>${k in st ? `${st[k]} px` : "авто"}</output></span>
+      <div class="st-range"><input type="range" min="0" max="240" data-strange="${k}" value="${st[k] ?? Math.min(measure(k), 240)}">
+      <button class="chip" type="button" data-st="${k}" data-v="" aria-selected="${!(k in st)}">Авто</button></div></div>`;
     return `<details class="rep-item" data-key="${h(key)}" ${seFold[key] ?? !!obj.style ? "open" : ""}>
       <summary class="rep-head"><b>Оформление</b><span class="hint">${h(set.join(" · ") || "как задумано")}</span></summary>
       ${STYLE_OPTS.map(([k, label, opts]) => `<div class="st-row"><span>${label}</span><div class="pv-tabs">${opts.map(([v, l]) =>
         `<button class="chip" type="button" data-st="${k}" data-v="${v}" aria-selected="${String(st[k] ?? "") === v}">${l}</button>`).join("")}</div></div>`).join("")}
+      ${range("pt", "Точный отступ сверху")}
+      ${range("pb", "Точный отступ снизу")}
+      <div class="st-row"><span>Отступы между текстами: тяните полоску под текстом на странице</span>${nGaps
+        ? `<div class="pv-tabs"><button class="chip" type="button" data-st="gaps" data-v="">Вернуть как было (${nGaps})</button></div>` : ""}</div>
       <div class="se-acts">
         <button class="btn ghost small" type="button" data-stcopy ${obj.style ? "" : "disabled"}>Скопировать оформление</button>
         ${styleClip ? `<button class="btn ghost small" type="button" data-stpaste>Вставить оформление</button>` : ""}
@@ -1264,6 +1293,8 @@
   function setStyle(obj, k, v) {
     const st = { ...obj.style };
     if (v === "") delete st[k]; else st[k] = k === "anim" ? false : v;
+    if (k === "space") delete st.pt; // the chips and the exact value are the same setting
+    if (k === "pt" && v !== "") delete st.space;
     if (Object.keys(st).length) obj.style = st; else delete obj.style;
   }
 
@@ -1375,6 +1406,14 @@
 
   q("#sePanel").addEventListener("input", (e) => {
     const el = e.target;
+    if (el.dataset.strange) { // exact spacing: the panel isn't rebuilt under the dragged slider
+      setStyle(panelObj(), el.dataset.strange, +el.value);
+      const row = el.closest(".st-row");
+      row.querySelector("output").textContent = `${el.value} px`;
+      row.querySelector(".chip").setAttribute("aria-selected", "false");
+      refreshFrame(); updateStatus();
+      return;
+    }
     if (el.hasAttribute("data-head")) { // section head on / off
       const cb = findBlock(seBlock);
       if (el.checked) Object.assign(cb, head(), { eyebrow: cb.eyebrow || loc() });

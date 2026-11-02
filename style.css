@@ -364,10 +364,6 @@ html.agent body > :not(.top, #agentView, script) { display: none !important; }
 .show-media:hover .cover img.shot { transform: scale(calc(var(--z, 1) * 1.03)); }
 .show-media .cover img.shot { object-fit: var(--fit, contain); } /* home: whole picture unless the project says otherwise */
 .show-body { display: flex; flex-direction: column; gap: 14px; }
-.show-num {
-  font: var(--fw-medium) clamp(56px, 7vw, 96px)/.9 var(--font); letter-spacing: var(--track-tight);
-  background: var(--grad-wordmark); -webkit-background-clip: text; background-clip: text; color: transparent;
-}
 .show h3 { margin: 0; font: var(--fw-medium) clamp(28px, 3.4vw, 40px)/1.08 var(--font); letter-spacing: var(--track-tight); }
 .show p { margin: 0; color: var(--muted); font-weight: var(--fw-light); }
 .show .links { padding-top: 6px; }
@@ -489,6 +485,18 @@ html.agent body > :not(.top, #agentView, script) { display: none !important; }
 .editing [data-block]:hover > .edit-bar, .editing [data-block]:hover > .edit-add,
 .edit-bar:focus-within, .edit-add:focus-visible { opacity: 1; }
 /* ✕ over a hovered text inside a block (app.js → siteEditor.removeField): sits on its top-right corner */
+.edit-gap {
+  position: absolute; z-index: 19; height: 11px; translate: 0 -5px; cursor: ns-resize; touch-action: none;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.edit-gap::before { content: ""; position: absolute; inset: 5px 0 auto; border-top: 1px dashed var(--blue-300); }
+.edit-gap span {
+  position: relative; padding: 1px 8px; border-radius: var(--pill); background: var(--blue-600); color: var(--white);
+  font: 11px/1.4 var(--font); white-space: nowrap; user-select: none;
+}
+.edit-gap.on { opacity: 1; pointer-events: auto; }
+.edit-gap.set span, .edit-gap.drag span { background: var(--red-500); }
 .edit-del {
   position: absolute; z-index: 20; display: flex; gap: 2px; padding: 3px; translate: -100% calc(-100% - 6px);
   border-radius: var(--pill); background: var(--blue-600); box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
@@ -625,6 +633,10 @@ main [data-block][data-s-space="0"]:not([data-s-bg="card"]) { padding-top: 0 !im
 main [data-block][data-s-space="s"]:not([data-s-bg="card"]) { padding-top: clamp(24px, 4vw, 48px) !important; }
 main [data-block][data-s-space="l"]:not([data-s-bg="card"]) { padding-top: clamp(112px, 15vw, 200px) !important; }
 
+/* exact spacing (style.pt / style.pb, px in --s-pt / --s-pb): as set from 600px up, narrower it shrinks down to 60% */
+main [data-block][data-s-pt]:not([data-s-bg="card"]) { padding-top: clamp(calc(var(--s-pt) * .6px), calc(var(--s-pt) * 100vw / 600), calc(var(--s-pt) * 1px)) !important; }
+main [data-block][data-s-pb]:not([data-s-bg="card"]) { padding-bottom: clamp(calc(var(--s-pb) * .6px), calc(var(--s-pb) * 100vw / 600), calc(var(--s-pb) * 1px)) !important; }
+
 /* card: a raised panel; spacing above becomes the gap before it */
 main [data-block][data-s-bg="card"] {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
@@ -634,6 +646,8 @@ main > [data-block][data-s-bg="card"] { width: min(100% - 2 * var(--gutter), var
 main [data-block][data-s-bg="card"][data-s-space="0"] { margin-top: 0; }
 main [data-block][data-s-bg="card"][data-s-space="s"] { margin-top: clamp(16px, 3vw, 32px); }
 main [data-block][data-s-bg="card"][data-s-space="l"] { margin-top: clamp(96px, 12vw, 160px); }
+main [data-block][data-s-bg="card"][data-s-pt] { margin-top: clamp(calc(var(--s-pt) * .6px), calc(var(--s-pt) * 100vw / 600), calc(var(--s-pt) * 1px)); }
+main [data-block][data-s-bg="card"][data-s-pb] { margin-bottom: clamp(calc(var(--s-pb) * .6px), calc(var(--s-pb) * 100vw / 600), calc(var(--s-pb) * 1px)); }
 /* band / deep: a full-width stripe behind the block (the box-shadow paints past the column, clip-path keeps it flat) */
 main [data-block][data-s-bg="band"], main [data-block][data-s-bg="deep"] {
   --band: var(--surface); background: var(--band); box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(0 -100vmax);
