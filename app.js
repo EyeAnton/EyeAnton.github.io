@@ -144,18 +144,32 @@ function setupCardLinks() {
   });
 }
 
-const tagsHTML = (tags) => `<div class="tags">${tags.map((x) => `<span class="tag">${esc(x)}</span>`).join("")}</div>`;
+const tagsHTML = (tags) => `<div class="tags" data-gap="card.tags">${tags.map((x) => `<span class="tag">${esc(x)}</span>`).join("")}</div>`;
+
+// What a project card shows, the same on the home page and in the catalog. site.card (admin → «Избранные проекты»):
+// { year: right|below|hide (default right), hide: ["desc", "tags", "links"], order: ["title", "desc", "tags", "links"] }
+const CARD_PARTS = ["title", "desc", "tags", "links"];
+function cardParts(p) {
+  const c = SITE?.card || {}, year = c.year || "right", badge = badgeHTML(p);
+  const meta = (attr = "") => (year === "hide" && !badge ? "" : `<div class="meta"${attr}>${year === "hide" ? "" : `<span>${p.year}</span>`}${badge}</div>`);
+  const title = `<h3>${esc(p.title[lang])}</h3>`;
+  const links = linksHTML(p);
+  const html = {
+    title: year === "right" ? `<div class="card-head" data-gap="card.title">${title}${meta()}</div>`
+      : title.replace("<h3>", '<h3 data-gap="card.title">') + meta(' data-gap="card.year"'),
+    desc: `<p data-gap="card.desc">${esc(p.desc[lang])}</p>`,
+    tags: tagsHTML(p.tags),
+    links: links ? `<div class="links" data-gap="card.links">${links}</div>` : "",
+  };
+  const order = [...(c.order || []).filter((k) => CARD_PARTS.includes(k)), ...CARD_PARTS.filter((k) => !c.order?.includes(k))];
+  return order.filter((k) => !c.hide?.includes(k)).map((k) => html[k]).join("\n");
+}
 
 function cardHTML(p, i) {
-  const links = linksHTML(p);
   return `<article class="card${p.featured ? " featured" : ""}"${hrefAttr(p)} style="animation-delay:${i * 40}ms">
     ${coverHTML(p)}
     <div class="body">
-      <h3>${esc(p.title[lang])}</h3>
-      <div class="meta"><span>${p.year}</span>${badgeHTML(p)}</div>
-      <p>${esc(p.desc[lang])}</p>
-      ${tagsHTML(p.tags)}
-      ${links ? `<div class="links">${links}</div>` : ""}
+      ${cardParts(p)}
       ${p.note ? `<div class="note">${esc(p.note[lang])}</div>` : ""}
     </div>
   </article>`;
@@ -420,15 +434,10 @@ function renderHome() {
   let picks = PROJECTS.filter((p) => p.home);
   if (!picks.length) picks = PROJECTS.slice(0, 4);
   $("#showcase").innerHTML = picks.map((p) => {
-    const links = linksHTML(p);
     return `<article class="show reveal"${hrefAttr(p)}>
       <div class="show-media">${coverHTML(p)}</div>
       <div class="show-body">
-        <h3 data-gap="card.title">${esc(p.title[lang])}</h3>
-        <div class="meta" data-gap="card.year"><span>${p.year}</span>${badgeHTML(p)}</div>
-        <p data-gap="card.desc">${esc(p.desc[lang])}</p>
-        ${tagsHTML(p.tags)}
-        ${links ? `<div class="links">${links}</div>` : ""}
+        ${cardParts(p)}
       </div>
     </article>`;
   }).join("");

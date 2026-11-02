@@ -203,6 +203,9 @@ html.agent body > :not(.top, #agentView, script) { display: none !important; }
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   font-size: 11px; color: var(--muted); letter-spacing: var(--track-caps); text-transform: uppercase;
 }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.card-head h3 { flex: 1; min-width: 0; }
+.card-head .meta { flex: none; }
 .card h3 { margin: 0; font: var(--fw-medium) var(--fs-h3)/1.15 var(--font); letter-spacing: var(--track-snug); }
 .card p { margin: 0; color: var(--muted); font-size: 15px; font-weight: var(--fw-light); }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
