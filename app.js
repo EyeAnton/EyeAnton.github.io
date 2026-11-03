@@ -327,6 +327,13 @@ const BLOCK_HTML = {
       <div class="gc-x-out"><div class="gc-x-dir"><div class="gc-x-tiles">${files.map((it, i) => `<div class="gc-x-tile" style="--o:${i - (files.length - 1) / 2}" title="${esc(it.name || "")}"><span class="gc-file"><em>${esc(it.fmt)}</em></span></div>`).join("")}</div></div><code class="gc-x-folder">${esc(b.folder || "")}</code></div>
     </div>`;
   },
+  // a closed gift box (the hero's layers): scrolling down opens it, as a click does on the home page (setupScrollBoxes)
+  unbox: (b) => `<div class="pb-box reveal"><button class="unbox" type="button" data-auto="${esc(b.id)}" data-keys="${esc((b.gifts || []).join(","))}">
+      <img class="unbox-l" src="assets/unbox/box_bottom.png" alt="" width="180" height="180">
+      <img class="unbox-gift" alt="" width="360" height="295">
+      <img class="unbox-l" src="assets/unbox/box_hole.png" alt="" width="180" height="180">
+      <img class="unbox-l unbox-lid" src="assets/unbox/box_top.png" alt="" width="180" height="180">
+    </button></div>`,
   list2: (b) => `<ul class="gc-results">${each(b, (it, i, p) =>
     `<li class="reveal" style="--d:${i * 80}ms">${fld(b, `${p}.t`, "b", "Итог")}${fld(b, `${p}.d`, "span", "Описание")}</li>`)}</ul>`,
   lanes: (b) => `<div class="gc-alpha surface reveal"><div class="gc-alpha-head">
@@ -684,6 +691,7 @@ function render() {
   window.Novel?.mount(document, { lang, editor: !!EDITOR }); // novel players (project.html loads novel.js)
   if (!EDITOR) setupRail();
   setupExports();
+  setupScrollBoxes();
   if (EDITOR) decorateForEditor();
   renderAgent();
 }
@@ -1081,10 +1089,13 @@ function setupStackTips() {
 // animation from /gift-catalog/gifts.json), never the same as on the previous visit. Picked again only when the list changes.
 let heroGiftList = null;
 function pickHeroGift() {
-  const img = $(".unbox-gift");
+  const img = $(".hero .unbox-gift");
   const list = SITE?.blocks?.find((b) => b.id === "hero")?.gifts || [];
   if (!img || !SITE || heroGiftList === list.join()) return;
   heroGiftList = list.join();
+  pickBoxGift(img, list);
+}
+function pickBoxGift(img, list) {
   const keys = list.length ? Promise.resolve(list)
     : fetch("/gift-catalog/gifts.json").then((r) => r.json()).then((d) => d.items.filter((g) => g.preview_webm).map((g) => g.key)).catch(() => []);
   keys.then((ks) => {
@@ -1096,14 +1107,46 @@ function pickHeroGift() {
   });
 }
 
+// Block unbox on a project page: the same box, closed from the start. Scrolling down until it is past the middle of the
+// screen opens it once per load (a click opens it any time). The page holds still while it opens, so the box stays in
+// view; the overlay of gifts.js locks the page after that. No gesture here: browsers may keep the sound off until the
+// visitor has clicked something on the page. A jump by a link or the rail, passing the box, doesn't open it.
+const boxesOpened = new Set();
+let boxesY = 0, boxesClick = 0;
+function setupScrollBoxes() {
+  document.querySelectorAll(".unbox[data-auto]").forEach((box) => {
+    pickBoxGift(box.querySelector(".unbox-gift"), box.dataset.keys ? box.dataset.keys.split(",") : []);
+    box.setAttribute("aria-label", lang !== "en" ? "Открыть подарок" : "Open the gift");
+    if (EDITOR) return;
+    setupUnbox(box);
+    box.addEventListener("click", () => boxesOpened.add(box.dataset.auto));
+  });
+}
+function scrollBoxes() {
+  const down = scrollY > boxesY, now = performance.now();
+  boxesY = scrollY;
+  document.querySelectorAll(".unbox[data-auto]").forEach((box) => {
+    const r = box.getBoundingClientRect();
+    if (boxesOpened.has(box.dataset.auto) || EDITOR) return;
+    if (r.top > innerHeight || r.bottom <= 0) { box._seen = 0; return; }
+    box._seen ||= now; // it has had time to appear (.reveal) before it opens
+    if (!down || now - box._seen < 700 || now - boxesClick < 1500 || r.top + r.height / 2 > innerHeight * .62) return;
+    if (!window.Gifts || document.body.classList.contains("locked") || !box.querySelector(".unbox-gift").getAttribute("src")) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.body.classList.add("locked");
+    box.click();
+  });
+}
+addEventListener("scroll", () => requestAnimationFrame(scrollBoxes), { passive: true });
+document.addEventListener("click", () => { boxesClick = performance.now(); }, true);
+
 // Box above the hero title (layers in index.html, states in style.css). On every load it starts open and empty:
 // the "Anton Egorov" cursor (as in guest.js) brings the gift, drops it in, the lid comes down from above.
 // Hover — the lid floats up and to the right (amplitude eases in/out, no jump at start or end).
 // Click — the lid flies off up-right, the gift rises out of the box, hangs half a second, grows and fades out, and then
 // its animation opens in the overlay of gifts.js (as in the Virtual Gifts catalog); the overlay closes — the gift
 // sinks back in, the lid lands. Every move starts where it is.
-function setupUnbox() {
-  const box = $(".unbox");
+function setupUnbox(box) {
   if (!box) return;
   const [back, front] = box.querySelectorAll(".unbox-l:not(.unbox-lid)");
   const lid = box.querySelector(".unbox-lid"), gift = box.querySelector(".unbox-gift");
@@ -1173,7 +1216,7 @@ function setupUnbox() {
     window.giftPlaying = true;
     document.body.classList.add("gift-bg");
     const restore = () => { // the overlay closes: the box rises back, the gift is inside again, the lid lands
-      document.body.classList.remove("gift-bg");
+      document.body.classList.remove("gift-bg", "locked"); // locked: a box opened by scrolling (setupScrollBoxes)
       box.classList.remove("open");
       anims.get(gift)?.cancel();
       anims.delete(gift);
@@ -1202,7 +1245,7 @@ function setupUnbox() {
   });
 
   // delivery: on every load, when the box is on screen and the tab is visible
-  if (reduce) return;
+  if (reduce || box.dataset.auto) return; // a box opened by scrolling arrives closed
   busy = true;
   box.classList.add("empty");
   const io = new IntersectionObserver(([e]) => {
@@ -1374,7 +1417,7 @@ if (PAGE) {
   }
   $("#year").textContent = new Date().getFullYear();
   setupStackTips();
-  setupUnbox();
+  setupUnbox($(".hero .unbox"));
   setupCardLinks();
 
   if (EDITOR) {
