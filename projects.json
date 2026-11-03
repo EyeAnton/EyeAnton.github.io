@@ -425,6 +425,12 @@
           }
         },
         {
+          "id": "vgbox",
+          "type": "unbox",
+          "visible": true,
+          "gifts": []
+        },
+        {
           "id": "vg10",
           "type": "lanes",
           "visible": true,
