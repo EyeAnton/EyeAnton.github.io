@@ -328,7 +328,7 @@ const BLOCK_HTML = {
     </div>`;
   },
   // a closed gift box (the hero's layers): scrolling down opens it, as a click does on the home page (setupScrollBoxes)
-  unbox: (b) => `<div class="pb-box reveal"><button class="unbox" type="button" data-auto="${esc(b.id)}" data-keys="${esc((b.gifts || []).join(","))}">
+  unbox: (b) => `<div class="pb-box"><button class="unbox reveal" type="button" data-auto="${esc(b.id)}" data-keys="${esc((b.gifts || []).join(","))}">
       <img class="unbox-l" src="assets/unbox/box_bottom.png" alt="" width="180" height="180">
       <img class="unbox-gift" alt="" width="360" height="295">
       <img class="unbox-l" src="assets/unbox/box_hole.png" alt="" width="180" height="180">
@@ -801,6 +801,7 @@ async function runExport(x) {
   if (gift) {
     video.src = imgSrc(`/gift-catalog/${SAFARI ? gift.full_mov_safari : gift.full_webm}`);
     x.querySelector(".gc-x-folder").textContent = `${gift.id.replace(/_3d$/, "")}/`;
+    document.querySelectorAll(".unbox[data-auto]:not(.open)").forEach(boxFromExport); // the box holds the gift just shown
   }
   if (x._seen) runExport(x); else x._wait = true;
 }
@@ -1107,15 +1108,24 @@ function pickBoxGift(img, list) {
   });
 }
 
-// Block unbox on a project page: the same box, closed from the start. Scrolling down until it is past the middle of the
-// screen opens it once per load (a click opens it any time). The page holds still while it opens, so the box stays in
+// Block unbox on a project page: the same box, closed from the start, alone on a full screen. Its gift: the block's list
+// if set, otherwise the one shown in the export block above it (it follows that block), otherwise a random one.
+// Scrolling down until the box is at the middle of the screen opens it once per load (a click opens it any time). The page holds still while it opens, so the box stays in
 // view; the overlay of gifts.js locks the page after that. No gesture here: browsers may keep the sound off until the
 // visitor has clicked something on the page. A jump by a link or the rail, passing the box, doesn't open it.
 const boxesOpened = new Set();
 let boxesY = 0, boxesClick = 0;
+function boxFromExport(box) {
+  if (box.dataset.keys) return false;
+  let el = box.closest(".pb"), video = null;
+  while (!video && (el = el?.previousElementSibling)) video = el.querySelector(".gc-x video");
+  const key = video?.getAttribute("src").match(/([^/?]+)\.(?:webm|mov)/)?.[1];
+  if (key) box.querySelector(".unbox-gift").src = `/gift-catalog/assets/thumbs/${key}.webp`;
+  return !!key;
+}
 function setupScrollBoxes() {
   document.querySelectorAll(".unbox[data-auto]").forEach((box) => {
-    pickBoxGift(box.querySelector(".unbox-gift"), box.dataset.keys ? box.dataset.keys.split(",") : []);
+    boxFromExport(box) || pickBoxGift(box.querySelector(".unbox-gift"), box.dataset.keys ? box.dataset.keys.split(",") : []);
     box.setAttribute("aria-label", lang !== "en" ? "Открыть подарок" : "Open the gift");
     if (EDITOR) return;
     setupUnbox(box);
@@ -1130,7 +1140,7 @@ function scrollBoxes() {
     if (boxesOpened.has(box.dataset.auto) || EDITOR) return;
     if (r.top > innerHeight || r.bottom <= 0) { box._seen = 0; return; }
     box._seen ||= now; // it has had time to appear (.reveal) before it opens
-    if (!down || now - box._seen < 700 || now - boxesClick < 1500 || r.top + r.height / 2 > innerHeight * .62) return;
+    if (!down || now - box._seen < 700 || now - boxesClick < 1500 || r.top + r.height / 2 > innerHeight * .52) return;
     if (!window.Gifts || document.body.classList.contains("locked") || !box.querySelector(".unbox-gift").getAttribute("src")) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     document.body.classList.add("locked");

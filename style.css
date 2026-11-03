@@ -111,10 +111,10 @@ html.agent body > :not(.top, #agentView, script) { display: none !important; }
   transition: transform 1.05s cubic-bezier(.34, .9, .4, 1);
 }
 .unbox .guest-cursor { position: absolute; z-index: 5; }
-/* Та же коробка блоком на странице проекта (тип unbox): закрыта сразу, открывается прокруткой (setupScrollBoxes в app.js).
+/* Та же коробка блоком на странице проекта (тип unbox): целый экран, посередине только коробка; закрыта сразу, открывается прокруткой (setupScrollBoxes в app.js).
    z-index — подарок и крышка вылетают из блока поверх соседних. */
 .pb-unbox { position: relative; z-index: 2; }
-.pb-box { display: flex; justify-content: center; padding-bottom: clamp(16px, 3vw, 40px); }
+.pb-box { display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100svh; }
 .pb-box .unbox { margin: 0; }
 
 .stats {

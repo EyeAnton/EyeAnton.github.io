@@ -244,6 +244,7 @@ main { overflow-x: clip; } /* 100vw of the full-bleed strip includes the scrollb
 .cs-blocks > .pb { grid-column: 1 / -1; min-width: 0; padding-top: clamp(64px, 9vw, 120px); }
 .cs-blocks > .pb.half { grid-column: span 1; }
 .cs-blocks > .pb.tight { padding-top: clamp(16px, 3vw, 40px); } /* no heading: continues the section above */
+.cs-blocks > .pb.tight.pb-unbox { padding-top: 0; } /* the box has a whole screen of its own */
 .cs-blocks > .pb:first-child { padding-top: 0; }
 @media (max-width: 760px) { .cs-blocks > .pb.half { grid-column: 1 / -1; } }
 .pb [data-f], .cs-hero [data-f] { white-space: pre-line; }
