@@ -8,31 +8,29 @@
   <link rel="stylesheet" href="../design-system.css">
   <style>
     html, body { width: 1200px; height: 630px; overflow: hidden; }
-    .og { position: relative; isolation: isolate; width: 1200px; height: 630px; padding: 56px 64px; display: flex; flex-direction: column; }
-        .og .aurora { -webkit-mask-image: none; mask-image: none; }
-    .og-top { display: flex; align-items: center; justify-content: space-between; }
-    .og-logo { display: inline-flex; align-items: center; font: 500 30px/1 var(--font); letter-spacing: var(--track-snug); }
-    .og-logo span { color: var(--accent); }
-    .og-main { margin-top: auto; margin-bottom: 40px; }
-    .og h1 { margin: 18px 0 0; max-width: 21ch; font: 500 60px/1.05 var(--font); letter-spacing: var(--track-tight); }
-    .og .eyebrow { font-size: 18px; }
-    .og-tags { display: flex; gap: 12px; margin-top: 30px; }
-    .og-tags span { font: 400 20px/1 var(--font); padding: 13px 22px; border-radius: var(--pill); border: 1px solid rgba(255, 255, 255, .18); background: rgba(5, 10, 24, .55); }
-    .og-tags span:first-child { border-color: rgba(236, 47, 31, .7); color: var(--red-300); }
+    .og { position: relative; isolation: isolate; width: 1200px; height: 630px; padding: 36px 64px 52px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .og .aurora { -webkit-mask-image: none; mask-image: none; }
+    .og-logo { position: absolute; left: 56px; top: 48px; font: 500 30px/1 var(--font); letter-spacing: var(--track-snug); }
+    .og-url { position: absolute; right: 56px; top: 36px; }
+    .og-box { position: relative; width: 250px; height: 250px; margin-top: auto; }
+    .og-box img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .og-box .gift { inset: auto; left: 50%; top: -22%; width: 86%; height: auto; transform: translateX(-50%); }
+    .og .eyebrow { margin: 14px 0 0; font-size: 18px; }
+    .og h1 { margin: 16px 0 0; font: 500 62px/1.08 var(--font); letter-spacing: var(--track-tight); }
   </style>
 </head>
 <body>
   <div class="og">
     <div class="aurora" aria-hidden="true"></div>
-    <div class="og-top">
-      <span class="og-logo">EyeAnton</span>
-      <span class="btn ghost">eyeanton.github.io</span>
+    <span class="og-logo">EyeAnton</span>
+    <span class="btn ghost og-url">eyeanton.github.io</span>
+    <div class="og-box">
+      <img src="../assets/unbox/box_bottom.png" alt="">
+      <img class="gift" src="https://eyeanton.github.io/gift-catalog/assets/thumbs/sep__diamond_3d.webp" alt="">
+      <img src="../assets/unbox/box_hole.png" alt="">
     </div>
-    <div class="og-main">
-      <p class="eyebrow">Антон Егоров · AI Creative Technologist</p>
-      <h1>Превращаю AI-генерацию в масштабируемый продакшен</h1>
-      <div class="og-tags"><span>AI-генерация</span><span>Автоматизация</span><span>Motion &amp; 3D</span><span>Дизайн</span></div>
-    </div>
+    <p class="eyebrow">Антон Егоров · AI Creative Technologist</p>
+    <h1>Превращаю AI-генерацию<br>в масштабируемый продакшен</h1>
   </div>
 </body>
 </html>
