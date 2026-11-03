@@ -412,16 +412,8 @@
             },
             {
               "t": {
-                "ru": "Нормализуется звук",
-                "en": "Normalising sound"
-              },
-              "fmt": "",
-              "name": ""
-            },
-            {
-              "t": {
-                "ru": "Кодируется MP3",
-                "en": "Encoding MP3"
+                "ru": "Нормализация звука и кодирование MP3",
+                "en": "Normalising sound and encoding MP3"
               },
               "fmt": "MP3",
               "name": "sound.mp3"

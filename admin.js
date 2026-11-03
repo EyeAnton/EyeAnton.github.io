@@ -758,6 +758,7 @@
     export: { name: "Экспорт: анимация", hint: "Видео → файл → скрипт → прогресс-бары → папка", group: "Как в Virtual Gifts",
       blank: () => ({ ...head(), src: "", mov: "", source: "MOV", ...items("export", 4)(), pack: loc("Упаковка в папку и нейминг", "Packing into a folder and naming"), folder: "" }),
       fields: [["src", "Видео предпросмотра (адрес)", "text"], ["mov", "Видео с прозрачностью для Safari (.mov)", "text"], ["source", "Формат исходного файла", "text"],
+        ["keys", "Какие подарки сменяются после первого (по порядку)", "gifts:all|любые с видео и звуком, вперемешку"],
         ["items", "Шаги скрипта", "list:export"], ["pack", "Последний шаг", "loc"], ["folder", "Папка", "text"]] },
     list2: { name: "Итоги в две колонки", hint: "Крупный пункт + пояснение", group: "Как в Virtual Gifts",
       blank: () => ({ ...head("Результат", "Result"), ...items("results", 4)() }), fields: [["items", "Итоги", "list:results"]] },
