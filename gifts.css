@@ -291,25 +291,25 @@ body.locked { overflow: hidden; }
 .gc-x-row.run .gc-x-bar i { width: 100%; transition: width 1.1s linear; }
 .gc-x-row.last.run .gc-x-bar i { transition-duration: 1.45s; }
 .gc-x-row.ok .gc-x-bar i { width: 100%; }
-.gc-x-row.last.ok .gc-x-bar i { background: var(--grad-fill); }
-.gc-x-out { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px dashed transparent; border-radius: var(--radius); transition: border-color .4s, background .4s; }
-.gc-x.packed .gc-x-out { border: 1px solid var(--blue-400); background: var(--ink-2); }
-.gc-x-folder { opacity: 0; font-size: 13px; color: var(--blue-300); transition: opacity .4s; }
-.gc-x-tile { display: flex; align-items: center; gap: 10px; min-width: 0; opacity: 0; scale: .7; transition: opacity .3s, scale .3s; }
-.gc-x-tile.on { opacity: 1; scale: 1; }
-.gc-x-tile .gc-file { flex: none; width: 36px; padding-bottom: 5px; }
+/* the files appear over an empty place; the last bar brings the folder and they drop inside, small */
+.gc-x-out { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.gc-x-dir { position: relative; width: min(100%, 190px); aspect-ratio: 19 / 13; margin-top: 16px; display: grid; place-items: center; }
+.gc-x-dir::before { content: ""; position: absolute; inset: 0; border-radius: 4px 12px 12px; background: var(--blue-700); border: 1px solid var(--blue-400); opacity: 0; scale: .8; transition: opacity .4s, scale .4s cubic-bezier(.3, 1.4, .5, 1); }
+.gc-x-dir::after { content: ""; position: absolute; left: 0; bottom: 100%; width: 42%; height: 13px; margin-bottom: -1px; border-radius: 8px 8px 0 0; background: var(--blue-700); border: 1px solid var(--blue-400); border-bottom: 0; opacity: 0; transition: opacity .4s; }
+.gc-x.packed .gc-x-dir::before { opacity: 1; scale: 1; }
+.gc-x.packed .gc-x-dir::after { opacity: 1; }
+.gc-x-tiles { position: relative; z-index: 1; display: flex; justify-content: center; gap: 8px; }
+.gc-x-tile { opacity: 0; scale: .7; translate: calc(var(--o) * 22px) 0; transition: opacity .3s, scale .3s; }
+.gc-x-tile.on { opacity: 1; scale: 1.5; }
+.gc-x.packed .gc-x-tile { scale: 1; translate: 0 0; transition: scale .55s cubic-bezier(.5, 0, .3, 1), translate .55s cubic-bezier(.5, 0, .3, 1); }
+.gc-x-tile .gc-file { width: 34px; padding-bottom: 5px; }
 .gc-x-tile .gc-file em { font-size: 7px; }
-.gc-x-tile code { font-size: 12px; overflow-wrap: anywhere; opacity: 0; transition: opacity .4s; }
-.gc-x.packed :is(.gc-x-folder, .gc-x-tile code) { opacity: 1; }
-.gc-x-again { position: absolute; right: 0; bottom: -44px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--muted); font-size: 16px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s, color .2s; }
-.gc-x.done .gc-x-again { opacity: 1; pointer-events: auto; }
-.gc-x-again:hover { color: var(--white); }
-.editing .gc-x-again { display: none; }
+.gc-x-folder { opacity: 0; font-size: 13px; color: var(--blue-300); transition: opacity .4s; }
+.gc-x.packed .gc-x-folder { opacity: 1; }
 @media (max-width: 760px) {
   .gc-x { grid-template-columns: 1fr; justify-items: center; }
   .gc-x-src { width: min(220px, 70%); }
   .gc-x-bars, .gc-x-out { width: 100%; }
-  .gc-x-again { bottom: -40px; }
 }
 
 /* ---------- chain: a story as an equation (frame + prompt = video) ---------- */

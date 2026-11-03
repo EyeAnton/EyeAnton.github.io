@@ -317,15 +317,14 @@ const BLOCK_HTML = {
     let tile = -1;
     const files = (b.items || []).filter((it) => it.fmt);
     const row = (t, path, attrs, cls = "") => `<div class="gc-x-row${cls}"${attrs}>${fld(b, path, "b", "Шаг")}<div class="gc-x-bar"><i></i></div></div>`;
-    return `<div class="gc-x">
+    return `<div class="gc-x" data-keys="${esc((b.keys || []).join(","))}">
       <div class="gc-x-src">
         <div class="gc-x-preview">${b.src ? `<video muted loop playsinline preload="auto" src="${esc(imgSrc(SAFARI && b.mov ? b.mov : b.src))}"></video>` : empty("Укажите видео")}</div>
         <div class="gc-x-mov"><span class="gc-file"><em>${esc(b.source || "MOV")}</em></span></div>
       </div>
       <div class="gc-x-script" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 8 4 4-4 4M12 17h6"/></svg></div>
       <div class="gc-x-bars">${(b.items || []).map((it, i) => row(it.t, `items.${i}.t`, it.fmt ? ` data-tile="${++tile}"` : "")).join("")}${row(b.pack, "pack", "", " last")}</div>
-      <div class="gc-x-out"><code class="gc-x-folder">${esc(b.folder || "")}</code>${files.map((it) => `<div class="gc-x-tile"><span class="gc-file"><em>${esc(it.fmt)}</em></span><code>${esc(it.name || "")}</code></div>`).join("")}</div>
-      <button class="gc-x-again" type="button" aria-label="${lang === "ru" ? "Запустить ещё раз" : "Run again"}" title="${lang === "ru" ? "Запустить ещё раз" : "Run again"}">↻</button>
+      <div class="gc-x-out"><div class="gc-x-dir"><div class="gc-x-tiles">${files.map((it, i) => `<div class="gc-x-tile" style="--o:${i - (files.length - 1) / 2}" title="${esc(it.name || "")}"><span class="gc-file"><em>${esc(it.fmt)}</em></span></div>`).join("")}</div></div><code class="gc-x-folder">${esc(b.folder || "")}</code></div>
     </div>`;
   },
   list2: (b) => `<ul class="gc-results">${each(b, (it, i, p) =>
@@ -751,8 +750,9 @@ document.addEventListener("timeupdate", (e) => {
 }, true);
 
 /* ---------------- export animation (block export) ---------------- */
-// Preview → shrinks into a file → the file goes into the script → bars one by one, files appear → the last bar packs and names them.
-// Stays on the final picture; «↻» runs it again. In the editor and with reduced motion: the final picture right away.
+// Preview → shrinks into a file → the file goes into the script → bars one by one, files appear → the last bar packs them into the folder.
+// 5 s later it repeats with the next gift (block field keys; empty — any gift with video and sound); off screen it waits until it is back.
+// In the editor and with reduced motion: the final picture right away.
 const xWait = (ms) => new Promise((r) => setTimeout(r, ms));
 async function runExport(x) {
   const run = (x._run = (x._run || 0) + 1), live = () => x._run === run;
@@ -761,7 +761,7 @@ async function runExport(x) {
   x.classList.remove("done", "packed", "shrink", "running");
   rows.forEach((r) => r.classList.remove("run", "ok"));
   tiles.forEach((t) => t.classList.remove("on"));
-  video.currentTime = 0;
+  if (video.readyState) video.currentTime = 0;
   video.play().catch(() => {});
   await xWait(2400); if (!live()) return;
   x.classList.add("shrink");
@@ -788,11 +788,34 @@ async function runExport(x) {
   }
   x.classList.remove("running");
   x.classList.add("done");
+  await xWait(5000); if (!live()) return;
+  const gift = await xNextGift(x); if (!live()) return;
+  if (gift) {
+    video.src = imgSrc(`/gift-catalog/${SAFARI ? gift.full_mov_safari : gift.full_webm}`);
+    x.querySelector(".gc-x-folder").textContent = `${gift.id.replace(/_3d$/, "")}/`;
+  }
+  if (x._seen) runExport(x); else x._wait = true;
+}
+// gifts in turn, without the one already in the block; if the list fails to load, that one just repeats
+async function xNextGift(x) {
+  x._gifts ||= fetch("/gift-catalog/gifts.json").then((r) => r.json()).then((d) => {
+    const keys = x.dataset.keys ? x.dataset.keys.split(",") : [];
+    const ok = d.items.filter((g) => g.full_webm && g.sound);
+    const list = keys.length ? keys.map((k) => ok.find((g) => g.key === k)).filter(Boolean)
+      : ok.map((g) => [Math.random(), g]).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
+    const cur = x.querySelector("video").currentSrc;
+    return list.filter((g) => !cur.includes(g.key));
+  }).catch(() => []);
+  const list = await x._gifts;
+  if (!list.length) return null;
+  x._giftAt = (x._giftAt ?? -1) + 1;
+  return list[x._giftAt % list.length];
 }
 const xView = "IntersectionObserver" in window ? new IntersectionObserver((es) => es.forEach((e) => {
+  const x = e.target;
+  x._seen = e.isIntersecting;
   if (!e.isIntersecting) return;
-  xView.unobserve(e.target);
-  runExport(e.target);
+  if (!x._started || x._wait) { x._started = true; x._wait = false; runExport(x); }
 }), { threshold: .45 }) : null;
 function setupExports() {
   document.querySelectorAll(".gc-x").forEach((x) => {
@@ -803,7 +826,6 @@ function setupExports() {
       x.querySelectorAll(".gc-x-tile").forEach((t) => t.classList.add("on"));
     };
     if (EDITOR || !xView || matchMedia("(prefers-reduced-motion: reduce)").matches) return final();
-    x.querySelector(".gc-x-again").addEventListener("click", () => runExport(x));
     xView.observe(x);
   });
 }
