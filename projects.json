@@ -334,7 +334,7 @@
             {
               "op": "→",
               "label": {
-                "ru": "After Effects: финал визуала и звук",
+                "ru": "After Effects: \nчистка и наложение звука",
                 "en": "After Effects: final visuals and sound"
               },
               "icon": "ae",
@@ -352,7 +352,7 @@
             "en": "See it live right away"
           },
           "text": {
-            "ru": "Я сделал инструмент для быстрого просмотра: подарок приходит в чат и играет на весь экран, на ноутбуке и на телефоне.",
+            "ru": "Я сделал инструмент для быстрого просмотра: \nанимация на весь экран на ноутбуке и на телефоне.",
             "en": "I built a tool for quick preview: the gift lands in a chat and plays full screen, on a laptop and on a phone."
           },
           "keys": [
@@ -433,7 +433,7 @@
             "en": "Transparency on every platform"
           },
           "text": {
-            "ru": "Самая неочевидная часть доставки: прозрачное видео браузеры понимают \nпо-разному. Для работы на всех устройтсвах нужны отдельные форматы.",
+            "ru": "Неочевидная техническая часть: \nдля работы на всех устройтсвах нужны отдельные форматы.",
             "en": "The least obvious part of delivery: browsers handle transparent video\ndifferently. Working on every device takes separate formats."
           },
           "items": [
@@ -508,7 +508,7 @@
           "visible": true,
           "anchor": "style",
           "title": {
-            "ru": "Один стиль на всю коллекцию",
+            "ru": "Один стиль\nна всю коллекцию",
             "en": "One style for the whole collection"
           },
           "text": {
@@ -560,7 +560,7 @@
             "en": "Send a gift"
           },
           "text": {
-            "ru": "Нажмите на любой — он придёт так, как его видит получатель в чате. Анимированные подарки играют со звуком.",
+            "ru": "Нажмите на любой - он придёт так, как и в чате.\nАнимированные подарки играют со звуком.",
             "en": "Tap any of them — it arrives the way the recipient sees it in a chat. Animated gifts play with sound."
           }
         },
