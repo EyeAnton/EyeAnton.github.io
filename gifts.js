@@ -375,13 +375,13 @@ window.Gifts = (() => {
     if (!track) return;
     const secs = parseFloat(getComputedStyle(track).animationDuration) || 140; // one set per this many seconds
     track.style.animation = "none";
-    let x = 0, v = 0, set = 0, last = 0, drag = null, swallow = false, seen = true;
+    let x = 0, v = 0, set = 0, last = 0, drag = null, swallow = false, seen = true, wheelAt = -1e9;
     const measure = () => { set = (track.scrollWidth + (parseFloat(getComputedStyle(track).columnGap) || 0)) / 2; };
     const speed = () => (reducedMotion.matches ? 0 : set / secs);
     const tick = (now) => {
       const dt = Math.min((now - (last || now)) / 1000, 0.05);
       last = now;
-      if (!drag?.moved) {
+      if (!drag?.moved && now - wheelAt > 160) {
         v += (-speed() - v) * Math.min(1, dt * 1.6);
         x += v * dt;
       }
@@ -395,6 +395,16 @@ window.Gifts = (() => {
     new IntersectionObserver(([e]) => { seen = e.isIntersecting; }).observe($cloud);
     requestAnimationFrame(tick);
 
+    // a two-finger sideways swipe on a trackpad moves the strip (the system's own momentum carries it on),
+    // then it eases back into the drift; vertical swipes still scroll the page
+    $cloud.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault(); // and no browser back/forward swipe
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? $cloud.clientWidth : 1;
+      x -= e.deltaX * unit;
+      v = 0;
+      wheelAt = performance.now();
+    }, { passive: false });
     $cloud.addEventListener("dragstart", (e) => e.preventDefault()); // no ghost image when dragging with the mouse
     $cloud.addEventListener("pointerdown", (e) => {
       if (e.button) return;
@@ -466,10 +476,24 @@ window.Gifts = (() => {
   }
 
   // hover: the animation grows to the card's full height, the still and the name fade out; returns stop()
+  // Only one card previews at a time, and the state is re-checked against the real :hover (a scroll or a quick
+  // move can skip mouseleave), so the still always comes back once the cursor is gone.
+  let previewStop = null; // stop() of the card previewing now
+  addEventListener("scroll", () => requestAnimationFrame(() => previewStop?.(true)), { passive: true });
+  addEventListener("blur", () => previewStop?.());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) previewStop?.(); });
+  document.addEventListener("pointermove", (e) => {
+    if (previewStop && e.pointerType === "mouse" && !e.target.closest?.(".gc-card.hovered")) previewStop();
+  }, { passive: true });
+
   function hoverPreview(btn, gift) {
     let preview = null, audio = null;
     btn.addEventListener("mouseenter", () => {
       if (!canHover.matches || reducedMotion.matches || preview) return;
+      if (previewStop && previewStop !== stop) previewStop();
+      previewStop = stop;
+      btn.classList.add("hovered");
+      for (const old of btn.querySelectorAll(":scope > .preview")) old.remove(); // a fade-out left behind
       if (isWebKit) {
         preview = el("img", "preview gift-anim");
         preview.alt = "";
@@ -483,12 +507,16 @@ window.Gifts = (() => {
       }
       btn.append(preview);
     });
-    function stop() {
+    // check === true: stop only if the cursor really left (after a scroll)
+    function stop(check) {
+      if (check === true && btn.matches(":hover")) return;
+      if (previewStop === stop) previewStop = null;
+      btn.classList.remove("hovered", "previewing");
+      restoreStill(btn);
       if (!preview) return;
       const node = preview;
       preview = null;
       audio = sound.stop(audio);
-      btn.classList.remove("previewing");
       node.classList.remove("on");
       setTimeout(() => { if (node.pause) node.pause(); node.remove(); }, FADE_MS);
     }
@@ -500,6 +528,16 @@ window.Gifts = (() => {
       btn.classList.add("previewing");
     }
     return stop;
+  }
+
+  // no preview playing: the still must be there — mark it loaded, ask for it again if the browser dropped it
+  function restoreStill(btn) {
+    const media = btn.querySelector(".media"), img = media?.querySelector("img.still");
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { media.classList.add("loaded"); return; }
+    img.loading = "eager";
+    img.addEventListener("load", () => media.classList.add("loaded"), { once: true });
+    if (img.complete) { const src = img.src; img.removeAttribute("src"); img.src = src; } // broken: request again
   }
 
   /* ---------------- overlay ---------------- */
