@@ -1640,7 +1640,7 @@
       "links": {}
     },
     {
-      "visible": false,
+      "visible": true,
       "home": true,
       "id": "sticker-creator",
       "cat": "ai",
