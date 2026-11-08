@@ -66,7 +66,7 @@
           "en": "Case study · Motion & AI 3D"
         },
         "lead": {
-          "ru": "Коллекция анимированных 3D-подарков для соцприложения: от идеи и единого стиля до пакета, который разработчики выкладывают без ручной работы.",
+          "ru": "Коллекция анимированных 3D подарков: \nот анализа продукта до автоматизаци процессов.",
           "en": "A collection of animated 3D gifts for a social app: from the idea and one shared style to a package developers ship with no manual work."
         },
         "accent": "Gifts",
@@ -112,7 +112,7 @@
             "en": "A gift is an emotion that lands in a chat"
           },
           "text": {
-            "ru": "Пользователи хотят выразить весь спектр своих чувств - \nот \"приятно познакомиться\" до \"ты любовь моей жизни\" ",
+            "ru": "Пользователи хотят выразить весь спектр чувств: \nот \"приятно познакомиться\" до \"ты - любовь моей жизни\".",
             "en": "A dating app needs a choice of gifts for a wide range of contexts: holidays, confessions of love and just because."
           },
           "items": []
@@ -190,10 +190,6 @@
           "title": {
             "ru": "Идея и сториборд",
             "en": "Idea & storyboard"
-          },
-          "text": {
-            "ru": "",
-            "en": ""
           },
           "items": [
             {
@@ -1640,7 +1636,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "home": true,
       "id": "sticker-creator",
       "cat": "ai",
