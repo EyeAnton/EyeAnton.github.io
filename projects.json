@@ -1636,7 +1636,7 @@
       "links": {}
     },
     {
-      "visible": true,
+      "visible": false,
       "home": true,
       "id": "sticker-creator",
       "cat": "ai",
