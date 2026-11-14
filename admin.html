@@ -226,6 +226,13 @@
 
     <!-- App -->
     <section id="app" hidden>
+      <!-- Token for the sticker-creator-v2 repo (private). Stored in Firebase under portfolioAdmin/stickerV2Token (covered by firebase-rules.json) -->
+      <details class="stack" id="stickerTokenSetup" style="margin-bottom:18px">
+        <summary>Токен генератора v2 (репо sticker-creator-v2)</summary>
+        <p class="sub" style="margin:8px 0">Нужен для редактора генератора. Хранится в Firebase, в открытом виде нигде не сохраняется.</p>
+        <label class="f">Токен генератора v2<input type="password" id="stickerToken" autocomplete="off" placeholder="github_pat_…"></label>
+        <div><button class="btn ghost" id="stickerTokenBtn" type="button">Сохранить токен генератора</button> <span class="hint" id="stickerTokenStatus"></span></div>
+      </details>
       <div class="modes" id="modes" role="tablist">
         <button class="chip" type="button" role="tab" data-mode="projects" aria-selected="true">Проекты</button>
         <button class="chip" type="button" role="tab" data-mode="site" aria-selected="false">Страницы</button>

@@ -24,6 +24,7 @@
   };
   const FB = "https://www.gstatic.com/firebasejs/10.12.0/";
   const TOKEN_PATH = "portfolioAdmin/githubToken";
+  const STICKER_TOKEN_PATH = "portfolioAdmin/stickerV2Token"; // token of the private sticker-creator-v2 repo
 
   const q = (s) => document.querySelector(s);
   const h = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -169,6 +170,20 @@
     }
   });
   q("#token").addEventListener("keydown", (e) => { if (e.key === "Enter") q("#tokenBtn").click(); });
+
+  // Token for the private sticker-creator-v2 repo: same Firebase storage, separate key, never written to git.
+  q("#stickerTokenBtn").addEventListener("click", async () => {
+    const t = q("#stickerToken").value.trim();
+    const st = q("#stickerTokenStatus");
+    if (!t || !fb) return;
+    try {
+      await fb.D.set(fb.D.ref(fb.db, STICKER_TOKEN_PATH), t);
+      q("#stickerToken").value = "";
+      st.textContent = "сохранён";
+    } catch (e) {
+      st.textContent = `не сохранён: ${e.message}`;
+    }
+  });
   q("#logout").addEventListener("click", async (e) => {
     e.preventDefault();
     if (isDirty() && !confirm("Есть неопубликованные изменения. Выйти без сохранения?")) return;
