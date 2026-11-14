@@ -1,7 +1,16 @@
 # Портфолио eyeanton.github.io — карта проекта
 
 Сверяйся с этой картой и правь точечно (Grep → Edit). Не перечитывай файлы целиком без нужды.
+**Где что объявлено** (функции, константы, разделы CSS, id в HTML, типы блоков) — `MAP.md`: сначала `grep -n "имя" MAP.md`, потом узкий Read по номеру строки. Перегенерация после правок структуры: `python3 tools/mkmap.py`.
+**Проверка перед PR**: `python3 tools/check.py` (синтаксис JS, JSON, типы блоков есть и в админке, и в `app.js`, повторные id, отсутствующие `assets/…`) и `python3 tools/smoke.py` (главная, проекты, кейсы рендерятся в headless Chrome; «не найден» — ошибка, кроме скрытых проектов).
 Статика без сборки, GitHub Pages с `main`. Работа: ветка → PR → слить самому (`gh pr merge --squash`) → проверить сайт curl'ом.
+
+## Как правки попадают на сайт (не выяснять заново)
+- **Админка (`admin.html`) → GitHub Contents API → репо `EyeAnton/EyeAnton.github.io`, ветка `main`** (константы `REPO`, `BRANCH` в `admin.js`, строки 9–10). Запись — `gh()`/`putFile`: GET sha → PUT с `sha`, при 409 — перечитать и повторить. Токен — GitHub fine-grained из Firebase-входа (владелец `OWNER` в admin.js); доступ только к этому репо.
+- Публикация из админки = коммит в `main` → Pages выкладывает сам, ручного деплоя нет. Картинки уходят в `assets/shots/` при «Опубликовать», неиспользуемые удаляются.
+- Тексты, попавшие в HTML, — только через `tools/bake.py` (см. «Тексты в HTML»); после правок js/css — тоже bake.py.
+- Ветки/PR нужны для правок Claude (не для админки): ветка → PR → merge → curl проверки сайта.
+- **Генератор стикеров v2** (`?promo=eye`, сайт https://sticker-creator-v2-site.leritosha.workers.dev) — **не в этом репо и не в админке**. Исходники: приватный `EyeAnton/sticker-creator-v2` (`index.html`, `js/i18n.js`, `css/`, `js/`). Выкладка вручную: `wrangler deploy --name sticker-creator-v2-site --assets <папка с index.html assets css js> --compatibility-date 2026-10-01` (STATUS.md репо v2). Тексты RU — в `index.html` (`data-tr`), EN — словарь в `js/i18n.js`. Правка из админки портфолио потребует: (1) доступ токена админки к приватному репо v2, (2) данные страницы в файле репо v2 (`texts.json`/блоки), (3) деплой wrangler после коммита. Статус: не реализовано.
 
 ## Где что лежит
 | Что | Файл |
