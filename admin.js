@@ -1732,11 +1732,114 @@
     if (b) restoreVersion(b.dataset.restore);
   });
 
+  /* ---------- Генератор v2: тексты из content/page.json (репо sticker-creator-v2, приватный) ---------- */
+  const STK_REPO = "EyeAnton/sticker-creator-v2";
+  const STK_FILE = "content/page.json";
+  let stkToken = "", stkSha = "", stkData = null;
+  const stkEdits = new Map(); // "key|lang" -> new text
+
+  async function stkApi(path, opts = {}) {
+    const r = await fetch(`https://api.github.com/repos/${STK_REPO}${path}`, {
+      ...opts,
+      cache: "no-store",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${stkToken}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(opts.body ? { "Content-Type": "application/json" } : {}),
+      },
+    });
+    if (!r.ok) {
+      let msg = `${r.status}`;
+      try { msg += " " + (await r.json()).message; } catch {}
+      throw Object.assign(new Error(msg), { status: r.status });
+    }
+    return r.json();
+  }
+
+  async function stkLoad() {
+    q("#stkStatus").textContent = "Загружаю…";
+    try {
+      if (!stkToken) {
+        const snap = await fb.D.get(fb.D.ref(fb.db, STICKER_TOKEN_PATH));
+        if (!snap.exists()) { q("#stkStatus").textContent = "Сначала сохраните токен генератора (блок «Токен генератора v2» в начале админки)."; return; }
+        stkToken = String(snap.val()).trim();
+      }
+      const r = await stkApi(`/contents/${STK_FILE}?ref=main`);
+      stkSha = r.sha;
+      stkData = JSON.parse(b64ToUtf8(r.content));
+      stkEdits.clear();
+      stkRender();
+      q("#stkStatus").textContent = `${Object.keys(stkData.texts).length} строк. Изменения пока только в этой вкладке.`;
+    } catch (e) {
+      q("#stkStatus").textContent = `Не загрузилось: ${e.message}`;
+    }
+  }
+
+  function stkRender() {
+    const groups = {};
+    for (const [k, v] of Object.entries(stkData.texts)) (groups[k.split(".")[0]] ||= []).push([k, v]);
+    q("#stkList").innerHTML = Object.entries(groups).map(([g, items]) =>
+      `<details open><summary><b>${h(g)}</b> · ${items.length}</summary>${items.map(([k, v]) => `<div class="stk-row">
+        <code>${h(k)}</code>
+        <label class="f">RU<textarea rows="2" data-stk="${h(k)}" data-lang="ru">${h(v.ru)}</textarea></label>
+        <label class="f">EN<textarea rows="2" data-stk="${h(k)}" data-lang="en">${h(v.en)}</textarea></label>
+      </div>`).join("")}</details>`).join("");
+    q("#stkSave").disabled = true;
+  }
+
+  q("#stkList").addEventListener("input", (e) => {
+    const t = e.target.closest("textarea[data-stk]");
+    if (!t) return;
+    const orig = stkData.texts[t.dataset.stk][t.dataset.lang];
+    const key = `${t.dataset.stk}|${t.dataset.lang}`;
+    if (t.value === orig) stkEdits.delete(key); else stkEdits.set(key, t.value);
+    q("#stkSave").disabled = stkEdits.size === 0;
+    q("#stkStatus").textContent = `Не сохранено: ${stkEdits.size}`;
+  });
+
+  q("#stkReload").addEventListener("click", () => {
+    if (stkEdits.size && !confirm("Несохранённые правки будут потеряны. Перечитать?")) return;
+    stkLoad();
+  });
+
+  q("#stkSave").addEventListener("click", async () => {
+    if (!stkEdits.size) return;
+    const btn = q("#stkSave");
+    btn.disabled = true;
+    try {
+      const next = JSON.parse(JSON.stringify(stkData));
+      for (const [key, val] of stkEdits) {
+        const [k, lang] = key.split("|");
+        next.texts[k][lang] = val;
+      }
+      const body = JSON.stringify({
+        message: `Admin: texts of sticker-creator-v2 (${stkEdits.size} edits)`,
+        content: utf8ToB64(JSON.stringify(next, null, 2) + "\n"),
+        sha: stkSha,
+        branch: "main",
+      });
+      const res = await stkApi(`/contents/${STK_FILE}`, { method: "PUT", body });
+      stkSha = res.content.sha;
+      stkData = next;
+      stkEdits.clear();
+      stkRender();
+      q("#stkStatus").textContent = "Сохранено в репо. Чтобы обновить сайт, запустите «Deploy v2».";
+    } catch (e) {
+      q("#stkStatus").textContent = e.status === 409
+        ? "Файл изменился в репо — нажмите «Перечитать» и внесите правки заново."
+        : `Не сохранилось: ${e.message}`;
+      btn.disabled = false;
+    }
+  });
+
   function setMode(mode) {
     q("#modes").querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-selected", x.dataset.mode === mode));
     q("#projectsMode").hidden = mode !== "projects";
     q("#siteMode").hidden = mode !== "site";
     q("#historyMode").hidden = mode !== "history";
+    q("#stickerMode").hidden = mode !== "sticker";
+    if (mode === "sticker" && !stkData) stkLoad();
     if (mode === "history" && !history) loadHistory();
     q(".adm").classList.toggle("wide", mode === "site");
     if (mode === "site") { // also picks up unsaved project edits (featured projects, covers)
