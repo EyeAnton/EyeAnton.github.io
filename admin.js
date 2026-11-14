@@ -1782,8 +1782,8 @@
     q("#stkList").innerHTML = Object.entries(groups).map(([g, items]) =>
       `<details open><summary><b>${h(g)}</b> · ${items.length}</summary>${items.map(([k, v]) => `<div class="stk-row">
         <code>${h(k)}</code>
-        <label class="f">RU<textarea rows="2" data-stk="${h(k)}" data-lang="ru">${h(v.ru)}</textarea></label>
-        <label class="f">EN<textarea rows="2" data-stk="${h(k)}" data-lang="en">${h(v.en)}</textarea></label>
+        <label class="f">RU<textarea rows="2" data-stk="${h(k)}" data-lang="ru">${h(stkEdits.get(`${k}|ru`) ?? v.ru)}</textarea></label>
+        <label class="f">EN<textarea rows="2" data-stk="${h(k)}" data-lang="en">${h(stkEdits.get(`${k}|en`) ?? v.en)}</textarea></label>
       </div>`).join("")}</details>`).join("");
     q("#stkSave").disabled = true;
   }
@@ -1801,6 +1801,46 @@
   q("#stkReload").addEventListener("click", () => {
     if (stkEdits.size && !confirm("Несохранённые правки будут потеряны. Перечитать?")) return;
     stkLoad();
+  });
+
+  /* Режим «На странице»: страница генератора во фрейме с ?edit=1 шлёт sc-edit при правке текста */
+  const STK_SITE = "https://sticker-creator-v2-site.leritosha.workers.dev";
+  let stkLang = "ru";
+  const stkFrameLoad = () => { q("#stkFrame").src = `${STK_SITE}/?edit=1&lang=${stkLang}`; };
+  const stkRefreshCount = () => {
+    q("#stkSave").disabled = stkEdits.size === 0;
+    q("#stkStatus").textContent = `Не сохранено: ${stkEdits.size}`;
+  };
+  function stkShowView(v) {
+    q("#stkList").hidden = v !== "list";
+    q("#stkPage").hidden = v !== "page";
+    q("#stkViewList").setAttribute("aria-pressed", v === "list");
+    q("#stkViewPage").setAttribute("aria-pressed", v === "page");
+    if (v === "page") stkFrameLoad();
+  }
+  q("#stkViewList").addEventListener("click", () => stkShowView("list"));
+  q("#stkViewPage").addEventListener("click", () => stkShowView("page"));
+  q("#stkLang").addEventListener("click", () => {
+    stkLang = stkLang === "ru" ? "en" : "ru";
+    q("#stkLang").textContent = stkLang.toUpperCase();
+    if (!q("#stkPage").hidden) stkFrameLoad();
+  });
+  window.addEventListener("message", (e) => {
+    if (e.origin !== STK_SITE || e.data?.type !== "sc-edit" || !stkData) return;
+    const { key, lang, value } = e.data;
+    const row = stkData.texts[key];
+    if (!row || (lang !== "ru" && lang !== "en") || typeof value !== "string") return;
+    const id = `${key}|${lang}`;
+    if (value === row[lang]) stkEdits.delete(id); else stkEdits.set(id, value);
+    stkRefreshCount();
+  });
+  q("#stkUndo").addEventListener("click", () => {
+    if (!stkEdits.size) return;
+    if (!confirm("Отменить все несохранённые правки?")) return;
+    stkEdits.clear();
+    stkRender();
+    q("#stkStatus").textContent = "Правки отменены.";
+    if (!q("#stkPage").hidden) stkFrameLoad();
   });
 
   q("#stkSave").addEventListener("click", async () => {
