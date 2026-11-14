@@ -281,11 +281,21 @@
       <div id="stickerMode" hidden>
         <p class="sub" style="margin:0 0 8px">Тексты страницы генератора (<b>sticker-creator-v2</b>, файл <code>content/page.json</code>). Правьте RU и EN, потом «Сохранить в репо». Сайт обновится после запуска «Deploy v2».</p>
         <div class="bar" style="margin-bottom:12px">
+          <button class="chip" id="stkViewList" type="button" aria-pressed="true">Список</button>
+          <button class="chip" id="stkViewPage" type="button" aria-pressed="false">На странице</button>
+          <button class="chip" id="stkLang" type="button">RU</button>
+        </div>
+        <div class="bar" style="margin-bottom:12px">
           <button class="btn" id="stkSave" type="button" disabled>Сохранить в репо</button>
+          <button class="btn ghost" id="stkUndo" type="button">Отменить правки</button>
           <button class="btn ghost" id="stkReload" type="button">Перечитать</button>
           <span class="hint" id="stkStatus"></span>
         </div>
         <div id="stkList"></div>
+        <div id="stkPage" hidden>
+          <p class="hint" style="margin:0 0 8px">Кликните по тексту на странице и правьте. Сохранение — кнопкой выше.</p>
+          <iframe id="stkFrame" title="Генератор v2" style="width:100%;height:72vh;border:1px solid #d0d7e2;border-radius:12px;background:#fff"></iframe>
+        </div>
       </div>
       <div id="historyMode" hidden>
         <p class="sub" style="margin:0 0 6px">Каждая публикация — точка, к которой можно вернуться: тексты, блоки, оформление, проекты и их картинки.
@@ -304,6 +314,6 @@
   </div>
 
   <script src="app.js?v=e3b1fe98"></script>
-  <script src="admin.js?v=4948ca92"></script>
+  <script src="admin.js?v=921511e1"></script>
 </body>
 </html>
