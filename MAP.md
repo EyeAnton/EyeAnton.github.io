@@ -260,8 +260,15 @@
   L1682 ADMIN_MSG
   L1683 renderHistory
   L1698 restoreVersion
-  L1735 setMode
-  L1748 renderSite
+  L1736 STK_REPO
+  L1737 STK_FILE
+  L1738 stkToken
+  L1739 stkEdits
+  L1741 stkApi
+  L1760 stkLoad
+  L1779 stkRender
+  L1836 setMode
+  L1851 renderSite
 - типы блоков (TYPES): hero, stats, areas, showcase, stack, exp, contact, general, text, facts, stats, cards, flow, code, strip, cast, pair, lineups, covers, vcovers, phones, results, image, gallery, video, quote, links, novel, points, specs, split, rail, chain, export, unbox, list2, lanes, gifts-showcase, gifts-process, gifts-catalog, next
 
 ## guest.js
@@ -335,4 +342,4 @@
 - id: baked-hidden@25, cvTop@34, lang@36, cvLinks@52, channels@56, areas@62, year@68
 
 ## admin.html
-- id: logout@199, login@208, googleBtn@211, loginStatus@212, tokenSetup@215, tokenWhy@216, token@222, tokenBtn@223, app@228, stickerTokenSetup@230, stickerToken@233, stickerTokenBtn@234, stickerTokenStatus@234, modes@236, projectsMode@242, items@245, addBtn@246, edit@248, siteMode@253, seTarget@256, seOpen@257, seBlocks@259, seFrameWrap@273, seFrame@273, sePanel@275, historyMode@280, hist@283, bar@288, status@289, reloadBtn@291, saveBtn@292
+- id: logout@199, login@208, googleBtn@211, loginStatus@212, tokenSetup@215, tokenWhy@216, token@222, tokenBtn@223, app@228, stickerTokenSetup@230, stickerToken@233, stickerTokenBtn@234, stickerTokenStatus@234, modes@236, projectsMode@243, items@246, addBtn@247, edit@249, siteMode@254, seTarget@257, seOpen@258, seBlocks@260, seFrameWrap@274, seFrame@274, sePanel@276, stickerMode@281, stkSave@284, stkReload@285, stkStatus@286, stkList@288, historyMode@290, hist@293, bar@298, status@299, reloadBtn@301, saveBtn@302

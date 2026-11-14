@@ -237,6 +237,7 @@
         <button class="chip" type="button" role="tab" data-mode="projects" aria-selected="true">Проекты</button>
         <button class="chip" type="button" role="tab" data-mode="site" aria-selected="false">Страницы</button>
         <button class="chip" type="button" role="tab" data-mode="history" aria-selected="false">История</button>
+        <button class="chip" type="button" role="tab" data-mode="sticker" aria-selected="false">Генератор v2</button>
       </div>
 
       <div id="projectsMode">
@@ -277,6 +278,15 @@
       </div>
 
       <!-- Published versions of the content (projects.json + site.json): any of them comes back as a draft -->
+      <div id="stickerMode" hidden>
+        <p class="sub" style="margin:0 0 8px">Тексты страницы генератора (<b>sticker-creator-v2</b>, файл <code>content/page.json</code>). Правьте RU и EN, потом «Сохранить в репо». Сайт обновится после запуска «Deploy v2».</p>
+        <div class="bar" style="margin-bottom:12px">
+          <button class="btn" id="stkSave" type="button" disabled>Сохранить в репо</button>
+          <button class="btn ghost" id="stkReload" type="button">Перечитать</button>
+          <span class="hint" id="stkStatus"></span>
+        </div>
+        <div id="stkList"></div>
+      </div>
       <div id="historyMode" hidden>
         <p class="sub" style="margin:0 0 6px">Каждая публикация — точка, к которой можно вернуться: тексты, блоки, оформление, проекты и их картинки.
           «Вернуть» загружает ту версию как черновик — посмотрите её во вкладке «Страницы», потом «Опубликовать» (или «Отменить изменения»).</p>
@@ -294,6 +304,6 @@
   </div>
 
   <script src="app.js?v=e3b1fe98"></script>
-  <script src="admin.js?v=5fa74801"></script>
+  <script src="admin.js?v=4948ca92"></script>
 </body>
 </html>
