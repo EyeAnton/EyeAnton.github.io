@@ -995,10 +995,22 @@
   // a project whose page is a separate hand-made site (links.page, e.g. /stasik-page/) and has no blocks:
   // the editor only shows that page as it is on the site
   const externalPage = (p) => (p && p.links.page && !p.page?.length ? p.links.page : "");
+  // страница генератора v2: правится так же, как блоки (клик по тексту), сохраняется в content/page.json
+  const isStkPage = (p) => externalPage(p).includes("sticker-creator-v2-site");
   function loadFrame() {
     const fr = q("#seFrame");
     const p = seProject();
     const ext = externalPage(p);
+    if (isStkPage(p)) {
+      if (!stkData) stkLoad();
+      if (fr.dataset.kind !== "stk") {
+        fr.dataset.kind = "stk";
+        frameLoaded = false;
+        fr.src = `${STK_SITE}/?edit=1&lang=${stkLang}`;
+      } else refreshFrame();
+      q("#seOpen").href = ext;
+      return;
+    }
     const kind = ext ? `ext:${ext}` : seTarget === "home" ? "home" : "project";
     if (fr.dataset.kind !== kind) {
       fr.dataset.kind = kind;
@@ -1062,6 +1074,11 @@
     if (seTarget !== "home" && !seProject()) { seTarget = "home"; seBlock = "hero"; } // the project was deleted
     renderTargets();
     const home = seTarget === "home";
+    if (isStkPage(seProject())) {
+      q("#seBlocks").innerHTML = `<div class="item on"><span></span><div style="min-width:0"><span class="c">тексты генератора</span>
+        <span class="t">Кликните на текст на странице</span></div><span></span></div>`;
+      return;
+    }
     if (externalPage(seProject())) {
       q("#seBlocks").innerHTML = `<div class="item on"><span></span><div style="min-width:0"><span class="c">только просмотр</span>
         <span class="t">Отдельная страница</span></div><span></span></div>`;
@@ -1367,6 +1384,17 @@
     const undo = seUndo && seUndo.target === seTarget
       ? `<div class="undo"><span>${seUndo.b ? `Блок «${h(blockLabel(seUndo.b))}» удалён` : seUndo.item ? "Пункт удалён" : "Текст удалён"}</span><button class="btn ghost small" type="button" data-undo>Вернуть</button></div>` : "";
 
+    if (isStkPage(seProject())) {
+      q("#sePanel").innerHTML = `<h2>Тексты генератора v2</h2>
+        <p class="hint">Правьте текст прямо на странице слева. Изменения копятся здесь, пока не нажмёте «Сохранить в репо».</p>
+        <div class="bar"><button class="btn" type="button" data-stk-save>Сохранить в репо</button>
+          <button class="btn ghost" type="button" data-stk-undo>Отменить правки</button></div>
+        <p class="hint" id="stkPanelStatus">${stkEdits.size ? `Не сохранено: ${stkEdits.size}` : ""}</p>
+        <p class="hint">После сохранения запустите «Deploy v2», чтобы обновить сайт.</p>`;
+      q("#sePanel [data-stk-save]").addEventListener("click", () => q("#stkSave").click());
+      q("#sePanel [data-stk-undo]").addEventListener("click", () => q("#stkUndo").click());
+      return;
+    }
     const ext = externalPage(seProject());
     if (ext) {
       q("#sePanel").innerHTML = `<h2>Отдельная страница</h2>
@@ -1810,6 +1838,8 @@
   const stkRefreshCount = () => {
     q("#stkSave").disabled = stkEdits.size === 0;
     q("#stkStatus").textContent = `Не сохранено: ${stkEdits.size}`;
+    const panel = q("#stkPanelStatus");
+    if (panel) panel.textContent = stkEdits.size ? `Не сохранено: ${stkEdits.size}` : "";
   };
   function stkShowView(v) {
     q("#stkList").hidden = v !== "list";
