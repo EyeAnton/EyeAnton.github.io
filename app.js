@@ -127,9 +127,9 @@ function linksHTML(p, onOwnPage) {
   const page = onOwnPage ? "" : pageURL(p);
   return [
     page && `<a class="btn" href="${esc(page)}">${esc(t.page)} →</a>`,
-    p.links.live && `<a class="btn" href="${p.links.live}" target="_blank" rel="noopener">${esc(t.live)} ↗</a>`,
-    PROFILE.showCode && p.links.code && `<a class="btn ghost" href="${p.links.code}" target="_blank" rel="noopener">${esc(t.code)}</a>`,
-    PROFILE.showCode && p.links.code2 && `<a class="btn ghost" href="${p.links.code2}" target="_blank" rel="noopener">${esc(t.code2)}</a>`,
+    p.links.live && `<a class="btn" href="${esc(p.links.live)}" target="_blank" rel="noopener">${esc(t.live)} ↗</a>`,
+    PROFILE.showCode && p.links.code && `<a class="btn ghost" href="${esc(p.links.code)}" target="_blank" rel="noopener">${esc(t.code)}</a>`,
+    PROFILE.showCode && p.links.code2 && `<a class="btn ghost" href="${esc(p.links.code2)}" target="_blank" rel="noopener">${esc(t.code2)}</a>`,
   ].filter(Boolean).join("");
 }
 

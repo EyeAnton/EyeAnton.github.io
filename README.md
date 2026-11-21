@@ -81,3 +81,30 @@ python3 -m http.server 8000   # http://localhost:8000
 
 Админка без входа для проверки правок: http://localhost:8000/admin.html?local — читает файлы с диска,
 публикация отключена (работает только на localhost).
+
+## Проверки (тесты)
+
+Из корня репо, перед каждым PR:
+
+```sh
+python3 tools/check.py   # синтаксис JS (node --check), JSON, типы блоков app.js ↔ admin.js, повторные id, отсутствующие assets/…
+python3 tools/smoke.py   # главная, проекты, контакты и кейсы рендерятся в headless Chrome (поднимает сервер на :8765)
+```
+
+Код выхода 0 — всё чисто. После правки js/css/текстов — `python3 tools/bake.py` (версии `?v=` к файлам,
+тексты в HTML, `llms.txt`), после правки структуры — `python3 tools/mkmap.py` (`MAP.md`).
+
+Зависимости: только `python3` (стандартная библиотека), `node` (для `--check`) и Google Chrome (smoke).
+`tools/cv_thumbs.py` — ещё `pymupdf`; `tools/og.ps1`, `tools/shot.ps1` — Windows/PowerShell.
+
+## Структура и потоки данных
+
+- Карта «что где лежит» и решения — `CLAUDE.md`; объявления по строкам — `MAP.md` (генерирует `tools/mkmap.py`).
+- Данные: `projects.json` (проекты и блоки страниц кейсов) + `site.json` (тексты, блоки главной, профиль) →
+  `app.js` рендерит страницу по `<body data-page>`. Медиа кейсов берутся из соседних Pages-репо
+  (`/gift-catalog/…`, `/emotions-club/…`, `/stasik-page/`), чат — из `/feedback-chat/`.
+- Запись: `admin.html` → вход Google (Firebase) → GitHub-токен → Contents API → коммит в `main` → GitHub Pages.
+
+## Статус
+
+Работает в проде, развивается через админку (контент) и PR (вёрстка, новые типы блоков).

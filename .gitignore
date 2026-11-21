@@ -1,1 +1,20 @@
 .claude/worktrees/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python caches (tools/*.py)
+__pycache__/
+*.pyc
+
+# secrets — never in this public repo (the admin token lives in Firebase, not in files)
+.env
+.env.*
+*.key
+.dev.vars
+
+# local intermediates (og.png → assets/og.jpg, see README)
+/og.png
